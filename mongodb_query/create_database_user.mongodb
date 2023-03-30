@@ -1,0 +1,16 @@
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+const database = 'xauth';
+
+// Create a new database.
+use(database);
+
+
+db.createUser({
+    user: 'xauth',
+    pwd: 'xauth',
+    roles: [
+        { role: 'readWrite', db: database }
+    ]
+})
