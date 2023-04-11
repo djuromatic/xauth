@@ -1,4 +1,4 @@
-import { PromptDetail, interactionPolicy } from "oidc-provider";
+import {  interactionPolicy } from "oidc-provider";
 
 function getInteractionPolicy() {
   const policy = interactionPolicy.base();

@@ -1,9 +1,11 @@
 import { Configuration, KoaContextWithOIDC } from "oidc-provider";
 import { getInteractionPolicy } from "../helpers/interaction-policy.js";
 import { getProviderClients } from "../helpers/provider-clients.js";
+import Account from "../support/account.js";
 
 export const oidcConfig: Configuration = {
   clients: getProviderClients(),
+  findAccount: Account.findAccount,
   interactions: {
     url(ctx: KoaContextWithOIDC, interaction: any) {
       // cannot import Interaction that is why I am using any
@@ -41,7 +43,7 @@ export const oidcConfig: Configuration = {
     ],
   },
   features: {
-    devInteractions: { enabled: true }, // defaults to true
+    devInteractions: { enabled: false }, // defaults to true
   },
   jwks: {
     keys: [

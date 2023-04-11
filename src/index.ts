@@ -2,14 +2,38 @@ import express from "express";
 import Provider from "oidc-provider";
 import { oidcConfig } from "./config/oidc-config.js";
 import { serverConfig } from "./config/server-config.js";
+import https from "https";
+import fs from "fs";
+import path from "path";
+import fileDirName from "./helpers/file-dir-name.js";
+import interactionRouter from "./router/interaction.router.js";
+
 
 const app = express();
 
+const { __dirname } = fileDirName(import.meta);
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const provider = new Provider(serverConfig.oidc.issuer, oidcConfig).callback();
-app.use(provider);
+const provider = new Provider(serverConfig.oidc.issuer, oidcConfig)
 
-const server = app.listen(3000, () => {
+interactionRouter(app, provider);
+
+const oidc = provider.callback()
+app.use(oidc);
+
+
+
+
+const server = https.createServer({
+  key: fs.readFileSync(path.join(__dirname, "certs/xauth/key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, "certs/xauth/cert.pem")),
+},app)
+
+server.listen(3000, () => {
   console.log(`Server is running on port ${3000}`);
 });
+

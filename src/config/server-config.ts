@@ -9,7 +9,7 @@ const serverConfig = {
     dbPass: "xauth",
   },
   oidc: {
-    issuer: "http://localhost:3000",
+    issuer: "http://xauth.test:3000",
   },
 };
 
