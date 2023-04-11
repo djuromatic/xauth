@@ -13,7 +13,7 @@ const serverConfig: ServerConfig = {
   },
 };
 
-//interface ServerConfig 
+//interface ServerConfig
 export interface ServerConfig {
   serviceName: string;
   port: number;
