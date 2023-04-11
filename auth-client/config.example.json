@@ -1,0 +1,9 @@
+{
+  "issuer": "https://example.com",
+  "client_id": "fadsfsadfsafasf",
+  "audiance": "https://api.example.com",
+  "organization_login": false,
+  "organizationId": "org_fdsafsafiH",
+  "hostname": "bizzllet.test",
+  "port": 6001
+}
