@@ -6,9 +6,8 @@ import { Express } from 'express';
 
 import isEmpty from 'lodash/isEmpty.js';
 import { NextFunction, Request, Response, urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
-
-import Account from '../support/account.js';
 import Provider, { InteractionResults } from 'oidc-provider';
+import { findByEmail } from '../service/account.service.js';
 
 const body = urlencoded({ extended: false });
 
@@ -96,7 +95,9 @@ export default (app: Express, provider: Provider) => {
     try {
       const { prompt: { name } } = await provider.interactionDetails(req, res);
       assert.equal(name, 'login');
-      const account = await Account.findByLogin(req.body.login);
+      let account = await findByEmail(req.body.login);
+
+      //crypte password and compare with the one in the database
 
       const result = {
         login: {

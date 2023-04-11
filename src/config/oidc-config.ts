@@ -1,11 +1,11 @@
 import { Configuration, KoaContextWithOIDC } from "oidc-provider";
 import { getInteractionPolicy } from "../helpers/interaction-policy.js";
 import { getProviderClients } from "../helpers/provider-clients.js";
-import Account from "../support/account.js";
+import { findAccount } from "../service/account.service.js";
 
 export const oidcConfig: Configuration = {
   clients: getProviderClients(),
-  findAccount: Account.findAccount,
+  findAccount:findAccount,
   interactions: {
     url(ctx: KoaContextWithOIDC, interaction: any) {
       // cannot import Interaction that is why I am using any

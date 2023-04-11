@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import fileDirName from "./helpers/file-dir-name.js";
 import interactionRouter from "./router/interaction.router.js";
+import { createConnection } from "./database/mongoose.adapter.js";
 
 
 const app = express();
@@ -36,4 +37,6 @@ const server = https.createServer({
 server.listen(3000, () => {
   console.log(`Server is running on port ${3000}`);
 });
+
+createConnection(serverConfig);
 

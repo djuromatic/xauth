@@ -15,39 +15,46 @@ const grantable = new Set([
 ]);
 
 class CollectionSet extends Set<any> {
-  add(name: string): any {
-    const nu = this.has(name);
-    super.add(name);
-    if (!nu) {
-      DB.collection(name).createIndexes([
-        ...(grantable.has(name)
-          ? [{
-            key: { 'payload.grantId': 1 },
-          }] : []),
-        ...(name === 'device_code'
-          ? [{
-            key: { 'payload.userCode': 1 },
-            unique: true,
-          }] : []),
-        ...(name === 'session'
-          ? [{
-            key: { 'payload.uid': 1 },
-            unique: true,
-          }] : []),
-        {
-          key: { expiresAt: 1 },
-          expireAfterSeconds: 0,
-        },
-      ]).catch(console.error); // eslint-disable-line no-console
+     add(name: string): any {
+      const nu = this.has(name);
+      super.add(name);
+      if (!nu) {
+        try {
+           DB.collection(name).createIndexes([
+            ...(grantable.has(name)
+              ? [{
+                  key: { 'payload.grantId': 1 },
+                }]
+              : []),
+            ...(name === 'device_code'
+              ? [{
+                  key: { 'payload.userCode': 1 },
+                  unique: true,
+                }]
+              : []),
+            ...(name === 'session'
+              ? [{
+                  key: { 'payload.uid': 1 },
+                  unique: true,
+                }]
+              : []),
+            {
+              key: { expiresAt: 1 },
+              expireAfterSeconds: 0,
+            },
+          ]);
+        } catch (err) {
+          console.error('Error creating indexes:', err);
+        }
+      }
     }
   }
-}
 
 const collections = new CollectionSet();
 
 class MongoAdapter {
     name: string;
-  constructor(name: string) {
+    constructor(name: string) {
     this.name = snakeCase(name);
 
     // NOTE: you should never be creating indexes at runtime in production, the following is in
