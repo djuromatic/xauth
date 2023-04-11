@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "CommonJS",
+    "target": "ES2019",
+    "module": "ES6",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
     "outDir": "dist",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "importHelpers": true,
     "esModuleInterop": true,
     "moduleResolution": "node"
   },

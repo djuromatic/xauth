@@ -1,24 +1,15 @@
 import express from "express";
-import { createConnection } from "./database/connection";
-import { configurePassport } from "./config/";
-
-import { secrets } from "./config";
-
-import { configureLoginRouter, configureProfileRouter } from "./api/routes/";
+import Provider from "oidc-provider";
+import { oidcConfig } from "./config/oidc-config.js";
+import { serverConfig } from "./config/server-config.js";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const passport = configurePassport(app);
-configureLoginRouter(app, passport);
-configureProfileRouter(app, passport);
+const provider = new Provider(serverConfig.oidc.issuer, oidcConfig).callback();
+app.use(provider);
 
 const server = app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+  console.log(`Server is running on port ${3000}`);
 });
-
-createConnection(secrets)
-  .then(() => console.log(`connected to database ${secrets.mongo.db_name}`))
-  .catch((err) => console.error(err));
