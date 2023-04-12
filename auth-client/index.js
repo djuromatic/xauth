@@ -46,6 +46,7 @@ server.once("listening", () => {
     server.on("request", async (req, res) => {
       res.setHeader("connection", "close");
       const params = client.callbackParams(req);
+      console.log({ params });
       if (Object.keys(params).length) {
         const tokenSet = await client.callback(redirect_uri, params, {
           code_verifier,

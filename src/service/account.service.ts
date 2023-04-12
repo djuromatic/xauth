@@ -27,6 +27,7 @@ export const findAccount = async (
 };
 
 export const findByEmail = async (email: string): Promise<AccountDocument> => {
+  console.log(`findByEmail:${email}`);
   let account = await AccountDb.findOne({ "profile.email": email });
 
   if (!account) {

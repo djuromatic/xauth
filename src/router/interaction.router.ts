@@ -40,6 +40,7 @@ export default (app: Express, provider: Provider) => {
         });
       });
     };
+
     next();
   });
 
@@ -49,15 +50,44 @@ export default (app: Express, provider: Provider) => {
   }
 
   app.get(
+    "/signup",
+    async (req: Request, res: Response, next: NextFunction) => {
+      return res.render("signup", {
+        client: undefined,
+        uid: undefined,
+        details: {},
+        params: {},
+        title: "Sign-up",
+        session: undefined,
+        dbg: {
+          params: debug({}),
+          prompt: debug({}),
+        },
+      });
+    }
+  );
+
+  app.post(
+    "/signup",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { uid, prompt, params, session } =
+        await provider.interactionDetails(req, res);
+      console.log({ uid, prompt, params, session });
+
+      res.json({ ok: true });
+    }
+  );
+
+  app.get(
     "/interaction/:uid",
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { uid, prompt, params, session } =
           await provider.interactionDetails(req, res);
+        console.log({ uid, prompt, params, session });
 
         const client = await provider.Client.find(params.client_id as any);
-
         switch (prompt.name) {
           case "login": {
             return res.render("login", {
@@ -65,9 +95,9 @@ export default (app: Express, provider: Provider) => {
               uid,
               details: prompt.details,
               params,
+              google: true,
               title: "Sign-in",
               session: session ?? undefined,
-
               dbg: {
                 params: debug(params),
                 prompt: debug(prompt),
@@ -105,9 +135,11 @@ export default (app: Express, provider: Provider) => {
       try {
         const {
           prompt: { name },
+          params,
         } = await provider.interactionDetails(req, res);
         assert.equal(name, "login");
-        let account = await findByEmail(req.body.login);
+        console.log({ params, x: req.body });
+        let account = await findByEmail("a@gmail.com");
 
         const result = {
           login: {
