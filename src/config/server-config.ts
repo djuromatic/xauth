@@ -1,4 +1,4 @@
-const serverConfig = {
+const serverConfig: ServerConfig = {
   serviceName: "xauth",
   port: 3000,
   database: {
@@ -12,5 +12,21 @@ const serverConfig = {
     issuer: "http://xauth.test:3000",
   },
 };
+
+//interface ServerConfig
+export interface ServerConfig {
+  serviceName: string;
+  port: number;
+  database: {
+    host: string;
+    port: number;
+    dbName: string;
+    dbUser: string;
+    dbPass: string;
+  };
+  oidc: {
+    issuer: string;
+  };
+}
 
 export { serverConfig };
