@@ -28,6 +28,8 @@ const debug = (obj: any) =>
   );
 
 export default (app: Express, provider: Provider) => {
+  app.use("/interaction", urlencoded({ extended: true }));
+
   app.use((req: Request, res: Response, next: NextFunction) => {
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts

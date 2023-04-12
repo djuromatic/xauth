@@ -21,6 +21,7 @@ app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
+app.use("/interaction", express.urlencoded({ extended: true }));
 interactionRouter(app, provider);
 
 const oidc = provider.callback();
