@@ -17,7 +17,8 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+//! Throwing error that body is parsed upstream
+// app.use(express.urlencoded({ extended: true }));
 const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
 interactionRouter(app, provider);

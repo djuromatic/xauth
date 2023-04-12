@@ -9,8 +9,6 @@ import { NextFunction, Request, Response, urlencoded } from "express"; // eslint
 import Provider, { InteractionResults } from "oidc-provider";
 import { findByEmail } from "../service/account.service.js";
 
-const body = urlencoded({ extended: false });
-
 const keys = new Set();
 const debug = (obj: any) =>
   querystring.stringify(
@@ -103,7 +101,6 @@ export default (app: Express, provider: Provider) => {
   app.post(
     "/interaction/:uid/login",
     setNoCache,
-    body,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const {
@@ -111,8 +108,6 @@ export default (app: Express, provider: Provider) => {
         } = await provider.interactionDetails(req, res);
         assert.equal(name, "login");
         let account = await findByEmail(req.body.login);
-
-        //crypte password and compare with the one in the database
 
         const result = {
           login: {
@@ -132,7 +127,6 @@ export default (app: Express, provider: Provider) => {
   app.post(
     "/interaction/:uid/confirm",
     setNoCache,
-    body,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const interactionDetails = await provider.interactionDetails(req, res);
