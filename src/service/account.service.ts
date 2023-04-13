@@ -27,7 +27,6 @@ export const findAccount = async (
 };
 
 export const findByEmail = async (email: string): Promise<AccountDocument> => {
-  console.log(`findByEmail:${email}`);
   let account = await AccountDb.findOne({ "profile.email": email });
 
   if (!account) {
@@ -43,6 +42,22 @@ export const findByEmail = async (email: string): Promise<AccountDocument> => {
       },
     });
   }
+
+  return account;
+};
+
+export const create = async (email: string): Promise<AccountDocument> => {
+  const account = await AccountDb.create({
+    accountId: email,
+    profile: {
+      sub: email,
+      email: email,
+      email_verified: false,
+      family_name: "djuro",
+      given_name: "matic",
+      locale: "en",
+    },
+  });
 
   return account;
 };

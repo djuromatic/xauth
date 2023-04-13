@@ -7,7 +7,10 @@ import { Express } from "express";
 import isEmpty from "lodash/isEmpty.js";
 import { NextFunction, Request, Response, urlencoded } from "express"; // eslint-disable-line import/no-unresolved
 import Provider, { InteractionResults } from "oidc-provider";
-import { findByEmail } from "../service/account.service.js";
+import {
+  findByEmail,
+  create as createAccount,
+} from "../service/account.service.js";
 
 const keys = new Set();
 const debug = (obj: any) =>
@@ -33,6 +36,7 @@ export default (app: Express, provider: Provider) => {
   app.use((req: Request, res: Response, next: NextFunction) => {
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
+
     res.render = (view, locals) => {
       app.render(view, locals, (err: any, html: any) => {
         if (err) throw err;
@@ -52,35 +56,6 @@ export default (app: Express, provider: Provider) => {
   }
 
   app.get(
-    "/signup",
-    async (req: Request, res: Response, next: NextFunction) => {
-      return res.render("signup", {
-        client: undefined,
-        uid: undefined,
-        details: {},
-        params: {},
-        title: "Sign-up",
-        session: undefined,
-        dbg: {
-          params: debug({}),
-          prompt: debug({}),
-        },
-      });
-    }
-  );
-
-  app.post(
-    "/signup",
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { uid, prompt, params, session } =
-        await provider.interactionDetails(req, res);
-      console.log({ uid, prompt, params, session });
-
-      res.json({ ok: true });
-    }
-  );
-
-  app.get(
     "/interaction/:uid",
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
@@ -90,40 +65,96 @@ export default (app: Express, provider: Provider) => {
         console.log({ uid, prompt, params, session });
 
         const client = await provider.Client.find(params.client_id as any);
-        switch (prompt.name) {
-          case "login": {
-            return res.render("login", {
-              client,
-              uid,
-              details: prompt.details,
-              params,
-              google: true,
-              title: "Sign-in",
-              session: session ?? undefined,
-              dbg: {
-                params: debug(params),
-                prompt: debug(prompt),
-              },
-            });
-          }
-          case "consent": {
-            return res.render("interaction", {
-              client,
-              uid,
-              details: prompt.details,
-              params,
-              title: "Authorize",
 
-              session: session ? debug(session) : undefined,
-              dbg: {
-                params: debug(params),
-                prompt: debug(prompt),
-              },
-            });
-          }
-          default:
-            return undefined;
+        if (prompt.name === "consent") {
+          return res.render("interaction", {
+            client,
+            uid,
+            details: prompt.details,
+            params,
+            title: "Authorize",
+
+            session: session ? debug(session) : undefined,
+            dbg: {
+              params: debug(params),
+              prompt: debug(prompt),
+            },
+          });
         }
+
+        return res.render("landing", {
+          client,
+          uid,
+          details: prompt.details,
+          params,
+          google: true,
+          title: "Landing",
+          session: session ?? undefined,
+          dbg: {
+            params: debug(params),
+            prompt: debug(prompt),
+          },
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+
+  app.post(
+    "/interaction/:uid/login-init",
+    setNoCache,
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { uid, prompt, params, session } =
+          await provider.interactionDetails(req, res);
+        console.log({ uid, prompt, params, session });
+
+        const client = await provider.Client.find(params.client_id as any);
+
+        return res.render("login", {
+          client,
+          uid,
+          details: prompt.details,
+          params,
+          google: true,
+          title: "Sign-In",
+          session: session ?? undefined,
+          dbg: {
+            params: debug(params),
+            prompt: debug(prompt),
+          },
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+
+  app.post(
+    "/interaction/:uid/signup-init",
+    setNoCache,
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { uid, prompt, params, session } =
+          await provider.interactionDetails(req, res);
+        console.log({ uid, prompt, params, session });
+
+        const client = await provider.Client.find(params.client_id as any);
+
+        return res.render("signup", {
+          client,
+          uid,
+          details: prompt.details,
+          params,
+          google: true,
+          title: "Sign-Up",
+          session: session ?? undefined,
+          dbg: {
+            params: debug(params),
+            prompt: debug(prompt),
+          },
+        });
       } catch (err) {
         return next(err);
       }
@@ -139,9 +170,9 @@ export default (app: Express, provider: Provider) => {
           prompt: { name },
           params,
         } = await provider.interactionDetails(req, res);
-        assert.equal(name, "login");
+        // assert.equal(name, "login");
         console.log({ params, x: req.body });
-        let account = await findByEmail("a@gmail.com");
+        let account = await findByEmail(req.body.login);
 
         const result = {
           login: {
@@ -159,6 +190,26 @@ export default (app: Express, provider: Provider) => {
   );
 
   app.post(
+    "/interaction/:uid/signup",
+    setNoCache,
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const {
+          prompt: { name },
+          params,
+        } = await provider.interactionDetails(req, res);
+        console.log({ params, x: req.body });
+
+        // assert.equal(name, "signup");
+        await createAccount(req.body.email);
+        res.json({ status: "Verification email sent..." });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  app.post(
     "/interaction/:uid/confirm",
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
@@ -169,7 +220,7 @@ export default (app: Express, provider: Provider) => {
           params,
           session: { accountId },
         } = interactionDetails;
-        assert.equal(name, "consent");
+        // assert.equal(name, "consent");
 
         let { grantId } = interactionDetails;
         let grant;
