@@ -1,5 +1,4 @@
 import { errors } from "oidc-provider";
-
 export class InteractionException extends errors.CustomOIDCProviderError {
   constructor(description: string, message: string, status: number) {
     super(message, description);

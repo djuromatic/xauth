@@ -8,6 +8,6 @@ export const loggerMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  logger.info("[Request] " + req.method + " " + req.originalUrl);
+  logger.info(req.method + " " + req.originalUrl);
   next();
 };

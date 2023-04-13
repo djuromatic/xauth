@@ -1,7 +1,8 @@
 import winston from "winston";
+import { serverConfig } from "../config/server-config.js";
 
 const { createLogger, format, transports } = winston;
-const { combine, timestamp, label, printf, colorize } = format;
+const { combine, timestamp, printf, colorize } = format;
 
 //Using the printf format.
 const customFormat = printf(({ timestamp, level, message, label, error }) => {
@@ -12,7 +13,7 @@ const customFormat = printf(({ timestamp, level, message, label, error }) => {
 });
 
 const logger = createLogger({
-  level: "debug",
+  level: serverConfig.logger.level,
   format: combine(
     colorize(),
     timestamp({

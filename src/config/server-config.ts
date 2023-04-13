@@ -11,6 +11,9 @@ const serverConfig: ServerConfig = {
   oidc: {
     issuer: "http://xauth.test:3000",
   },
+  logger: {
+    level: "debug",
+  },
 };
 
 //interface ServerConfig
@@ -26,6 +29,9 @@ export interface ServerConfig {
   };
   oidc: {
     issuer: string;
+  };
+  logger: {
+    level: string;
   };
 }
 
