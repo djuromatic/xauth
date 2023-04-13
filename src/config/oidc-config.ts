@@ -28,8 +28,6 @@ export const oidcConfig: Configuration = {
     url(ctx: KoaContextWithOIDC, interaction: any) {
       // cannot import Interaction that is why I am using any
       // eslint-disable-line no-unused-vars
-      if ((interaction.promptName = "login"))
-        return `/fdsafs/${interaction.uid}`;
 
       return `/interaction/${interaction.uid}`;
     },
