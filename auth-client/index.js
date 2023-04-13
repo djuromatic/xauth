@@ -59,7 +59,7 @@ server.once("listening", () => {
         const userinfo = await client.userinfo(tokenSet);
         console.log("userinfo", userinfo);
 
-        res.end("you can close this now");
+        res.end("You can close this screen now...");
         server.close();
       }
     });
