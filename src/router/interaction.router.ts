@@ -8,6 +8,7 @@ import isEmpty from "lodash/isEmpty.js";
 import { NextFunction, Request, Response, urlencoded } from "express"; // eslint-disable-line import/no-unresolved
 import Provider, { InteractionResults } from "oidc-provider";
 import { findByEmail } from "../service/account.service.js";
+import { BadRequestException } from "../common/errors/exceptions.js";
 
 const keys = new Set();
 const debug = (obj: any) =>
@@ -43,6 +44,26 @@ export default (app: Express, provider: Provider) => {
       });
     };
     next();
+  });
+
+  app.get("/interaction/:uid/error", async (req: Request, res: Response) => {
+    const details = await provider.interactionDetails(req, res);
+    const { error } = details.params;
+
+    if (error === "login_required") {
+      return res.render("login", {
+        client: details.params.client_id,
+        uid: details.uid,
+        details: details.params,
+        title: "Sign-in",
+        session: details.session,
+      });
+    }
+
+    return res.render("error", {
+      error: "An error occurred",
+      error_description: error,
+    });
   });
 
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -110,7 +131,7 @@ export default (app: Express, provider: Provider) => {
         } = await provider.interactionDetails(req, res);
         assert.equal(name, "login");
         let account = await findByEmail(req.body.login);
-
+        throw new BadRequestException("Invalid email or password");
         const result = {
           login: {
             accountId: account.accountId,
@@ -205,8 +226,9 @@ export default (app: Express, provider: Provider) => {
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err) {
-      // handle interaction expired / session not found error
+      //render layout with error
+      res.render("_layout", { title: "Error", body: err.message });
     }
-    next(err);
+    next();
   });
 };
