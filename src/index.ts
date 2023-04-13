@@ -8,6 +8,7 @@ import path from "path";
 import fileDirName from "./helpers/file-dir-name.js";
 import interactionRouter from "./router/interaction.router.js";
 import { createConnection } from "./database/mongoose.adapter.js";
+import { loggerMiddleware } from "./middlewares/logger.js";
 
 const app = express();
 
@@ -17,13 +18,11 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(express.json());
-//! Throwing error that body is parsed upstream
-// app.use(express.urlencoded({ extended: true }));
 const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
-app.use("/interaction", express.urlencoded({ extended: true }));
 interactionRouter(app, provider);
 
+app.use(loggerMiddleware);
 const oidc = provider.callback();
 app.use(oidc);
 

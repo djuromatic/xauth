@@ -3,11 +3,13 @@ import { getInteractionPolicy } from "../helpers/interaction-policy.js";
 import { getProviderClients } from "../helpers/provider-clients.js";
 import { findAccount } from "../service/account.service.js";
 import { MongoAdapter } from "../database/mongoose.adapter.js";
+import { renderError } from "../helpers/render-error.js";
 
 export const oidcConfig: Configuration = {
   clients: getProviderClients(),
   findAccount: findAccount,
   adapter: MongoAdapter,
+  renderError,
   ttl: {
     AccessToken: 60 * 60, // 1 hour in seconds
     AuthorizationCode: 60 * 10, // 10 minutes in seconds
@@ -22,6 +24,7 @@ export const oidcConfig: Configuration = {
     url(ctx: KoaContextWithOIDC, interaction: any) {
       // cannot import Interaction that is why I am using any
       // eslint-disable-line no-unused-vars
+
       return `/interaction/${interaction.uid}`;
     },
     policy: getInteractionPolicy(),
