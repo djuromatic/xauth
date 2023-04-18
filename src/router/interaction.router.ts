@@ -7,10 +7,12 @@ import { Express } from "express";
 import isEmpty from "lodash/isEmpty.js";
 import { NextFunction, Request, Response, urlencoded } from "express"; // eslint-disable-line import/no-unresolved
 import Provider, { InteractionResults } from "oidc-provider";
+
 import {
   findByEmail,
   create as createAccount,
 } from "../service/account.service.js";
+import { interactionErrorHandler } from "../common/errors/interaction-error-handler.js";
 
 const keys = new Set();
 const debug = (obj: any) =>
@@ -175,7 +177,6 @@ export default (app: Express, provider: Provider) => {
         // assert.equal(name, "login");
         console.log({ params, x: req.body });
         let account = await findByEmail(req.body.login);
-
         const result = {
           login: {
             accountId: account.accountId,
@@ -294,10 +295,5 @@ export default (app: Express, provider: Provider) => {
     }
   );
 
-  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    if (err) {
-      // handle interaction expired / session not found error
-    }
-    next(err);
-  });
+  interactionErrorHandler(app, provider);
 };
