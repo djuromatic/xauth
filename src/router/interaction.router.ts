@@ -66,6 +66,8 @@ export default (app: Express, provider: Provider) => {
 
         const client = await provider.Client.find(params.client_id as any);
 
+        console.log({ promptName: prompt.name });
+
         if (prompt.name === "consent") {
           return res.render("interaction", {
             client,
@@ -202,7 +204,13 @@ export default (app: Express, provider: Provider) => {
 
         // assert.equal(name, "signup");
         await createAccount(req.body.email);
-        res.json({ status: "Verification email sent..." });
+        // res.json({ status: "Verification email sent..." });
+        const result = {
+          m13: "ok",
+        };
+        await provider.interactionFinished(req, res, result, {
+          mergeWithLastSubmission: true,
+        });
       } catch (err) {
         next(err);
       }
