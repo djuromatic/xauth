@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import fileDirName from "./helpers/file-dir-name.js";
 import interactionRouter from "./router/interaction.router.js";
+import emailPasswordRouter from "./router/email-password.router.js";
 import { createConnection } from "./database/mongoose.adapter.js";
 import { loggerMiddleware } from "./middlewares/logger.js";
 import { Logger } from "./utils/winston.js";
@@ -24,6 +25,7 @@ app.use(express.json());
 const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
 interactionRouter(app, provider);
+emailPasswordRouter(app, provider);
 
 app.use(loggerMiddleware);
 const oidc = provider.callback();

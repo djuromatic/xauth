@@ -136,36 +136,6 @@ export default (app: Express, provider: Provider) => {
   );
 
   app.post(
-    "/interaction/:uid/signup-init",
-    setNoCache,
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const { uid, prompt, params, session } =
-          await provider.interactionDetails(req, res);
-        console.log({ uid, prompt, params, session });
-
-        const client = await provider.Client.find(params.client_id as any);
-
-        return res.render("signup", {
-          client,
-          uid,
-          details: prompt.details,
-          params,
-          google: true,
-          title: "Sign-Up",
-          session: session ?? undefined,
-          dbg: {
-            params: debug(params),
-            prompt: debug(prompt),
-          },
-        });
-      } catch (err) {
-        return next(err);
-      }
-    }
-  );
-
-  app.post(
     "/interaction/:uid/login",
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
@@ -185,32 +155,6 @@ export default (app: Express, provider: Provider) => {
 
         await provider.interactionFinished(req, res, result, {
           mergeWithLastSubmission: false,
-        });
-      } catch (err) {
-        next(err);
-      }
-    }
-  );
-
-  app.post(
-    "/interaction/:uid/signup",
-    setNoCache,
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const {
-          prompt: { name },
-          params,
-        } = await provider.interactionDetails(req, res);
-        console.log({ params, x: req.body });
-
-        // assert.equal(name, "signup");
-        await createAccount(req.body.email);
-        // res.json({ status: "Verification email sent..." });
-        const result = {
-          m13: "ok",
-        };
-        await provider.interactionFinished(req, res, result, {
-          mergeWithLastSubmission: true,
         });
       } catch (err) {
         next(err);
