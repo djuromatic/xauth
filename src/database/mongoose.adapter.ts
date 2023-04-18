@@ -1,5 +1,8 @@
 import { ServerConfig } from "../config/server-config";
 import mongoose, { Collection } from "mongoose";
+import { Logger } from "../utils/winston.js";
+
+const logger = new Logger("Database");
 
 export function createConnection(serverConfig: ServerConfig) {
   const { host, port, dbName, dbUser, dbPass } = serverConfig.database;
@@ -11,10 +14,10 @@ export function createConnection(serverConfig: ServerConfig) {
 
   connection
     .then(() => {
-      console.log("Connected to database");
+      logger.info("Connected to database");
     })
     .catch((err) => {
-      console.log("Error connecting to database", err);
+      logger.error(err, "Error connecting to database");
     });
 }
 

@@ -2,6 +2,9 @@ import { NextFunction, Response, Request, Express } from "express";
 import Provider, { errors } from "oidc-provider";
 import { InteractionException } from "./exceptions.js";
 import { debug } from "../../helpers/debug.js";
+import { Logger } from "../../utils/winston.js";
+
+const logger = new Logger("Interaction Error Handler");
 
 export const interactionErrorHandler = async (
   app: Express,
@@ -23,7 +26,7 @@ export const interactionErrorHandler = async (
       const { error_description, statusCode, message } = err;
 
       const client = await provider.Client.find(params.client_id as any);
-      console.error(err);
+      logger.error(err);
       res.render("error", {
         client,
         uid,

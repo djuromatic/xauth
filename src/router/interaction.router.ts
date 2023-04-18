@@ -111,7 +111,6 @@ export default (app: Express, provider: Provider) => {
         } = await provider.interactionDetails(req, res);
         assert.equal(name, "login");
         let account = await findByEmail(req.body.login);
-
         const result = {
           login: {
             accountId: account.accountId,

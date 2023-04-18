@@ -9,6 +9,9 @@ import fileDirName from "./helpers/file-dir-name.js";
 import interactionRouter from "./router/interaction.router.js";
 import { createConnection } from "./database/mongoose.adapter.js";
 import { loggerMiddleware } from "./middlewares/logger.js";
+import { Logger } from "./utils/winston.js";
+
+const logger = new Logger("Init");
 
 const app = express();
 
@@ -35,7 +38,7 @@ const server = https.createServer(
 );
 
 server.listen(3000, () => {
-  console.log(`Server is running on port ${3000}`);
+  logger.info(`Server is running on port ${3000}`);
 });
 
 createConnection(serverConfig);
