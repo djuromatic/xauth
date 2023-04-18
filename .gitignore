@@ -3,3 +3,5 @@
 /dist
 
 auth-client/xauth.test-key.pem
+auth-client/*
+src/certs/*
