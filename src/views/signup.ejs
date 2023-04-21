@@ -1,18 +1,55 @@
-<form autocomplete="off" action="/interaction/<%= uid %>/signup" " method="post">
+
+<div id="cls111">
+<form id="signup-form" autocomplete="off" action="/interaction/<%= uid %>/signup" " method="post" onsubmit="return verificationCheck()">
+
+  <input required type="text" name="given_name" placeholder="Enter given name" />
+  <input required type="text" name="family_name" placeholder="Enter family name" />
+
   <input required type="text" name="email" placeholder="Enter email" />
+
   <input required type="password" name="password" placeholder="Enter password" />
   <input required type="password" name="repeatedPassword" placeholder="Repeat password" />
 
   <input required type="text" name="username" placeholder="Enter username" />
-  <input required type="date" name="dateOfBirth" placeholder="Enter date of birth" />
-  <select id="gender">
 
+  <input required type="date" name="dateOfBirth" placeholder="Enter date of birth" />
+
+  <select required name="gender">
     <option value="male">Male</option>
     <option value="female">Female</option>
-    <option value="other" >Other</option>
+    <option value="other">Other</option>
+  </select>
 
-  
+  <select required name="locale">
+    <option value="en">en</option>
+    <option value="ger">ger</option>
+    <option value="other">other</option>
   </select>
 
   <button type="submit" class="signup signup-submit">Sign-Up</button>
+  <script>
+    //TODO:client side user input verification
+    const verificationCheck = () => {
+      const data = new FormData(document.getElementById("signup-form"));
+      console.log({username: data.get("username")});
+      if(data.get("password") !== data.get("repeatedPassword")){
+        window.alert("Password and Repeated password don't match!")
+        return false;
+      }else{
+      }
+      return true;
+    
+    }
+    // const el = document.createElement("button");
+    // el.textContent = "Sign Up"
+    // el.type = "submit";
+    // el.onclick=()=>{
+
+    // }
+    // document.getElementById("cls111").appendChild(el);
+
+  </script>
+
 </form>
+
+</div>

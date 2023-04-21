@@ -14,6 +14,11 @@ import {
 } from "../service/account.service.js";
 import { interactionErrorHandler } from "../common/errors/interaction-error-handler.js";
 import { debug } from "../helpers/debug.js";
+import { check as emailPasswordSignupCheck } from "../helpers/email-password-signup.js";
+
+const delay = (delayInms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, delayInms));
+};
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -37,7 +42,9 @@ export default (app: Express, provider: Provider) => {
           uid,
           details: prompt.details,
           params,
-          google: true,
+          validationFcn: () => {
+            console.log(123);
+          },
           title: "Sign-Up",
           session: session ?? undefined,
           dbg: {
@@ -60,10 +67,10 @@ export default (app: Express, provider: Provider) => {
           prompt: { name },
           params,
         } = await provider.interactionDetails(req, res);
-        console.log({ params, x: req.body });
 
-        // assert.equal(name, "signup");
-        await createAccount(req.body.email);
+        await emailPasswordSignupCheck(req.body);
+
+        await createAccount(req.body);
         // res.json({ status: "Verification email sent..." });
         const result = {
           m13: "ok",
@@ -76,4 +83,5 @@ export default (app: Express, provider: Provider) => {
       }
     }
   );
+  interactionErrorHandler(app, provider);
 };
