@@ -39,9 +39,19 @@ export default (app: Express, provider: Provider) => {
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
 
-    res.render = (view, locals) => {
-      app.render(view, locals, (err: any, html: any) => {
+    res.render = (view, locals: any) => {
+      const shouldRenderLayout = locals.layout !== false;
+      if (!shouldRenderLayout) {
+        app.render(view, locals, (err: any, html: any) => {
+          if (err) throw err;
+          orig.call(res, html);
+        });
+        return next();
+      }
+
+      app.render(view, locals as any, (err: any, html: any) => {
         if (err) throw err;
+
         orig.call(res, "_layout", {
           ...locals,
           body: html,

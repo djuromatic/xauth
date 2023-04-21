@@ -14,6 +14,11 @@ const serverConfig: ServerConfig = {
   logger: {
     level: "debug",
   },
+  google: {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "https://xauth.test:6001/interaction/callback/google",
+  },
 };
 
 //interface ServerConfig
@@ -32,6 +37,11 @@ export interface ServerConfig {
   };
   logger: {
     level: string;
+  };
+  google: {
+    clientID: string;
+    clientSecret: string;
+    callbackURL: string;
   };
 }
 
