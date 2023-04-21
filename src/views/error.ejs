@@ -1,6 +1,24 @@
-<div>
+<div id="error-div">
   <h1>ERROR</h1>
   <p>message <%= error.message %></p>
   <p>error <%= error.error_description %></p>
   <p>status <% error.statusCode %></p>
+  <script>
+
+    const getPosition = (string, subString, index) => {
+      return string.split(subString, index).join(subString).length;
+    }
+
+    const el = document.createElement("button");
+    el.textContent = "Back to landing page"
+
+    el.onclick = () => {
+      const url = `/`;
+      window.location.href = '/';
+      window.location.href = `/interaction/<%=locals.uid%>`
+
+    }
+    document.getElementById("error-div").appendChild(el);
+
+  </script>
 </div>

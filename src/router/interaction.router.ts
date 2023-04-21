@@ -14,6 +14,8 @@ import {
 } from "../service/account.service.js";
 import { interactionErrorHandler } from "../common/errors/interaction-error-handler.js";
 
+import { check as passwordLoginCheck } from "../helpers/password-login-checks.js";
+
 const keys = new Set();
 const debug = (obj: any) =>
   querystring.stringify(
@@ -144,14 +146,8 @@ export default (app: Express, provider: Provider) => {
           prompt: { name },
           params,
         } = await provider.interactionDetails(req, res);
-        // assert.equal(name, "login");
-        console.log({ params, x: req.body });
-        let account = await findByEmail(req.body.login);
-        const result = {
-          login: {
-            accountId: account.accountId,
-          },
-        };
+
+        const result = await passwordLoginCheck(req.body);
 
         await provider.interactionFinished(req, res, result, {
           mergeWithLastSubmission: false,
