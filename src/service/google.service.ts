@@ -21,13 +21,7 @@ export type RequestParams = {
 export class GoogleService {
   private readonly logger = new Logger('GoogleService');
 
-  constructor(
-    private readonly req: Request,
-    private readonly res: Response,
-    private readonly provider: Provider,
-    private readonly path: string,
-    private readonly callbackParams: any
-  ) {}
+  constructor(private readonly req: Request, private readonly res: Response, private readonly provider: Provider) {}
 
   public async login(): Promise<void> {
     // check for identity token in callback params
@@ -80,7 +74,7 @@ export class GoogleService {
   }
 
   private chechForId(): string | null {
-    if (!this.callbackParams.id_token) {
+    if (!this.req.body.id_token) {
       const state = `${this.req.params.uid}|${crypto.randomBytes(32).toString('hex')}`;
       // const nonce = crypto.randomBytes(32).toString('hex');
 
@@ -99,7 +93,7 @@ export class GoogleService {
   }
 
   private getClaimsFromIdToken() {
-    const idToken = this.callbackParams.id_token;
+    const idToken = this.req.body.id_token;
     const decodedClaims = Buffer.from(idToken.split('.')[1], 'base64').toString('utf8');
     const claims = JSON.parse(decodedClaims);
     return claims;
@@ -107,7 +101,7 @@ export class GoogleService {
 
   private async createNewUser(claims: any): Promise<AccountDocument> {
     const userInfo = await this.requestWithBearerToken(
-      this.callbackParams.access_token,
+      this.req.body.access_token,
       'https://www.googleapis.com/oauth2/v3/userinfo'
     );
     const accountId = `${ProviderName.GOOGLE}|${claims.sub}`;
