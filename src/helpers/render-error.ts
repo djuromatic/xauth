@@ -1,5 +1,5 @@
-import { KoaContextWithOIDC } from "oidc-provider";
-import htmlSafe from "../common/html.js";
+import { KoaContextWithOIDC } from 'oidc-provider';
+import htmlSafe from '../common/html.js';
 
 const errorHtmlBody = (out: any) => {
   return `<!DOCTYPE html>
@@ -20,14 +20,14 @@ const errorHtmlBody = (out: any) => {
             ([key, value]) =>
               `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`
           )
-          .join("")}
+          .join('')}
       </div>
     </body>
     </html>`;
 };
 
 const renderError = async (ctx: KoaContextWithOIDC, out: any, error: any) => {
-  ctx.type = "html";
+  ctx.type = 'html';
   ctx.body = errorHtmlBody(out);
 };
 

@@ -20,8 +20,10 @@
         return query;
       }
 
+      console.log("location", window.location);
       var fields = parseQuery(window.location.hash.slice(1));
       fields.upstream = "<%= upstream %>";
+      debugger
       var uid = fields.state.split("|")[0];
 
       var form = document.createElement("form");

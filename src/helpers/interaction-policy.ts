@@ -1,4 +1,4 @@
-import { interactionPolicy } from "oidc-provider";
+import { interactionPolicy } from 'oidc-provider';
 
 function getInteractionPolicy() {
   // const policy = interactionPolicy.base();
@@ -9,8 +9,8 @@ function getInteractionPolicy() {
 
   const dateOfBirth = new interactionPolicy.Prompt(
     {
-      name: "login",
-      requestable: true,
+      name: 'login',
+      requestable: true
     },
     (ctx) => {
       const { oidc } = ctx;
@@ -24,7 +24,7 @@ function getInteractionPolicy() {
           : { login_hint: oidc.params.login_hint }),
         ...(oidc.params.id_token_hint === undefined
           ? undefined
-          : { id_token_hint: oidc.params.id_token_hint }),
+          : { id_token_hint: oidc.params.id_token_hint })
       };
     }
   );

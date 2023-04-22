@@ -1,6 +1,6 @@
-import * as dotenv from "dotenv";
-import { createServer } from "./server.js";
-import { serverConfig } from "./config/server-config.js";
+import * as dotenv from 'dotenv';
+import { createServer } from './server.js';
+import { serverConfig } from './config/server-config.js';
 const init = async () => {
   await dotenv.config();
 };

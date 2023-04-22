@@ -1,4 +1,4 @@
-import { errors } from "oidc-provider";
+import { errors } from 'oidc-provider';
 
 export class InteractionException extends errors.CustomOIDCProviderError {
   constructor(description: string, message: string, status: number) {
@@ -10,13 +10,19 @@ export class InteractionException extends errors.CustomOIDCProviderError {
 
 export class BadRequestException extends InteractionException {
   constructor(message: string) {
-    super(message, "bad_request", 400);
+    super(message, 'bad_request', 400);
   }
 }
 
 export class UnauthorizedException extends InteractionException {
   constructor(message: string) {
-    super(message, "unauthorized", 401);
+    super(message, 'unauthorized', 401);
+  }
+}
+
+export class UserNotFoundException extends InteractionException {
+  constructor(message: string) {
+    super(message, 'user_not_found', 404);
   }
 }
 

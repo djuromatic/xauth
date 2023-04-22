@@ -1,5 +1,5 @@
-import winston from "winston";
-import { serverConfig } from "../config/server-config.js";
+import winston from 'winston';
+import { serverConfig } from '../config/server-config.js';
 
 const { createLogger, format, transports } = winston;
 const { combine, timestamp, printf, colorize } = format;
@@ -17,11 +17,11 @@ const logger = createLogger({
   format: combine(
     colorize(),
     timestamp({
-      format: "MMM-DD-YYYY HH:mm:ss",
+      format: 'MMM-DD-YYYY HH:mm:ss'
     }),
     customFormat
   ),
-  transports: [new transports.Console()],
+  transports: [new transports.Console()]
 });
 
 export class Logger {

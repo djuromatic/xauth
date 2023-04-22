@@ -1,20 +1,14 @@
-/* eslint-disable no-console, camelcase, no-unused-vars */
-import { strict as assert } from "node:assert";
-import * as querystring from "node:querystring";
-import { inspect } from "node:util";
-import { Express } from "express";
+import * as querystring from 'node:querystring';
+import { inspect } from 'node:util';
+import { Express } from 'express';
 
-import isEmpty from "lodash/isEmpty.js";
-import { NextFunction, Request, Response, urlencoded } from "express"; // eslint-disable-line import/no-unresolved
-import Provider, { InteractionResults } from "oidc-provider";
+import isEmpty from 'lodash/isEmpty.js';
+import { NextFunction, Request, Response, urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
+import Provider, { InteractionResults } from 'oidc-provider';
 
-import {
-  findByEmail,
-  create as createAccount,
-} from "../service/account.service.js";
-import { interactionErrorHandler } from "../common/errors/interaction-error-handler.js";
+import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 
-import { check as passwordLoginCheck } from "../helpers/password-login-checks.js";
+import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 
 const keys = new Set();
 const debug = (obj: any) =>
@@ -25,17 +19,17 @@ const debug = (obj: any) =>
       acc[key] = inspect(value, { depth: null });
       return acc;
     }, {}),
-    "<br/>",
-    ": ",
+    '<br/>',
+    ': ',
     {
       encodeURIComponent(value) {
         return keys.has(value) ? `<strong>${value}</strong>` : value;
-      },
+      }
     }
   );
 
 export default (app: Express, provider: Provider) => {
-  app.use("/interaction", urlencoded({ extended: true }));
+  app.use('/interaction', urlencoded({ extended: true }));
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const orig = res.render;
@@ -46,7 +40,8 @@ export default (app: Express, provider: Provider) => {
       if (!shouldRenderLayout) {
         app.render(view, locals, (err: any, html: any) => {
           if (err) throw err;
-          orig.call(res, html);
+          //todo fix this we have html here no need to render again
+          orig.call(res, 'repost', { ...locals });
         });
         return next();
       }
@@ -54,9 +49,9 @@ export default (app: Express, provider: Provider) => {
       app.render(view, locals as any, (err: any, html: any) => {
         if (err) throw err;
 
-        orig.call(res, "_layout", {
+        orig.call(res, '_layout', {
           ...locals,
-          body: html,
+          body: html
         });
       });
     };
@@ -65,12 +60,12 @@ export default (app: Express, provider: Provider) => {
   });
 
   function setNoCache(req: Request, res: Response, next: NextFunction) {
-    res.set("cache-control", "no-store");
+    res.set('cache-control', 'no-store');
     next();
   }
 
   app.get(
-    "/interaction/:uid",
+    '/interaction/:uid',
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -82,34 +77,34 @@ export default (app: Express, provider: Provider) => {
 
         console.log({ promptName: prompt.name });
 
-        if (prompt.name === "consent") {
-          return res.render("interaction", {
+        if (prompt.name === 'consent') {
+          return res.render('interaction', {
             client,
             uid,
             details: prompt.details,
             params,
-            title: "Authorize",
+            title: 'Authorize',
 
             session: session ? debug(session) : undefined,
             dbg: {
               params: debug(params),
-              prompt: debug(prompt),
-            },
+              prompt: debug(prompt)
+            }
           });
         }
 
-        return res.render("landing", {
+        return res.render('landing', {
           client,
           uid,
           details: prompt.details,
           params,
           google: true,
-          title: "Landing",
+          title: 'Landing',
           session: session ?? undefined,
           dbg: {
             params: debug(params),
-            prompt: debug(prompt),
-          },
+            prompt: debug(prompt)
+          }
         });
       } catch (err) {
         return next(err);
@@ -118,7 +113,7 @@ export default (app: Express, provider: Provider) => {
   );
 
   app.post(
-    "/interaction/:uid/login-init",
+    '/interaction/:uid/login-init',
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -128,18 +123,18 @@ export default (app: Express, provider: Provider) => {
 
         const client = await provider.Client.find(params.client_id as any);
 
-        return res.render("login", {
+        return res.render('login', {
           client,
           uid,
           details: prompt.details,
           params,
           google: true,
-          title: "Sign-In",
+          title: 'Sign-In',
           session: session ?? undefined,
           dbg: {
             params: debug(params),
-            prompt: debug(prompt),
-          },
+            prompt: debug(prompt)
+          }
         });
       } catch (err) {
         return next(err);
@@ -148,19 +143,19 @@ export default (app: Express, provider: Provider) => {
   );
 
   app.post(
-    "/interaction/:uid/login",
+    '/interaction/:uid/login',
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const {
           prompt: { name },
-          params,
+          params
         } = await provider.interactionDetails(req, res);
 
         const result = await passwordLoginCheck(req.body);
 
         await provider.interactionFinished(req, res, result, {
-          mergeWithLastSubmission: false,
+          mergeWithLastSubmission: false
         });
       } catch (err) {
         next(err);
@@ -169,7 +164,7 @@ export default (app: Express, provider: Provider) => {
   );
 
   app.post(
-    "/interaction/:uid/confirm",
+    '/interaction/:uid/confirm',
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -177,7 +172,7 @@ export default (app: Express, provider: Provider) => {
         const {
           prompt: { name, details },
           params,
-          session: { accountId },
+          session: { accountId }
         } = interactionDetails;
         // assert.equal(name, "consent");
 
@@ -191,7 +186,7 @@ export default (app: Express, provider: Provider) => {
           // we're establishing a new grant
           grant = new provider.Grant({
             accountId,
-            clientId: params.client_id as string,
+            clientId: params.client_id as string
           });
         }
 
@@ -205,7 +200,7 @@ export default (app: Express, provider: Provider) => {
           for (const [indicator, scopes] of Object.entries(
             details.missingResourceScopes
           )) {
-            grant.addResourceScope(indicator, scopes.join(" "));
+            grant.addResourceScope(indicator, scopes.join(' '));
           }
         }
 
@@ -219,7 +214,7 @@ export default (app: Express, provider: Provider) => {
 
         const result = { consent };
         await provider.interactionFinished(req, res, result, {
-          mergeWithLastSubmission: true,
+          mergeWithLastSubmission: true
         });
       } catch (err) {
         next(err);
@@ -228,16 +223,16 @@ export default (app: Express, provider: Provider) => {
   );
 
   app.get(
-    "/interaction/:uid/abort",
+    '/interaction/:uid/abort',
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = {
-          error: "access_denied",
-          error_description: "End-User aborted interaction",
+          error: 'access_denied',
+          error_description: 'End-User aborted interaction'
         };
         await provider.interactionFinished(req, res, result, {
-          mergeWithLastSubmission: false,
+          mergeWithLastSubmission: false
         });
       } catch (err) {
         next(err);
