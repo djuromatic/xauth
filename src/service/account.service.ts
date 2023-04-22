@@ -37,7 +37,7 @@ export const findByEmail = async (email: string): Promise<AccountDocument | Emai
 
 export const findByUsername = async (username: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
   const account = await AccountDb.findOne({ 'profile.username': username });
-  console.log({ findByUsername: { account } });
+  logger.debug('find by username', { findByUsername: { account } });
   return account;
 };
 

@@ -1,24 +1,24 @@
 const serverConfig: ServerConfig = {
-  serviceName: 'xauth',
-  hostname: process.env.hostname ?? 'xauth.test',
-  port: 3000,
+  serviceName: process.env.SERVICE_NAME ?? 'xauth',
+  hostname: process.env.HOSTNAME ?? 'xauth.test',
+  port: +process.env.PORT ?? 3000,
   database: {
-    host: 'localhost',
-    port: 27017,
-    dbName: 'xauth',
-    dbUser: 'xauth',
-    dbPass: 'xauth'
+    host: process.env.DB_HOST ?? 'localhost',
+    port: +process.env.DB_PORT ?? 27017,
+    dbName: process.env.DB_NAME ?? 'xauth',
+    dbUser: process.env.DB_USER ?? 'xauth',
+    dbPass: process.env.DB_PASS ?? 'xauth'
   },
   oidc: {
-    issuer: 'http://xauth.test:3000'
+    issuer: process.env.OIDC_ISSUER ?? 'http://xauth.test:3000'
   },
   logger: {
-    level: 'debug'
+    level: process.env.LOGGER_LEVEL ?? 'debug'
   },
   google: {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    redirectUri: `https://${process.env.hostname}/interaction/callback/google`
+    clientID: process.env.GOOGLE_CLIENT_ID ?? '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/google`
   }
 };
 

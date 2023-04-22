@@ -5,9 +5,12 @@ const { createLogger, format, transports } = winston;
 const { combine, timestamp, printf, colorize } = format;
 
 //Using the printf format.
-const customFormat = printf(({ timestamp, level, message, label, error }) => {
+const customFormat = printf(({ timestamp, level, message, label, error, payload }) => {
   if (error) {
     return `${timestamp} [${label}] ${level}: ${message} ${error.stack}`;
+  }
+  if (payload) {
+    return `${timestamp} [${label}] ${level}: ${message} ${JSON.stringify(payload)}`;
   }
   return `${timestamp} [${label}] ${level}: ${message}`;
 });
@@ -27,8 +30,8 @@ const logger = createLogger({
 export class Logger {
   constructor(private readonly label: string) {}
 
-  debug(message: string) {
-    logger.debug(message, { label: this.label });
+  debug(message: string, payload?: object) {
+    logger.debug(message, { label: this.label, payload });
   }
   info(message: string) {
     logger.info(message, { label: this.label });
