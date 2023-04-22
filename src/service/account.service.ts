@@ -1,20 +1,13 @@
 import bcrypt from 'bcrypt';
 import { Account, KoaContextWithOIDC } from 'oidc-provider';
-import AccountDb, {
-  AccountDocument,
-  EmailPasswordAccountDocument
-} from '../models/account.js';
+import AccountDb, { AccountDocument, EmailPasswordAccountDocument } from '../models/account.js';
 import { PASSWORD_SALT_ROUNDS } from '../helpers/constants.js';
 import { ProviderName } from '../common/enums/provider.js';
 import { Logger } from '../utils/winston.js';
-import { UserNotFoundException } from '../common/errors/exceptions.js';
 
 const logger = new Logger('AccountService');
 
-export const findAccount = async (
-  ctx: KoaContextWithOIDC,
-  id: string
-): Promise<Account> => {
+export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<Account> => {
   const account = await AccountDb.findOne({ accountId: id });
 
   if (!account) {
@@ -36,37 +29,27 @@ export const findAccount = async (
   };
 };
 
-export const findByEmail = async (
-  email: string
-): Promise<AccountDocument | EmailPasswordAccountDocument> => {
+export const findByEmail = async (email: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
   const account = await AccountDb.findOne({ 'profile.email': email });
 
   return account;
 };
 
-export const findByUsername = async (
-  username: string
-): Promise<AccountDocument | EmailPasswordAccountDocument> => {
+export const findByUsername = async (username: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
   const account = await AccountDb.findOne({ 'profile.username': username });
   console.log({ findByUsername: { account } });
   return account;
 };
 
-export const findByFederated = async (
-  provider: ProviderName,
-  claims: any
-): Promise<AccountDocument | null> => {
+export const findByFederated = async (provider: ProviderName, sub: string): Promise<AccountDocument | null> => {
   const account = await AccountDb.findOne({
-    'profile.sub': `${provider.toString()}|${claims.sub},
+    'profile.sub': `${provider.toString()}|${sub},
   `
   });
   return account;
 };
 
-export const createFederatedAccount = async (
-  accountId: string,
-  profile: any
-): Promise<AccountDocument> => {
+export const createFederatedAccount = async (accountId: string, profile: any): Promise<AccountDocument> => {
   const account = await AccountDb.create({
     accountId,
     profile
@@ -84,13 +67,7 @@ export const create = async (obj: {
   gender: string;
   locale: string;
 }): Promise<AccountDocument> => {
-  const {
-    email,
-    family_name,
-    given_name,
-    locale,
-    password: plainTextPassword
-  } = obj;
+  const { email, family_name, given_name, locale, password: plainTextPassword } = obj;
 
   const password = await bcrypt.hash(plainTextPassword, PASSWORD_SALT_ROUNDS);
 
