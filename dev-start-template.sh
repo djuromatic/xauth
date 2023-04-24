@@ -1,5 +1,5 @@
 export SERVICE_NAME="xauth"
-export HOSTNAME="xauth.test"
+export HOSTNAME="e798-109-245-215-29.ngrok-free.app"
 export PORT="3000"
 export DB_HOST="localhost"
 export DB_PORT="27017"
