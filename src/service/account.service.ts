@@ -71,7 +71,7 @@ export const create = async (obj: {
 
   const password = await bcrypt.hash(plainTextPassword, PASSWORD_SALT_ROUNDS);
 
-  const account = await AccountDb.create({
+  let account = await AccountDb.create({
     accountId: email,
     password,
     profile: {
@@ -84,5 +84,8 @@ export const create = async (obj: {
     }
   });
 
+  await AccountDb.updateOne({ _id: account._id }, { 'profile.sub': account._id });
+
+  account = await AccountDb.findOne({ _id: account._id });
   return account;
 };

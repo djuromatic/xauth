@@ -1,4 +1,4 @@
-import { Configuration, KoaContextWithOIDC, interactionPolicy } from 'oidc-provider';
+import { Configuration, KoaContextWithOIDC } from 'oidc-provider';
 import { getInteractionPolicy } from '../helpers/interaction-policy.js';
 import { getProviderClients } from '../helpers/provider-clients.js';
 import { findAccount } from '../service/account.service.js';
