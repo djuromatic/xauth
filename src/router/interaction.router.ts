@@ -88,11 +88,7 @@ export default (app: Express, provider: Provider) => {
   app.post('/interaction/:uid/login-init', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-<<<<<<< HEAD
-      console.log({ uid, prompt, params, session });
-=======
       logger.debug('login-init', { uid, prompt, params, session });
->>>>>>> main
 
       const client = await provider.Client.find(params.client_id as any);
 
@@ -116,14 +112,6 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/login', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
-<<<<<<< HEAD
-      const {
-        prompt: { name },
-        params
-      } = await provider.interactionDetails(req, res);
-
-=======
->>>>>>> main
       const result = await passwordLoginCheck(req.body);
 
       await provider.interactionFinished(req, res, result, {
