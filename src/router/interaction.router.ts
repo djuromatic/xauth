@@ -1,32 +1,12 @@
-import * as querystring from 'node:querystring';
-import { inspect } from 'node:util';
 import { Express } from 'express';
-
-import isEmpty from 'lodash/isEmpty.js';
 import { NextFunction, Request, Response, urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider, { InteractionResults } from 'oidc-provider';
-
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
-
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
+import { Logger } from '../utils/winston.js';
+import { debug } from '../helpers/debug.js';
 
-const keys = new Set();
-const debug = (obj: any) =>
-  querystring.stringify(
-    Object.entries(obj).reduce((acc: any, [key, value]) => {
-      keys.add(key);
-      if (isEmpty(value)) return acc;
-      acc[key] = inspect(value, { depth: null });
-      return acc;
-    }, {}),
-    '<br/>',
-    ': ',
-    {
-      encodeURIComponent(value) {
-        return keys.has(value) ? `<strong>${value}</strong>` : value;
-      }
-    }
-  );
+const logger = new Logger('InteractionRouter');
 
 export default (app: Express, provider: Provider) => {
   app.use('/interaction', urlencoded({ extended: true }));
@@ -67,11 +47,9 @@ export default (app: Express, provider: Provider) => {
   app.get('/interaction/:uid', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-      console.log({ uid, prompt, params, session });
+      logger.debug(req.params.uid, { uid, prompt, params, session });
 
       const client = await provider.Client.find(params.client_id as any);
-
-      console.log({ promptName: prompt.name });
 
       if (prompt.name === 'consent') {
         return res.render('interaction', {
@@ -110,7 +88,11 @@ export default (app: Express, provider: Provider) => {
   app.post('/interaction/:uid/login-init', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+<<<<<<< HEAD
       console.log({ uid, prompt, params, session });
+=======
+      logger.debug('login-init', { uid, prompt, params, session });
+>>>>>>> main
 
       const client = await provider.Client.find(params.client_id as any);
 
@@ -134,11 +116,14 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/login', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+<<<<<<< HEAD
       const {
         prompt: { name },
         params
       } = await provider.interactionDetails(req, res);
 
+=======
+>>>>>>> main
       const result = await passwordLoginCheck(req.body);
 
       await provider.interactionFinished(req, res, result, {

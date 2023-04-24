@@ -16,11 +16,9 @@
             pair[1] || ""
           );
         }
-        console.log(query);
         return query;
       }
-
-      console.log("location", window.location);
+      debugger
       var fields = parseQuery(window.location.hash.slice(1));
       fields.upstream = "<%= upstream %>";
       debugger

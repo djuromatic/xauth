@@ -15,14 +15,11 @@ export default (app: Express, provider: Provider) => {
       prompt: { name }
     } = await provider.interactionDetails(req, res);
     assert.equal(name, 'login');
-    const path = `/interaction/${req.params.uid}/federated`;
     const { upstream } = req.body;
 
     switch (upstream) {
       case 'google': {
-        // const callbackParams = req.google.callbackParams(req) as any;
-
-        return new GoogleService(req, res, provider, path, req.body).login();
+        return new GoogleService(req, res, provider).login();
       }
 
       default:
