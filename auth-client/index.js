@@ -46,6 +46,7 @@ server.once("listening", () => {
     server.on("request", async (req, res) => {
       res.setHeader("connection", "close");
       const params = client.callbackParams(req);
+      console.log({ params });
       if (Object.keys(params).length) {
         const tokenSet = await client.callback(redirect_uri, params, {
           code_verifier,
@@ -58,7 +59,7 @@ server.once("listening", () => {
         const userinfo = await client.userinfo(tokenSet);
         console.log("userinfo", userinfo);
 
-        res.end("you can close this now");
+        res.end("You can close this screen now...");
         server.close();
       }
     });

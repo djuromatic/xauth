@@ -1,5 +1,5 @@
-import * as querystring from "node:querystring";
-import { inspect } from "node:util";
+import * as querystring from 'node:querystring';
+import { inspect } from 'node:util';
 
 const keys = new Set();
 const debug = (obj: any) =>
@@ -10,12 +10,12 @@ const debug = (obj: any) =>
       acc[key] = inspect(value, { depth: null });
       return acc;
     }, {}),
-    "<br/>",
-    ": ",
+    '<br/>',
+    ': ',
     {
       encodeURIComponent(value) {
         return keys.has(value) ? `<strong>${value}</strong>` : value;
-      },
+      }
     }
   );
 

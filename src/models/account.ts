@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 export interface AccountDocument {
   accountId: string;
@@ -31,11 +31,11 @@ const accountSchema = new Schema<
     email_verified: { type: Boolean, required: true },
     family_name: { type: String, required: true },
     given_name: { type: String, required: true },
-    locale: { type: String, required: true },
+    locale: { type: String, required: true }
   },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }, //todo change to detect this only on update
+  updatedAt: { type: Date, default: Date.now } //todo change to detect this only on update
 });
 
 //export model user with UserSchema
-export default mongoose.model<AccountDocument>("Account", accountSchema);
+export default mongoose.model<AccountDocument>('Account', accountSchema);

@@ -1,13 +1,16 @@
-import winston from "winston";
-import { serverConfig } from "../config/server-config.js";
+import winston from 'winston';
+import { serverConfig } from '../config/server-config.js';
 
 const { createLogger, format, transports } = winston;
 const { combine, timestamp, printf, colorize } = format;
 
 //Using the printf format.
-const customFormat = printf(({ timestamp, level, message, label, error }) => {
+const customFormat = printf(({ timestamp, level, message, label, error, payload }) => {
   if (error) {
     return `${timestamp} [${label}] ${level}: ${message} ${error.stack}`;
+  }
+  if (payload) {
+    return `${timestamp} [${label}] ${level}: ${message} ${JSON.stringify(payload)}`;
   }
   return `${timestamp} [${label}] ${level}: ${message}`;
 });
@@ -17,18 +20,18 @@ const logger = createLogger({
   format: combine(
     colorize(),
     timestamp({
-      format: "MMM-DD-YYYY HH:mm:ss",
+      format: 'MMM-DD-YYYY HH:mm:ss'
     }),
     customFormat
   ),
-  transports: [new transports.Console()],
+  transports: [new transports.Console()]
 });
 
 export class Logger {
   constructor(private readonly label: string) {}
 
-  debug(message: string) {
-    logger.debug(message, { label: this.label });
+  debug(message: string, payload?: object) {
+    logger.debug(message, { label: this.label, payload });
   }
   info(message: string) {
     logger.info(message, { label: this.label });

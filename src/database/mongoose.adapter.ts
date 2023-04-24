@@ -1,8 +1,8 @@
-import { ServerConfig } from "../config/server-config";
-import mongoose, { Collection } from "mongoose";
-import { Logger } from "../utils/winston.js";
+import { ServerConfig } from '../config/server-config';
+import mongoose, { Collection } from 'mongoose';
+import { Logger } from '../utils/winston.js';
 
-const logger = new Logger("Database");
+const logger = new Logger('Database');
 
 export function createConnection(serverConfig: ServerConfig) {
   const { host, port, dbName, dbUser, dbPass } = serverConfig.database;
@@ -14,10 +14,10 @@ export function createConnection(serverConfig: ServerConfig) {
 
   connection
     .then(() => {
-      logger.info("Connected to database");
+      logger.info('Connected to database');
     })
     .catch((err) => {
-      logger.error(err, "Error connecting to database");
+      logger.error(err, 'Error connecting to database');
     });
 }
 
@@ -46,7 +46,7 @@ export class MongoAdapter {
 
   async find(_id: string): Promise<any | undefined> {
     const result: any = await this.collection.findOne({ _id: _id as any }, {
-      payload: 1,
+      payload: 1
     } as any);
 
     if (!result) return undefined;
@@ -55,7 +55,7 @@ export class MongoAdapter {
 
   async findByUserCode(userCode: string): Promise<any | undefined> {
     const result: any = await this.collection.findOne(
-      { "payload.userCode": userCode as any },
+      { 'payload.userCode': userCode as any },
       { payload: 1 } as any
     );
 
@@ -65,7 +65,7 @@ export class MongoAdapter {
 
   async findByUid(uid: string): Promise<any | undefined> {
     const result: any = await this.collection.findOne(
-      { "payload.uid": uid as any },
+      { 'payload.uid': uid as any },
       { payload: 1 } as any
     );
 
@@ -78,12 +78,12 @@ export class MongoAdapter {
   }
 
   async revokeByGrantId(grantId: string) {
-    await this.collection.deleteMany({ "payload.grantId": grantId as any });
+    await this.collection.deleteMany({ 'payload.grantId': grantId as any });
   }
 
   async consume(_id: string) {
     await this.collection.findOneAndUpdate({ _id: _id as any }, {
-      $set: { "payload.consumed": Math.floor(Date.now() / 1000) },
+      $set: { 'payload.consumed': Math.floor(Date.now() / 1000) }
     } as any);
   }
 }
