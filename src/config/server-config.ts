@@ -1,4 +1,5 @@
 const serverConfig: ServerConfig = {
+  node_env: process.env.NODE_ENV ?? 'local',
   serviceName: process.env.SERVICE_NAME ?? 'xauth',
   hostname: process.env.HOSTNAME ?? 'xauth.test',
   port: +process.env.PORT ?? 3000,
@@ -19,11 +20,21 @@ const serverConfig: ServerConfig = {
     clientID: process.env.GOOGLE_CLIENT_ID ?? '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     redirectUri: process.env.GOOGLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/google`
+  },
+  aws: {
+    region: process.env.AWS_REGION ?? 'us-east-1',
+    ses: {
+      role_arn: process.env.AWS_SES_ROLE_ARN ?? '',
+      email_from: process.env.AWS_SES_EMAIL_FROM ?? '',
+      source_arn: process.env.AWS_SES_SOURCE_ARN ?? '',
+      web_identity_token_file: process.env.AWS_SES_WEB_IDENTITY_TOKEN_FILE ?? ''
+    }
   }
 };
 
 //interface ServerConfig
 export interface ServerConfig {
+  node_env: string;
   serviceName: string;
   hostname: string;
   port: number;
@@ -44,6 +55,15 @@ export interface ServerConfig {
     clientID: string;
     clientSecret: string;
     redirectUri: string;
+  };
+  aws: {
+    region: string;
+    ses: {
+      role_arn: string;
+      email_from: string;
+      source_arn: string;
+      web_identity_token_file: string;
+    };
   };
 }
 
