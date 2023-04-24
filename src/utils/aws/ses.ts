@@ -36,6 +36,7 @@ export class SesService {
   async sendTextEmail(to: string[], subject: string, text: string): Promise<void> {
     try {
       this.logger.debug('Sending: ' + subject + ' to: ' + to.join(','));
+
       await this.client.sendEmail({
         Destination: { ToAddresses: to },
         Message: {
