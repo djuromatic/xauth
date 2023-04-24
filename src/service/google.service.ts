@@ -8,6 +8,9 @@ import { UnauthorizedException } from '../common/errors/exceptions.js';
 import { Logger } from '../utils/winston.js';
 import axios from 'axios';
 import { AccountDocument } from '../models/account.js';
+import { google } from 'googleapis';
+
+const OAuth2 = google.auth.OAuth2;
 
 export type RequestParams = {
   client_id: string;
@@ -20,8 +23,15 @@ export type RequestParams = {
 
 export class GoogleService {
   private readonly logger = new Logger('GoogleService');
+  private readonly client;
 
-  constructor(private readonly req: Request, private readonly res: Response, private readonly provider: Provider) {}
+  constructor(private readonly req: Request, private readonly res: Response, private readonly provider: Provider) {
+    this.client = new OAuth2(
+      serverConfig.google.clientID,
+      serverConfig.google.clientSecret,
+      serverConfig.google.redirectUri
+    );
+  }
 
   public async login(): Promise<void> {
     // check for identity token in callback params
@@ -66,17 +76,10 @@ export class GoogleService {
     }
   }
 
-  public static redirectAuthorizeUrl(requestParams: RequestParams): string {
-    const url = new URL('https://accounts.google.com/o/oauth2/auth');
-    url.search = new URLSearchParams(requestParams).toString();
-
-    return url.toString();
-  }
-
   private chechForId(): string | null {
     if (!this.req.body.id_token) {
       const state = `${this.req.params.uid}|${crypto.randomBytes(32).toString('hex')}`;
-      // const nonce = crypto.randomBytes(32).toString('hex');
+      const nonce = crypto.randomBytes(32).toString('hex');
 
       this.res.status(303);
 
@@ -85,10 +88,11 @@ export class GoogleService {
         redirect_uri: serverConfig.google.redirectUri,
         scope: 'openid email profile',
         response_type: 'id_token token',
-        state
+        state,
+        nonce
       };
 
-      return GoogleService.redirectAuthorizeUrl(requestParams) ?? null;
+      return this.redirectAuthorizeUrl(requestParams) ?? null;
     }
   }
 
@@ -106,11 +110,20 @@ export class GoogleService {
     );
     const accountId = `${ProviderName.GOOGLE}|${claims.sub}`;
     const profile = {
-      sub: accountId,
       ...claims,
-      ...userInfo
+      ...userInfo,
+      sub: accountId
     };
     const result = await createFederatedAccount(accountId, profile);
     return result;
+  }
+
+  private redirectAuthorizeUrl(requestParams: RequestParams): string {
+    const authUrl = this.client.generateAuthUrl({
+      ...requestParams
+    });
+
+    this.logger.debug('auth_url', { authUrl });
+    return authUrl;
   }
 }
