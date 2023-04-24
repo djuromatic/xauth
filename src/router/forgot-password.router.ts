@@ -9,8 +9,14 @@ import { NextFunction, Request, Response, urlencoded } from 'express'; // eslint
 import Provider, { InteractionResults } from 'oidc-provider';
 
 import { findByEmail, create as createAccount, updateAccountPassword } from '../service/account.service.js';
+import {
+  create as createEmailVerification,
+  find as findEmailVerification,
+  remove as removeEmailVerification
+} from '../service/email-verification.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
+import { generateEmailCode } from '../helpers/forgoten-password.js';
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -68,7 +74,12 @@ export default (app: Express, provider: Provider) => {
           }
         });
       } else {
+        const xauthCode = generateEmailCode();
+
+        await createEmailVerification({ accountId: account.accountId, code: xauthCode });
+
         //TODO send the actual email through an email-service
+
         return res.render('email-sent', {
           client,
           uid,
@@ -98,14 +109,10 @@ export default (app: Express, provider: Provider) => {
 
         const xauthCode = req.params.xauthCode;
 
-        //TODO: check if the xauthCode is valid
-        const xauthCodeIsValid = true;
-
-        //TODO: retrieve the accountId based on code
-        const accountId = 'bojinovicc@hotmail.com';
+        const emailVerification = await findEmailVerification({ code: xauthCode });
+        const xauthCodeIsValid = emailVerification != null;
 
         if (xauthCodeIsValid) {
-          // await updateAccountPassword(accountId, req.body.password);
           return res.render('new-password', {
             client,
             uid,
@@ -150,16 +157,18 @@ export default (app: Express, provider: Provider) => {
 
         const client = await provider.Client.find(params.client_id as any);
 
-        //TODO: check if the xauthCode is valid
-        const xauthCodeIsValid = true;
+        const xauthCode = req.params.xauthCode;
 
-        //TODO: retrieve the accountId based on code
-        const accountId = 'bojinovicc@hotmail.com';
-        console.log(123);
+        const emailVerification = await findEmailVerification({ code: xauthCode });
+        const xauthCodeIsValid = emailVerification != null;
 
         if (xauthCodeIsValid) {
-          // TODO: uncomment
+          const accountId = emailVerification.accountId;
+
           await updateAccountPassword(accountId, req.body.password);
+
+          await removeEmailVerification({ code: xauthCode });
+
           return res.render('landing', {
             client,
             uid,

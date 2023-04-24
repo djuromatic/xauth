@@ -56,7 +56,7 @@ export default (app: Express, provider: Provider) => {
       await emailPasswordSignupCheck(req.body);
 
       await createAccount(req.body);
-      // res.json({ status: "Verification email sent..." });
+
       const result = {
         m13: 'ok'
       };
