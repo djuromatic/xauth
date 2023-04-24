@@ -31,7 +31,6 @@
     //TODO:client side user input verification
     const verificationCheck = () => {
       const data = new FormData(document.getElementById("signup-form"));
-      console.log({username: data.get("username")});
       if(data.get("password") !== data.get("repeatedPassword")){
         window.alert("Password and Repeated password don't match!")
         return false;

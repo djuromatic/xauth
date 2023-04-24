@@ -1,8 +1,4 @@
-import {
-  Configuration,
-  KoaContextWithOIDC,
-  interactionPolicy
-} from 'oidc-provider';
+import { Configuration, KoaContextWithOIDC } from 'oidc-provider';
 import { getInteractionPolicy } from '../helpers/interaction-policy.js';
 import { getProviderClients } from '../helpers/provider-clients.js';
 import { findAccount } from '../service/account.service.js';
@@ -59,11 +55,7 @@ export const oidcConfig: Configuration = {
     policy: getInteractionPolicy()
   },
   cookies: {
-    keys: [
-      'some secret key',
-      'and also the old rotated away some time ago',
-      'and one more'
-    ]
+    keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more']
   },
   claims: {
     address: ['address'],
