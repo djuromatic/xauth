@@ -89,3 +89,12 @@ export const create = async (obj: {
   account = await AccountDb.findOne({ _id: account._id });
   return account;
 };
+
+export const updateAccountPassword = async (accountId: string, newPassword: string): Promise<AccountDocument> => {
+  const password = await bcrypt.hash(newPassword, PASSWORD_SALT_ROUNDS);
+
+  await AccountDb.updateOne({ accountId }, { password });
+
+  const account = await AccountDb.findOne({ accountId });
+  return account;
+};
