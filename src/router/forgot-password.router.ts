@@ -13,7 +13,7 @@ import {
   create as createPasswordResetRequest,
   find as findPasswordResetRequest,
   remove as removePasswordResetRequest
-} from '../service/email-verification.service.js';
+} from '../service/password-reset-request.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
 import { generateEmailCode, sendEmail as sendForgottenPasswordEmail } from '../helpers/forgoten-password.js';

@@ -19,5 +19,5 @@ export const sendEmail = async (email: string, username: string, link: string) =
     `-The XLANTIS Team`;
 
   //TODO: send the actual email
-  // emailService.sendTextEmail([email], subject, body);
+  emailService.sendTextEmail([email], subject, body);
 };

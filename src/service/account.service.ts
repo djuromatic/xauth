@@ -99,7 +99,7 @@ export const updateAccountPassword = async (accountId: string, newPassword: stri
   return account;
 };
 
-export const updateAccountVerificationStatus = async (accountId: string, status: true): Promise<AccountDocument> => {
+export const updateAccountVerificationStatus = async (accountId: string, status: boolean): Promise<AccountDocument> => {
   await AccountDb.updateOne({ accountId }, { 'profile.email_verified': status });
 
   const account = await AccountDb.findOne({ accountId });
