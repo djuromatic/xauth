@@ -1,5 +1,5 @@
 export SERVICE_NAME="xauth"
-export HOSTNAME="e798-109-245-215-29.ngrok-free.app"
+export HOSTNAME="xauth.test"
 export PORT="3000"
 export DB_HOST="localhost"
 export DB_PORT="27017"
@@ -11,6 +11,10 @@ export LOGGER_LEVEL="debug"
 export GOOGLE_CLIENT_ID="{SECRET}"
 export GOOGLE_CLIENT_SECRET="{SECRET}"
 export GOOGLE_REDIRECT_URI="https://${HOSTNAME}/interaction/callback/google"
+
+export AWS_SES_EMAIL_FROM=""
+export AWS_REGION=""
+export AWS_SES_SOURCE_ARN=""
 
 # run app
 npm run watch

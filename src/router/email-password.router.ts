@@ -95,22 +95,6 @@ export default (app: Express, provider: Provider) => {
     '/interaction/:uid/signup-verification/:xauthCode',
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
-      // const { uid, xauthCode } = req.params;
-      // logger.info(uid + ' ---- ' + xauthCode);
-      // const response = await fetch(
-      //   `https://${serverConfig.hostname}/interaction/${req.params.uid}/signup-verification/${req.params.xauthCode}`,
-      //   {
-      //     method: 'POST',
-      //     mode: 'cors', // no-cors, *cors, same-origin
-      //     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      //     credentials: 'same-origin', // include, *same-origin, omit
-      //     redirect: 'follow', // manual, *follow, error
-      //     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      //     body: JSON.stringify({ uid, xauthCode })
-      //   }
-      // );
-      // logger.info(JSON.stringify(response));
-      // return response;
       try {
         const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
@@ -164,19 +148,13 @@ export default (app: Express, provider: Provider) => {
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        logger.info(`getting uid`);
-
         const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
         const client = await provider.Client.find(params.client_id as any);
 
-        logger.info(`getting xauthCode`);
-
         const xauthCode = req.params.xauthCode;
         const emailVerification = await findEmailVerification({ code: xauthCode });
         const xauthCodeIsValid = emailVerification != null;
-
-        logger.info(`xauthCodeIsValid ${xauthCodeIsValid}`);
 
         if (xauthCodeIsValid) {
           const accountId = emailVerification.accountId;
