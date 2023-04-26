@@ -10,9 +10,9 @@ import Provider, { InteractionResults } from 'oidc-provider';
 
 import { findByEmail, create as createAccount, updateAccountPassword } from '../service/account.service.js';
 import {
-  create as createEmailVerification,
-  find as findEmailVerification,
-  remove as removeEmailVerification
+  create as createPasswordResetRequest,
+  find as findPasswordResetRequest,
+  remove as removePasswordResetRequest
 } from '../service/email-verification.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
@@ -78,7 +78,7 @@ export default (app: Express, provider: Provider) => {
       } else {
         const xauthCode = generateEmailCode();
 
-        await createEmailVerification({ accountId: account.accountId, code: xauthCode });
+        await createPasswordResetRequest({ accountId: account.accountId, code: xauthCode });
 
         await sendForgottenPasswordEmail(
           account.profile.email,
@@ -92,6 +92,7 @@ export default (app: Express, provider: Provider) => {
           details: prompt.details,
           params,
           title: 'Email sent',
+          message: `Your username and password reset link has been succefully sent.\nCan find it? Pleasec check your Spam box too.`,
           session: session ?? undefined,
           dbg: {
             params: debug(params),
@@ -115,7 +116,7 @@ export default (app: Express, provider: Provider) => {
 
         const xauthCode = req.params.xauthCode;
 
-        const emailVerification = await findEmailVerification({ code: xauthCode });
+        const emailVerification = await findPasswordResetRequest({ code: xauthCode });
         const xauthCodeIsValid = emailVerification != null;
 
         if (xauthCodeIsValid) {
@@ -167,7 +168,7 @@ export default (app: Express, provider: Provider) => {
 
         const xauthCode = req.params.xauthCode;
 
-        const emailVerification = await findEmailVerification({ code: xauthCode });
+        const emailVerification = await findPasswordResetRequest({ code: xauthCode });
         const xauthCodeIsValid = emailVerification != null;
 
         if (xauthCodeIsValid) {
@@ -175,7 +176,7 @@ export default (app: Express, provider: Provider) => {
 
           await updateAccountPassword(accountId, req.body.password);
 
-          await removeEmailVerification({ code: xauthCode });
+          await removePasswordResetRequest({ code: xauthCode });
 
           return res.render('landing', {
             client,

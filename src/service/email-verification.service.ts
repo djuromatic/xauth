@@ -12,7 +12,7 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
     const emailVerification = await EmailVerificationDb.create({
       accountId,
       code,
-      expiresAt: Date.now() + 10 * 60 * 60 //10 minute expiration
+      expiresAt: Date.now() + 1 * 24 * 60 * 60 * 1000 //1 day expiration
     });
 
     return emailVerification;
@@ -23,7 +23,7 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
       },
       {
         code,
-        expiresAt: Date.now() + 10 * 60 * 60 //10 minute expiration
+        expiresAt: Date.now() + 1 * 24 * 60 * 60 * 1000 //1 day expiration
       }
     );
 

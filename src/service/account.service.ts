@@ -98,3 +98,10 @@ export const updateAccountPassword = async (accountId: string, newPassword: stri
   const account = await AccountDb.findOne({ accountId });
   return account;
 };
+
+export const updateAccountVerificationStatus = async (accountId: string, status: true): Promise<AccountDocument> => {
+  await AccountDb.updateOne({ accountId }, { 'profile.email_verified': status });
+
+  const account = await AccountDb.findOne({ accountId });
+  return account;
+};
