@@ -1,3 +1,5 @@
+import { isBefore } from 'date-fns';
+
 import PasswordResetRequestDb, { PasswordResetRequestDocument } from '../models/password-reset-request.js';
 import { Logger } from '../utils/winston.js';
 
@@ -9,13 +11,13 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
   const emailAlreadySent = (await PasswordResetRequestDb.findOne({ accountId })) != null;
 
   if (!emailAlreadySent) {
-    const emailVerification = await PasswordResetRequestDb.create({
+    const passwordResetRequest = await PasswordResetRequestDb.create({
       accountId,
       code,
       expiresAt: Date.now() + 10 * 60 * 1000 //10 minute expiration
     });
 
-    return emailVerification;
+    return passwordResetRequest;
   } else {
     await PasswordResetRequestDb.updateOne(
       {
@@ -27,16 +29,19 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
       }
     );
 
-    const emailVerification = await PasswordResetRequestDb.findOne({ code });
+    const passwordResetRequest = await PasswordResetRequestDb.findOne({ code });
 
-    return emailVerification;
+    return passwordResetRequest;
   }
 };
 
 export const find = async (obj: { code: string }): Promise<PasswordResetRequestDocument> => {
   const { code } = obj;
-  const emailVerification = await PasswordResetRequestDb.findOne({ code });
-  return emailVerification;
+  const passwordResetRequest = await PasswordResetRequestDb.findOne({ code });
+
+  if (passwordResetRequest && isBefore(Date.now(), passwordResetRequest.expiresAt)) return passwordResetRequest;
+
+  return undefined;
 };
 
 export const remove = async (obj: { code: string }): Promise<void> => {

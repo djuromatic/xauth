@@ -1,3 +1,5 @@
+import { isBefore } from 'date-fns';
+
 import EmailVerificationDb, { EmailVerificationDocument } from '../models/email-verification.js';
 import { Logger } from '../utils/winston.js';
 
@@ -36,7 +38,9 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
 export const find = async (obj: { code: string }): Promise<EmailVerificationDocument> => {
   const { code } = obj;
   const emailVerification = await EmailVerificationDb.findOne({ code });
-  return emailVerification;
+  if (emailVerification && isBefore(Date.now(), emailVerification.expiresAt)) return emailVerification;
+
+  return undefined;
 };
 
 export const remove = async (obj: { code: string }): Promise<void> => {
