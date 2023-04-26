@@ -12,9 +12,10 @@
   - or -
 </div>
 <% } %>
-<form autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
+<form autocomplete="on" action="/interaction/<%= uid %>/login" method="post">
   <input required type="email" name="email" placeholder="Enter email" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %>>
   <input required type="password" name="password" placeholder="Enter password" <% if (params.login_hint) { %>autofocus="on"<% } %>>
 
   <button type="submit" class="login login-submit">Sign-in</button>
 </form>
+<a href="/interaction/<%= uid %>/forgot-password-init">Forgot password</a>

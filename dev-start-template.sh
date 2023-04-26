@@ -12,5 +12,9 @@ export GOOGLE_CLIENT_ID="{SECRET}"
 export GOOGLE_CLIENT_SECRET="{SECRET}"
 export GOOGLE_REDIRECT_URI="https://${HOSTNAME}/interaction/callback/google"
 
+export AWS_SES_EMAIL_FROM=""
+export AWS_REGION=""
+export AWS_SES_SOURCE_ARN=""
+
 # run app
 npm run watch
