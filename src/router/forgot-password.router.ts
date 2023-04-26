@@ -16,7 +16,9 @@ import {
 } from '../service/email-verification.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
-import { generateEmailCode } from '../helpers/forgoten-password.js';
+import { generateEmailCode, sendEmail as sendForgottenPasswordEmail } from '../helpers/forgoten-password.js';
+import { serverConfig } from '../config/server-config.js';
+import { passwordChecks } from '../helpers/email-password-signup.js';
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -78,7 +80,11 @@ export default (app: Express, provider: Provider) => {
 
         await createEmailVerification({ accountId: account.accountId, code: xauthCode });
 
-        //TODO send the actual email through an email-service
+        await sendForgottenPasswordEmail(
+          account.profile.email,
+          'username:placeholder', //TODO:change when the Account schema is updated
+          `https://${serverConfig.hostname}/interaction/${uid}/new-password/${xauthCode}`
+        );
 
         return res.render('email-sent', {
           client,
@@ -154,6 +160,8 @@ export default (app: Express, provider: Provider) => {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+
+        passwordChecks(req.body.password);
 
         const client = await provider.Client.find(params.client_id as any);
 

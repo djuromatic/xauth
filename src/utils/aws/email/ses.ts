@@ -1,7 +1,7 @@
 import * as AWS from '@aws-sdk/client-ses';
 import { fromSSO, fromTokenFile } from '@aws-sdk/credential-providers';
-import { Logger } from '../winston.js';
-import { serverConfig } from '../../config/server-config.js';
+import { Logger } from '../../winston.js';
+import { serverConfig } from '../../../config/server-config.js';
 
 export class SesService {
   private readonly Source: string;
