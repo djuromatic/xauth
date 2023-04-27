@@ -13,6 +13,8 @@ import { loggerMiddleware } from './middlewares/logger.js';
 import { Logger } from './utils/winston.js';
 import federatedRouter from './router/federated.router.js';
 import forgotenPasswordRouter from './router/forgot-password.router.js';
+import demoRouter from './router/demo.router.js';
+import { interactionErrorHandler } from './common/errors/interaction-error-handler.js';
 
 export const createServer = async () => {
   const logger = new Logger('Init');
@@ -27,14 +29,17 @@ export const createServer = async () => {
   app.use(express.json());
   const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
+  app.use(loggerMiddleware);
+  const oidc = provider.callback();
+
   interactionRouter(app, provider);
   emailPasswordRouter(app, provider);
   federatedRouter(app, provider);
   forgotenPasswordRouter(app, provider);
-
-  app.use(loggerMiddleware);
-  const oidc = provider.callback();
+  demoRouter(app, provider);
   app.use(oidc);
+
+  interactionErrorHandler(app, provider);
 
   const server = https.createServer(
     {

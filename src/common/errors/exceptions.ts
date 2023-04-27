@@ -1,10 +1,8 @@
 import { errors } from 'oidc-provider';
 
 export class InteractionException extends errors.CustomOIDCProviderError {
-  constructor(description: string, message: string, status: number) {
+  constructor(public readonly message: string, public readonly description: string, public readonlystatus: number) {
     super(message, description);
-
-    // this.allow_redirect = true;
   }
 }
 

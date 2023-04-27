@@ -14,7 +14,6 @@ import {
   find as findPasswordResetRequest,
   remove as removePasswordResetRequest
 } from '../service/password-reset-request.service.js';
-import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
 import { generateEmailCode, sendEmail as sendForgottenPasswordEmail } from '../helpers/forgoten-password.js';
 import { serverConfig } from '../config/server-config.js';
@@ -211,5 +210,4 @@ export default (app: Express, provider: Provider) => {
       }
     }
   );
-  interactionErrorHandler(app, provider);
 };

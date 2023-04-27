@@ -5,6 +5,7 @@ import { findAccount } from '../service/account.service.js';
 import { MongoAdapter } from '../database/mongoose.adapter.js';
 import { renderError } from '../helpers/render-error.js';
 import { Logger } from '../utils/winston.js';
+import { findDemoAccount } from '../service/demo-account.service.js';
 
 const logger = new Logger('ProviderService');
 
@@ -35,7 +36,13 @@ const jwks = {
 
 export const oidcConfig: Configuration = {
   clients: getProviderClients(),
-  findAccount: findAccount,
+  findAccount: (ctx: KoaContextWithOIDC, id: string) => {
+    if (id.split('|')[0] === 'demo') {
+      return findDemoAccount(ctx, id);
+    }
+
+    return findAccount(ctx, id);
+  },
   adapter: MongoAdapter,
   renderError,
   ttl: {

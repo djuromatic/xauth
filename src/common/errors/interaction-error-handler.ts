@@ -6,24 +6,15 @@ import { Logger } from '../../utils/winston.js';
 
 const logger = new Logger('Interaction Error Handler');
 
-export const interactionErrorHandler = async (
-  app: Express,
-  provider: Provider
-) => {
-  const errorHandler = async (
-    err: Error,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+export const interactionErrorHandler = async (app: Express, provider: Provider) => {
+  const errorHandler = async (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof errors.SessionNotFound) {
       return res.redirect('/login');
     }
     if (err instanceof InteractionException) {
-      const { uid, prompt, params, session } =
-        await provider.interactionDetails(req, res);
+      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
-      const { error_description, statusCode, message } = err;
+      const { description, status, message } = err;
 
       const client = await provider.Client.find(params.client_id as any);
       logger.error(err);
@@ -31,7 +22,7 @@ export const interactionErrorHandler = async (
         client,
         uid,
         details: prompt.details,
-        error: { error_description, statusCode, message },
+        error: { description, status, message },
         params,
         title: 'Interaction Error',
         session: session ? debug(session) : undefined,

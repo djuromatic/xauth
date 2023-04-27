@@ -53,7 +53,7 @@ export class SesService {
       });
       this.logger.debug('Sent: ' + subject + ' to: ' + to.join(','));
     } catch (e) {
-      this.logger.error(e, 'SesService.sendTextEmail');
+      this.logger.error(e);
     }
   }
 }

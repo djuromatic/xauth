@@ -1,7 +1,6 @@
 import { Express } from 'express';
 import { NextFunction, Request, Response, urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider, { InteractionResults } from 'oidc-provider';
-import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 import { Logger } from '../utils/winston.js';
 import { debug } from '../helpers/debug.js';
@@ -20,8 +19,7 @@ export default (app: Express, provider: Provider) => {
       if (!shouldRenderLayout) {
         app.render(view, locals, (err: any, html: any) => {
           if (err) throw err;
-          //todo fix this we have html here no need to render again
-          orig.call(res, 'repost', { ...locals });
+          orig.call(res, view, { ...locals });
         });
         return next();
       }
@@ -188,6 +186,4 @@ export default (app: Express, provider: Provider) => {
       next(err);
     }
   });
-
-  interactionErrorHandler(app, provider);
 };

@@ -5,7 +5,6 @@ import { NextFunction, Request, Response } from 'express'; // eslint-disable-lin
 import Provider from 'oidc-provider';
 
 import { create as createAccount, updateAccountVerificationStatus } from '../service/account.service.js';
-import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
 import { check as emailPasswordSignupCheck } from '../helpers/email-password-signup.js';
 import { Logger } from '../utils/winston.js';
@@ -194,5 +193,4 @@ export default (app: Express, provider: Provider) => {
       }
     }
   );
-  interactionErrorHandler(app, provider);
 };
