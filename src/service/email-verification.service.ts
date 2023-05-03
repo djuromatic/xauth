@@ -38,6 +38,7 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
 export const find = async (obj: { code: string }): Promise<EmailVerificationDocument> => {
   const { code } = obj;
   const emailVerification = await EmailVerificationDb.findOne({ code });
+
   if (emailVerification && isBefore(Date.now(), emailVerification.expiresAt)) return emailVerification;
 
   return undefined;

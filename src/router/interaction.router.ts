@@ -5,6 +5,13 @@ import { interactionErrorHandler } from '../common/errors/interaction-error-hand
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 import { Logger } from '../utils/winston.js';
 import { debug } from '../helpers/debug.js';
+import {
+  create as createEmailVerification,
+  find as findEmailVerification,
+  remove as removeEmailVerification
+} from '../service/email-verification.service.js';
+import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
+import { findAccount, findByEmail } from '../service/account.service.js';
 
 const logger = new Logger('InteractionRouter');
 
@@ -88,7 +95,6 @@ export default (app: Express, provider: Provider) => {
   app.post('/interaction/:uid/login-init', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-      logger.debug('login-init', { uid, prompt, params, session });
 
       const client = await provider.Client.find(params.client_id as any);
 
@@ -118,7 +124,29 @@ export default (app: Express, provider: Provider) => {
         mergeWithLastSubmission: false
       });
     } catch (err) {
-      next(err);
+      const { error_description } = err;
+
+      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+
+      const client = await provider.Client.find(params.client_id as any);
+      logger.info(JSON.stringify({ error_description }));
+      if (error_description === 'Email has not yet been verified') {
+        return res.render('email-not-verified', {
+          client,
+          uid,
+          details: prompt.details,
+          params,
+          link: `/interaction/${uid}/signup-resend-email/${req.body.email}`,
+          title: 'Email not verified',
+          session: session ?? undefined,
+          dbg: {
+            params: debug(params),
+            prompt: debug(prompt)
+          }
+        });
+      } else {
+        next(err);
+      }
     }
   });
 
