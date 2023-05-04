@@ -81,6 +81,7 @@ export const oidcConfig: Configuration = {
       'zoneinfo'
     ]
   },
+
   features: {
     devInteractions: { enabled: false }, // defaults to true
     clientCredentials: { enabled: true },
@@ -89,20 +90,21 @@ export const oidcConfig: Configuration = {
     revocation: { enabled: true }, // defaults to false
     resourceIndicators: {
       defaultResource: (ctx: KoaContextWithOIDC) => {
-        return 'http://xauth.test:3000';
+        return 'https://1761-109-245-215-29.ngrok-free.app';
       },
       enabled: false,
       getResourceServerInfo: (ctx, resourceIndicator, client) => {
         logger.debug('get resource server info', client);
 
         return {
-          scope: 'openid api:read api:write',
+          scope: 'api:read api:write',
           accessTokenFormat: 'jwt',
           jwt: {
-            audience: 'solid',
+            // audience: 'https://1761-109-245-215-29.ngrok-free.app',
+            audience: resourceIndicator,
             accessTokenTTL: 2 * 60 * 60, // 2 hours
             accessTokenFormat: 'jwt',
-            sign: { alg: 'RS256', key: jwks.keys[0] }
+            sign: { alg: 'RS256' }
           }
         };
       },
