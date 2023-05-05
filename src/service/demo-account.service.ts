@@ -17,6 +17,8 @@ export const findDemoAccount = async (ctx: KoaContextWithOIDC, id: string): Prom
     throw new Error('User not found');
   }
 
+  //todo redundent code
+  //todo find way to revoke token in n minutes and emit this event
   const now = new Date();
   const expiredAt = subMinutes(now, 5);
 
@@ -45,6 +47,8 @@ export default class DemoService {
     if (checkIfFingerprintExists) {
       // check if still valid (not expired)
 
+      //todo redundent code
+      //todo find way to revoke token in n minutes and emit this event
       const now = new Date();
       const expiredAt = subMinutes(now, 5);
 

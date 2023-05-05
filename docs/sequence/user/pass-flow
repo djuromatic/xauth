@@ -1,0 +1,33 @@
+title Username/Password User Flow
+
+participant User
+participant xAuth
+
+
+
+User->xAuth: Signup
+xAuth->User: Render Signup form
+User->xAuth: Submit Form
+xAuth->xAuth: Create New User
+xAuth-->Email:Send User Verify Email
+xAuth-->Task:Create job if user is not verify via email to terminate token and disable user after some (N) Time
+Task -->> xAuth: Terminate user if this task triggers
+xAuth->User: return jwt token
+
+note left of User: User has no access_token but\nhis email is not verified\nat this point we can update user that\nhe will be terminated if he dosen't to this
+
+
+User->xAuth: Click on email verification Link
+
+note left of User: becouse we already have access_token\nwe can request him too with email verification code\nafter this submited user will be activated fully
+xAuth->xAuth: Verify secret
+xAuth->xAuth: Verify User
+xAuth-->Task: Destroy Task
+
+
+
+
+
+
+
+

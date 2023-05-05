@@ -11,7 +11,7 @@ const serverConfig: ServerConfig = {
     dbPass: process.env.DB_PASS ?? 'xauth'
   },
   oidc: {
-    issuer: process.env.OIDC_ISSUER ?? 'http://xauth.test:3000'
+    issuer: process.env.OIDC_ISSUER ?? 'https://xauth.test:3000'
   },
   logger: {
     level: process.env.LOGGER_LEVEL ?? 'debug'
