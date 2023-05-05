@@ -35,7 +35,4 @@ const jwkPrivate = {
   qi: privateKeyObject.export({ format: 'jwk' }).qi
 };
 
-console.log(jwkPublic);
-console.log(jwkPrivate);
-
 export { jwkPublic, jwkPrivate };
