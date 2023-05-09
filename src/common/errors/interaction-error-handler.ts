@@ -15,7 +15,7 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
     if (err instanceof InteractionException) {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
-      const { error_description, statusCode, message } = err;
+      const { description, status, message } = err;
 
       const client = await provider.Client.find(params.client_id as any);
       logger.error(err);
@@ -23,7 +23,7 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
         client,
         uid,
         details: prompt.details,
-        error: { error_description, statusCode, message },
+        error: { description, status, message },
         params,
         title: 'Interaction Error',
         session: session ? debug(session) : undefined,

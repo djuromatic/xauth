@@ -1,0 +1,44 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fingerprinting</title>
+  </head>
+  <body>
+    <script nonce="<%= nonce %>">
+
+      var fields = {};
+      fields.upstream = "<%= upstream %>";
+      var uid = "<%= uid %>";
+
+      // A simple fingerprinting function that generates a fingerprint based on browser properties
+      function generateFingerprint() {
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+        const language = navigator.language;
+
+        return btoa(`${userAgent}:${platform}:${language}`);
+      }
+
+      fields.fingerprint =  generateFingerprint();
+
+      var form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/interaction/" + uid + "/demo/repost";
+     
+      Object.keys(fields).forEach((key) => {
+        if (key) {
+          // empty fragment will yield {"":""};
+          var input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = fields[key];
+          form.appendChild(input);
+        }
+      });
+      document.body.appendChild(form);
+
+      form.submit();
+    </script>
+  </body>
+</html>

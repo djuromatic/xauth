@@ -6,7 +6,6 @@
   <body>
     <script nonce="<%= nonce %>">
       function parseQuery(queryString) {
-        debugger;
         var query = {};
         var pairs = (
           queryString[0] === "?" ? queryString.slice(1) : queryString
@@ -19,7 +18,6 @@
         }
         return query;
       }
-      debugger
       var fields = parseQuery(window.location.hash.slice(1));
       fields.upstream = "<%= upstream %>";
       debugger

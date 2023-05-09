@@ -1,18 +1,15 @@
-#!/usr/bin/env node
-const { parse } = require('qs');
-/* eslint-disable no-console, camelcase */
 const { readFileSync } = require('fs');
 const config = require('./config.json');
+const { parseISO, isPast } = require('date-fns');
 
-const args = process.argv.slice(2);
-if (args.length) {
-  console.log(args);
-
-  if (args[0] === '--org') {
-    config.organization_login = true;
-    config.organizationId = args[1] ?? config.organizationId ?? '';
-  }
+function isTokenExpired(token) {
+  const expirationDate = parseISO(new Date(token.expires_at * 1000).toISOString());
+  console.log('now', parseISO(new Date().toISOString()));
+  console.log('when issued', parseISO(new Date(token.claims().iat * 1000).toISOString()));
+  console.log('expirationDate', expirationDate);
+  return isPast(expirationDate);
 }
+// const args = process.argv.slice(2);
 
 const server = require('https')
   .createServer({
@@ -30,9 +27,6 @@ const { ISSUER = config.issuer } = process.env;
 server.once('listening', () => {
   (async () => {
     const issuer = await Issuer.discover(ISSUER);
-
-    // const { address, port } = server.address();
-    // const hostname = address === '::' ? '[::1]' : address;
 
     const client = new issuer.Client({
       client_id: config.client_id,
@@ -56,15 +50,12 @@ server.once('listening', () => {
         console.log('got', tokenSet);
         console.log('id token claims', tokenSet.claims());
 
-        const userinfo = await client.userinfo(tokenSet);
-        console.log('userinfo', userinfo);
+        console.log('isExpired', isTokenExpired(tokenSet));
 
         res.end('You can close this screen now...');
         server.close();
       }
     });
-
-    const invitation = config.invitation ?? '';
 
     let authConfig = {
       audience: config.audiance,
@@ -72,16 +63,8 @@ server.once('listening', () => {
       code_challenge,
       code_challenge_method: 'S256',
       token_endpoint_auth_method: 'none',
-      scope: 'openid profile email'
+      scope: 'openid'
     };
-
-    if (invitation.length > 0) {
-      authConfig = { ...authConfig, ...parse(invitation) };
-    }
-
-    if (config.organization_login) {
-      authConfig.organization = config.organizationId;
-    }
 
     await open(client.authorizationUrl(authConfig), { wait: false });
   })().catch((err) => {
