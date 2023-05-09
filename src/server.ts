@@ -13,6 +13,7 @@ import { loggerMiddleware } from './middlewares/logger.js';
 import { Logger } from './utils/winston.js';
 import federatedRouter from './router/federated.router.js';
 import forgotenPasswordRouter from './router/forgot-password.router.js';
+import metamaskRouter from './router/metamask.router.js';
 
 export const createServer = async () => {
   const logger = new Logger('Init');
@@ -31,6 +32,7 @@ export const createServer = async () => {
   emailPasswordRouter(app, provider);
   federatedRouter(app, provider);
   forgotenPasswordRouter(app, provider);
+  metamaskRouter(app, provider);
 
   app.use(loggerMiddleware);
   const oidc = provider.callback();

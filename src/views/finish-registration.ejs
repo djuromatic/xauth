@@ -1,0 +1,58 @@
+<div id="cls111">
+
+<form autocomplete="on" action="/interaction/<%= uid %>/federated/finish-registration" method="post">
+  <input hidden value="<%= sub %>" name="sub"/>
+  <input value="<%= uid %>" hidden id="UID"/>
+  <input hidden id="METAMASK-NONCE" name="metamask_nonce"/>
+  <input hidden id="METAMASK-SIGNATURE" name="metamask_signature"/>
+
+  <input required type="text" name="username" placeholder="Enter username"/>
+  <button type="submit" class="submit">Set username</button>
+</form>
+
+<script type="module">
+  import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
+  const el = document.createElement("button");
+  el.textContent = "Connect Metamask";
+  el.onclick = async () => {
+
+    const uid = document.getElementById("UID").value;
+ 
+    // Get the provider and signer from the browser window
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+    await provider.send("eth_requestAccounts", []);
+
+    const signer = await provider.getSigner();
+
+    console.log({signer, addr: await signer.getAddress()});
+
+    const response = await fetch(`/interaction/${uid}/metamask/request-nonce`,  {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+      },
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    });
+
+    const { nonce } = await response.json()
+
+    const signature = await signer.signMessage(nonce);
+
+    document.getElementById("METAMASK-NONCE").value = nonce;
+    document.getElementById("METAMASK-SIGNATURE").value = signature;
+
+    console.log({signature});
+
+    el.textContent = 'Connected';
+    el.onclick = () => {console.log('already_connected');}
+  }
+
+  document.getElementById("cls111").appendChild(el);
+
+</script>
+
+</div>

@@ -18,6 +18,7 @@ import {
 import account from '../models/account.js';
 import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
 import { serverConfig } from '../config/server-config.js';
+import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
 
 const logger = new Logger('SignupRouter');
 
@@ -61,15 +62,17 @@ export default (app: Express, provider: Provider) => {
       const client = await provider.Client.find(params.client_id as any);
 
       await emailPasswordSignupCheck(req.body);
+      await metamaskChecks(req.body);
 
       const account = await createAccount(req.body);
-      const xauthCode = generateEmailCode();
+      await linkAccount(account.accountId, req.body);
 
+      const xauthCode = generateEmailCode();
       await createEmailVerification({ accountId: account.accountId, code: xauthCode });
 
       await sendEmail(
         account.profile.email,
-        'username:placeholder', //TODO:change when the Account schema is updated
+        account.profile.username,
         `https://${serverConfig.hostname}/interaction/${uid}/signup-verification/${xauthCode}`
       );
 
@@ -109,7 +112,7 @@ export default (app: Express, provider: Provider) => {
 
         await sendEmail(
           account.profile.email,
-          'username:placeholder', //TODO:change when the Account schema is updated
+          account.profile.username,
           `https://${serverConfig.hostname}/interaction/${uid}/signup-verification/${xauthCode}`
         );
 

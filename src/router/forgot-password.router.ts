@@ -82,7 +82,7 @@ export default (app: Express, provider: Provider) => {
 
         await sendForgottenPasswordEmail(
           account.profile.email,
-          'username:placeholder', //TODO:change when the Account schema is updated
+          account.profile.username,
           `https://${serverConfig.hostname}/interaction/${uid}/new-password/${xauthCode}`
         );
 
@@ -91,6 +91,8 @@ export default (app: Express, provider: Provider) => {
           uid,
           details: prompt.details,
           params,
+          email: req.body.email,
+          link: `/interaction/${uid}/forgot-password-resend-email/${req.body.email}`,
           title: 'Email sent',
           message: `Your username and password reset link has been succefully sent.\nCan find it? Pleasec check your Spam box too.`,
           session: session ?? undefined,
@@ -104,6 +106,48 @@ export default (app: Express, provider: Provider) => {
       next(err);
     }
   });
+
+  app.get(
+    '/interaction/:uid/forgot-password-resend-email/:email',
+    setNoCache,
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+
+        const client = await provider.Client.find(params.client_id as any);
+
+        const account = await findByEmail(req.params.email);
+
+        const xauthCode = generateEmailCode();
+
+        await createPasswordResetRequest({ accountId: account.accountId, code: xauthCode });
+
+        await sendForgottenPasswordEmail(
+          account.profile.email,
+          account.profile.username,
+          `https://${serverConfig.hostname}/interaction/${uid}/new-password/${xauthCode}`
+        );
+
+        return res.render('email-sent', {
+          client,
+          uid,
+          details: prompt.details,
+          params,
+          email: req.body.email,
+          link: '',
+          title: 'Email sent',
+          message: `Your username and password reset link has been succefully sent.\nCan find it? Pleasec check your Spam box too.`,
+          session: session ?? undefined,
+          dbg: {
+            params: debug(params),
+            prompt: debug(prompt)
+          }
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
 
   app.get(
     '/interaction/:uid/new-password/:xauthCode',

@@ -9,6 +9,7 @@ import { Logger } from '../utils/winston.js';
 import axios from 'axios';
 import { AccountDocument } from '../models/account.js';
 import { google } from 'googleapis';
+import { NOT_VALID_USERNAME } from '../helpers/constants.js';
 
 const OAuth2 = google.auth.OAuth2;
 
@@ -46,6 +47,26 @@ export class GoogleService {
 
     if (!account) {
       account = await this.createNewUser(claims);
+    }
+
+    if (account.profile.username === NOT_VALID_USERNAME) {
+      const { uid, prompt, params, session } = await this.provider.interactionDetails(this.req, this.res);
+
+      const client = await this.provider.Client.find(params.client_id as any);
+
+      return this.res.render('finish-registration', {
+        client,
+        uid,
+        sub: account.profile.sub,
+        details: prompt.details,
+        params,
+        title: 'Finish registration',
+        session: session ?? undefined,
+        dbg: {
+          params: {},
+          prompt: {}
+        }
+      });
     }
 
     const result = {
@@ -110,6 +131,7 @@ export class GoogleService {
     );
     const accountId = `${ProviderName.GOOGLE}|${claims.sub}`;
     const profile = {
+      username: NOT_VALID_USERNAME,
       ...claims,
       ...userInfo,
       sub: accountId

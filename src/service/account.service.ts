@@ -37,19 +37,28 @@ export const findByEmail = async (email: string): Promise<AccountDocument | Emai
 
 export const findByUsername = async (username: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
   const account = await AccountDb.findOne({ 'profile.username': username });
-  logger.debug('find by username', { findByUsername: { account } });
+  return account;
+};
+
+export const findBySub = async (sub: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
+  const account = await AccountDb.findOne({ 'profile.sub': sub });
+  return account;
+};
+
+export const findByEthAddress = async (address: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
+  const account = await AccountDb.findOne({ 'profile.ethAddress': address });
   return account;
 };
 
 export const findByFederated = async (provider: ProviderName, sub: string): Promise<AccountDocument | null> => {
   const account = await AccountDb.findOne({
-    'profile.sub': `${provider.toString()}|${sub},
-  `
+    'profile.sub': `${provider.toString()}|${sub}`
   });
   return account;
 };
 
 export const createFederatedAccount = async (accountId: string, profile: any): Promise<AccountDocument> => {
+  profile.email_verified = true;
   const account = await AccountDb.create({
     accountId,
     profile
@@ -66,8 +75,9 @@ export const create = async (obj: {
   dateOfBirth: string;
   gender: string;
   locale: string;
+  username: string;
 }): Promise<AccountDocument> => {
-  const { email, family_name, given_name, locale, password: plainTextPassword } = obj;
+  const { email, family_name, given_name, locale, password: plainTextPassword, username } = obj;
 
   const password = await bcrypt.hash(plainTextPassword, PASSWORD_SALT_ROUNDS);
 
@@ -76,6 +86,7 @@ export const create = async (obj: {
     password,
     profile: {
       sub: email,
+      username: username,
       email: email,
       email_verified: false,
       family_name,
@@ -101,6 +112,30 @@ export const updateAccountPassword = async (accountId: string, newPassword: stri
 
 export const updateAccountVerificationStatus = async (accountId: string, status: boolean): Promise<AccountDocument> => {
   await AccountDb.updateOne({ accountId }, { 'profile.email_verified': status });
+
+  const account = await AccountDb.findOne({ accountId });
+  return account;
+};
+
+export const setFederatedAccountUsername = async (sub: string, username: string): Promise<AccountDocument | null> => {
+  await AccountDb.updateOne(
+    {
+      'profile.sub': sub
+    },
+    { $set: { 'profile.username': username } }
+  );
+
+  const account = await AccountDb.findOne({ 'profile.sub': `${sub}` });
+  return account;
+};
+
+export const setEthAddress = async (accountId: string, address: string): Promise<AccountDocument | null> => {
+  await AccountDb.updateOne(
+    {
+      accountId
+    },
+    { $set: { 'profile.ethAddress': address } }
+  );
 
   const account = await AccountDb.findOne({ accountId });
   return account;
