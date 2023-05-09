@@ -6,6 +6,7 @@ import { BadRequestException, UnauthorizedException } from '../common/errors/exc
 import { ProviderName } from '../common/enums/provider.js';
 import { subMinutes } from 'date-fns';
 import mongoose from 'mongoose';
+import { serverConfig } from '../config/server-config.js';
 const logger = new Logger('DemoAccountService');
 
 export const findDemoAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<Account> => {
@@ -17,14 +18,12 @@ export const findDemoAccount = async (ctx: KoaContextWithOIDC, id: string): Prom
     throw new Error('User not found');
   }
 
-  //todo redundent code
-  //todo find way to revoke token in n minutes and emit this event
   const now = new Date();
-  const expiredAt = subMinutes(now, 5);
+  const expiredAt = subMinutes(now, serverConfig.users.demo.access_token_ttl);
 
   if (account.createdAt < expiredAt) {
     await ctx.oidc.session.destroy();
-    throw new UnauthorizedException('Invalid credentials');
+    throw new UnauthorizedException('Demo account expired');
   }
 
   return {
@@ -47,22 +46,24 @@ export default class DemoService {
     if (checkIfFingerprintExists) {
       // check if still valid (not expired)
 
-      //todo redundent code
-      //todo find way to revoke token in n minutes and emit this event
       const now = new Date();
-      const expiredAt = subMinutes(now, 5);
+      const expiredAt = subMinutes(now, serverConfig.users.demo.access_token_ttl);
+      logger.debug(`Expired at: ${expiredAt}`);
+      const isExpired = checkIfFingerprintExists.createdAt < expiredAt;
+      logger.debug(`Is expired: ${isExpired}`);
 
-      if (checkIfFingerprintExists.createdAt < expiredAt) {
+      if (isExpired) {
+        logger.debug('Demo account expired');
         // expired
         // throw error
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Demo account expired');
       }
-
       // not expired
     }
 
     // create demo account
     const demoAccount = await this.createDemoAccount(fingerprint);
+    logger.debug(`Demo account created: ${demoAccount.accountId}`);
 
     return demoAccount;
   }
@@ -74,7 +75,6 @@ export default class DemoService {
       return account;
     } catch (err) {
       logger.error(err);
-
       throw new BadRequestException('Bad request');
     }
   }
