@@ -11,7 +11,7 @@ const serverConfig: ServerConfig = {
     dbPass: process.env.DB_PASS ?? 'xauth'
   },
   oidc: {
-    issuer: process.env.OIDC_ISSUER ?? 'http://xauth.test:3000'
+    issuer: process.env.OIDC_ISSUER ?? 'https://xauth.test:3000'
   },
   logger: {
     level: process.env.LOGGER_LEVEL ?? 'debug'
@@ -28,6 +28,16 @@ const serverConfig: ServerConfig = {
       email_from: process.env.AWS_SES_EMAIL_FROM ?? '',
       source_arn: process.env.AWS_SES_SOURCE_ARN ?? '',
       web_identity_token_file: process.env.AWS_SES_WEB_IDENTITY_TOKEN_FILE ?? ''
+    }
+  },
+  users: {
+    demo: {
+      access_token_ttl: process.env.DEMO_ACCESS_TOKEN_TTL ? +process.env.DEMO_ACCESS_TOKEN_TTL : 300,
+      session_ttl: process.env.DEMO_SESSION_TTL ? +process.env.DEMO_SESSION_TTL : 300
+    },
+    regular: {
+      access_token_ttl: process.env.REGULAR_ACCESS_TOKEN_TTL ? +process.env.REGULAR_ACCESS_TOKEN_TTL : 3600,
+      session_ttl: process.env.REGULAR_SESSION_TTL ? +process.env.REGULAR_SESSION_TTL : 3600
     }
   }
 };
@@ -63,6 +73,16 @@ export interface ServerConfig {
       email_from: string;
       source_arn: string;
       web_identity_token_file: string;
+    };
+  };
+  users: {
+    demo: {
+      access_token_ttl: number;
+      session_ttl: number;
+    };
+    regular: {
+      access_token_ttl: number;
+      session_ttl?: number;
     };
   };
 }

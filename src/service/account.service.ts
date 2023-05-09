@@ -42,10 +42,8 @@ export const findByUsername = async (username: string): Promise<AccountDocument 
 };
 
 export const findByFederated = async (provider: ProviderName, sub: string): Promise<AccountDocument | null> => {
-  const account = await AccountDb.findOne({
-    'profile.sub': `${provider.toString()}|${sub},
-  `
-  });
+  const account = await AccountDb.findOne({ accountId: `${provider}|${sub}` });
+
   return account;
 };
 

@@ -7,17 +7,14 @@ const logger = new Logger('Database');
 export function createConnection(serverConfig: ServerConfig) {
   const { host, port, dbName, dbUser, dbPass } = serverConfig.database;
 
-  const connection = mongoose.connect(
-    `mongodb://${dbUser}:${dbPass}@${host}:${port}/${dbName}`,
-    {}
-  );
+  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${host}:${port}/${dbName}`, {});
 
   connection
     .then(() => {
       logger.info('Connected to database');
     })
     .catch((err) => {
-      logger.error(err, 'Error connecting to database');
+      logger.error(err);
     });
 }
 
@@ -54,20 +51,14 @@ export class MongoAdapter {
   }
 
   async findByUserCode(userCode: string): Promise<any | undefined> {
-    const result: any = await this.collection.findOne(
-      { 'payload.userCode': userCode as any },
-      { payload: 1 } as any
-    );
+    const result: any = await this.collection.findOne({ 'payload.userCode': userCode as any }, { payload: 1 } as any);
 
     if (!result) return undefined;
     return result.payload;
   }
 
   async findByUid(uid: string): Promise<any | undefined> {
-    const result: any = await this.collection.findOne(
-      { 'payload.uid': uid as any },
-      { payload: 1 } as any
-    );
+    const result: any = await this.collection.findOne({ 'payload.uid': uid as any }, { payload: 1 } as any);
 
     if (!result) return undefined;
     return result.payload;
