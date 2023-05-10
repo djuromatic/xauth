@@ -20,7 +20,7 @@ export const ttlHandler = () => {
     Session: (client: any, ctx: any) => {
       if (isDemo(ctx.accountId)) {
         return serverConfig.users.demo.session_ttl;
-      } else serverConfig.users.regular.session_ttl;
+      } else return serverConfig.users.regular.session_ttl;
     },
     Grant: 5 * 60 * 60 * 30 // 30 days in seconds
   };
