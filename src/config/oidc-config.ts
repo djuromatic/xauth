@@ -72,7 +72,7 @@ export const oidcConfig: Configuration = {
     resourceIndicators: {
       enabled: true,
       defaultResource: (ctx: KoaContextWithOIDC) => {
-        return 'http://xauth.test';
+        return 'https://xauth.test';
       },
       getResourceServerInfo: (ctx, resourceIndicator, client) => {
         logger.debug('get resource server info', client);
