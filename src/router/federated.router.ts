@@ -6,6 +6,7 @@ import { GoogleService } from '../service/google.service.js';
 import { findBySub, setFederatedAccountUsername } from '../service/account.service.js';
 import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
+import { login } from '../service/apple.service.js';
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -23,6 +24,12 @@ export default (app: Express, provider: Provider) => {
     switch (upstream) {
       case 'google': {
         return new GoogleService(req, res, provider).login();
+      }
+      case 'apple': {
+        const loginUrl = await login();
+        if (loginUrl) {
+          res.redirect(loginUrl);
+        }
       }
 
       default:

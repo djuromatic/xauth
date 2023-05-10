@@ -41,10 +41,10 @@ const serverConfig: ServerConfig = {
     }
   },
   apple: {
-    clientID: '',
+    clientID: 'xauth.xauth.mvpworkshop.co',
     clientSecret: '',
-    redirectUri: '',
-    issuerUrl: ''
+    redirectUri: 'https://xauth.test:3000/interaction/callback/apple',
+    issuerUrl: 'https://appleid.apple.com'
   }
 };
 

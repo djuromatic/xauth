@@ -78,6 +78,7 @@ export default (app: Express, provider: Provider) => {
         details: prompt.details,
         params,
         google: true,
+        apple: true,
         title: 'Landing',
         session: session ?? undefined,
         dbg: {
@@ -102,6 +103,7 @@ export default (app: Express, provider: Provider) => {
         details: prompt.details,
         params,
         google: true,
+        apple: true,
         title: 'Sign-In',
         session: session ?? undefined,
         dbg: {
