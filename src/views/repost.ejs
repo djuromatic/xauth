@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Fragment Federated Callback Repost Form</title>
+    <input value="<%= uid %>" hidden id="UID"/>
   </head>
   <body>
     <script nonce="<%= nonce %>">
@@ -19,11 +20,12 @@
       }
       var fields = parseQuery(window.location.hash.slice(1));
       fields.upstream = "<%= upstream %>";
-      var uid = fields.state.split("|")[0];
+      debugger
+      const uid = document.getElementById("UID").value === 'none'  ? fields.state.split("|")[0] : document.getElementById("UID").value;
 
       var form = document.createElement("form");
       form.method = "POST";
-      form.action = "/interaction/" + uid + "/federated";
+      form.action = `/interaction/${uid}/federated`;
       Object.keys(fields).forEach((key) => {
         if (key) {
           // empty fragment will yield {"":""};

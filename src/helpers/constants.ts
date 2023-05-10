@@ -1,3 +1,5 @@
 export const MIN_AGE_REQUIRED = 16 * 365 * 24 * 60 * 60 * 1000;
 
 export const PASSWORD_SALT_ROUNDS = 10;
+
+export const NOT_VALID_USERNAME = '1NOT_A_VALID_USERNAME';

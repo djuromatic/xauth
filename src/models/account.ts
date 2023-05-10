@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { NOT_VALID_USERNAME } from '../helpers/constants.js';
 
 export interface AccountDocument {
   accountId: string;
@@ -13,25 +14,27 @@ export interface EmailPasswordAccountDocument extends AccountDocument {
 
 export interface ProfileDocument {
   sub: string; // it is essential to always return a sub claim
+  username: string;
   email: string;
   email_verified: boolean;
   family_name: string;
   given_name: string;
   locale: string;
+  ethAddress: string;
 }
 
-const accountSchema = new Schema<
-  AccountDocument | EmailPasswordAccountDocument
->({
+const accountSchema = new Schema<AccountDocument | EmailPasswordAccountDocument>({
   accountId: { type: String, required: true, unique: true },
   password: { type: String, required: false },
   profile: {
     sub: { type: String, required: true, unique: true },
+    username: { type: String, required: true, unique: false },
     email: { type: String, required: true, unique: true },
     email_verified: { type: Boolean, required: true },
     family_name: { type: String, required: true },
     given_name: { type: String, required: true },
-    locale: { type: String, required: true }
+    locale: { type: String, required: true },
+    ethAddress: { type: String, required: false }
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now } //todo change to detect this only on update

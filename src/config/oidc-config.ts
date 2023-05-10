@@ -59,6 +59,7 @@ export const oidcConfig: Configuration = {
       // 'zoneinfo'
     ]
   },
+
   features: {
     devInteractions: { enabled: false }, // defaults to true
     clientCredentials: { enabled: true },
