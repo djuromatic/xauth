@@ -11,6 +11,8 @@ export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<
   const account = await AccountDb.findOne({ accountId: id });
 
   if (!account) {
+    await ctx.oidc.session.destroy();
+
     throw new Error('User not found');
   }
 
