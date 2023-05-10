@@ -11,6 +11,10 @@ export const generateNonce = () => {
 export const linkAccount = async (accountId: string, reqBody: Request['body']) => {
   const { metamask_nonce, metamask_signature } = reqBody as any;
 
+  if (metamask_nonce === '') {
+    return;
+  }
+
   const ethAddress = utils.verifyMessage(metamask_nonce, metamask_signature);
 
   await setEthAddress(accountId, ethAddress);
@@ -20,6 +24,10 @@ export const linkAccount = async (accountId: string, reqBody: Request['body']) =
 
 export const check = async (reqBody: Request['body']) => {
   const { metamask_nonce, metamask_signature } = reqBody as any;
+
+  if (metamask_nonce === '') {
+    return;
+  }
 
   const nonceRequest = await findNonceRequest({ nonce: metamask_nonce });
 
