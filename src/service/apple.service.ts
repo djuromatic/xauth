@@ -4,7 +4,6 @@ import { Logger } from '../utils/winston.js';
 
 export class AppleService {
   private readonly logger = new Logger('AppleService');
-  private client: Client;
   private config: any;
 
   constructor({ apple } = serverConfig) {
@@ -12,8 +11,6 @@ export class AppleService {
   }
 
   public login = async () => {
-    const { client } = this;
-
     if (!client) {
       throw new Error('Client not initialized');
     }
@@ -21,6 +18,12 @@ export class AppleService {
 
     const codeVerifier = generators.codeVerifier();
     const code_challenge = generators.codeChallenge(codeVerifier);
+
+    const issuer = await Issuer.discover(apple.issuerUrl);
+    const client = new issuer.Client({
+      client_id: apple.clientID,
+      redirect_uris: [apple.redirectUri]
+    });
 
     const authOptions = {
       scope: 'openid profile email',
@@ -34,24 +37,4 @@ export class AppleService {
     this.logger.debug(url);
     return url;
   };
-
-  private init = async (): Promise<void> => {
-    const { apple } = serverConfig;
-    const { issuerUrl, clientID, redirectUri } = apple;
-
-    const issuer = await this.discoverIssuer(issuerUrl);
-
-    const client = new issuer.Client({
-      client_id: clientID,
-      redirect_uris: [redirectUri],
-      token_endpoint_auth_method: 'none'
-    });
-
-    this.client = client;
-  };
-
-  private async discoverIssuer(url: string) {
-    const issuer = await Issuer.discover(url);
-    return issuer;
-  }
 }
