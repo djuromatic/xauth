@@ -63,7 +63,7 @@ server.once('listening', () => {
       code_challenge,
       code_challenge_method: 'S256',
       token_endpoint_auth_method: 'none',
-      scope: 'openid'
+      scope: 'openid email profile'
     };
 
     await open(client.authorizationUrl(authConfig), { wait: false });

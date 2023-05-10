@@ -39,6 +39,12 @@ const serverConfig: ServerConfig = {
       access_token_ttl: process.env.REGULAR_ACCESS_TOKEN_TTL ? +process.env.REGULAR_ACCESS_TOKEN_TTL : 3600,
       session_ttl: process.env.REGULAR_SESSION_TTL ? +process.env.REGULAR_SESSION_TTL : 3600
     }
+  },
+  apple: {
+    clientID: '',
+    clientSecret: '',
+    redirectUri: '',
+    issuerUrl: ''
   }
 };
 
@@ -65,6 +71,12 @@ export interface ServerConfig {
     clientID: string;
     clientSecret: string;
     redirectUri: string;
+  };
+  apple: {
+    clientID: string;
+    clientSecret: string;
+    redirectUri: string;
+    issuerUrl: string;
   };
   aws: {
     region: string;
