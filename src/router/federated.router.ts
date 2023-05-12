@@ -6,7 +6,9 @@ import { GoogleService } from '../service/google.service.js';
 import { findBySub, setFederatedAccountUsername } from '../service/account.service.js';
 import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
-import { login } from '../service/apple.service.js';
+import { login, callback, generateStateAndNonce } from '../service/apple.service.js';
+import { generators } from 'openid-client';
+import SsoLogin from '../models/login.js';
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -14,9 +16,11 @@ export default (app: Express, provider: Provider) => {
     next();
   }
 
-  app.post('/interaction/:uid/federated', urlencoded({ extended: true }), async (req, res) => {
+  app.post('/interaction/:uid/federated', urlencoded({ extended: true }), setNoCache, async (req, res) => {
     const {
-      prompt: { name }
+      prompt: { name },
+      uid,
+      session
     } = await provider.interactionDetails(req, res);
     assert.equal(name, 'login');
     const { upstream } = req.body;
@@ -26,9 +30,27 @@ export default (app: Express, provider: Provider) => {
         return new GoogleService(req, res, provider).login();
       }
       case 'apple': {
-        const loginUrl = await login();
-        if (loginUrl) {
-          res.redirect(loginUrl);
+        const { code } = req.body;
+
+        if (code && req.body.state) {
+          return await callback(req);
+        }
+
+        const { state, nonce } = generateStateAndNonce(uid);
+        const code_verifier = generators.codeVerifier();
+        const code_challenge = generators.codeChallenge(code_verifier);
+
+        await SsoLogin.create({
+          uid,
+          code_verifier,
+          nonce,
+          state
+        });
+
+        const url = await login({ uid, nonce, state, code_challenge });
+
+        if (url) {
+          res.redirect(url);
         }
       }
 
@@ -40,6 +62,7 @@ export default (app: Express, provider: Provider) => {
   app.post(
     '/interaction/:uid/federated/finish-registration',
     urlencoded({ extended: true }),
+    setNoCache,
     async (req, res, next) => {
       const {
         prompt: { name }
@@ -76,6 +99,21 @@ export default (app: Express, provider: Provider) => {
       upstream: 'google',
       uid: 'none',
       nonce
+    });
+  });
+
+  app.post('/interaction/callback/apple', async (req: Request, res: Response) => {
+    const { code, state } = req.body;
+
+    const uid = state.split('|')[0];
+
+    return res.render('repostapple', {
+      layout: false,
+      upstream: 'apple',
+      uid,
+      code,
+      state,
+      nonce: state
     });
   });
 
