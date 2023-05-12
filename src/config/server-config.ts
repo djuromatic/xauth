@@ -42,10 +42,10 @@ const serverConfig: ServerConfig = {
     }
   },
   apple: {
-    clientID: 'id.xauth.xauth.mvpworkshop.co',
-    clientSecret: `eyJraWQiOiJNOTY2UUJWWDRSIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJRNFkyWjhGUU1KIiwiaWF0IjoxNjgzOTE0ODUxLCJleHAiOjE2OTk0NjY4NTEsImF1ZCI6Imh0dHBzOi8vYXBwbGVpZC5hcHBsZS5jb20iLCJzdWIiOiJpZC54YXV0aC54YXV0aC5tdnB3b3Jrc2hvcC5jbyJ9.HF1FaG6tliwBPDLZXqnTWsy77ZK5VCZsNzDkG1oGqcGpMPFSfSp-ngjYbkof5I2mRzsPsHxKhDN2cdtZKowVyg`,
-    redirectUri: 'https://xauth.xauth.mvpworkshop.co/interaction/callback/apple',
-    issuerUrl: 'https://appleid.apple.com'
+    clientID: process.env.APPLE_CLIENT_ID ?? '',
+    clientSecret: process.env.APPLE_CLIENT_SECRET ?? '',
+    redirectUri: process.env.APPLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/apple`,
+    issuerUrl: process.env.APPLE_ISSUER_URL ?? 'https://appleid.apple.com'
   }
 };
 
