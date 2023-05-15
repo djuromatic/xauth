@@ -43,15 +43,19 @@ export const callback = async (req: Request) => {
     const { apple } = serverConfig;
     const { user, upstream } = req.body;
 
+    //parse the user object from the request
     const removeHtmlEntities = user.replace(/&#34;/g, '"');
+    //parse user string to object
     const parsedUser = JSON.parse(removeHtmlEntities);
 
+    //create the user object
     const userObj = {
       given_name: parsedUser.name.firstName,
       family_name: parsedUser.name.lastName,
       email: parsedUser.email
     };
 
+    //get the openid client
     const issuer = await Issuer.discover(apple.issuerUrl);
     const client = new issuer.Client({
       client_id: apple.clientID,
@@ -62,12 +66,17 @@ export const callback = async (req: Request) => {
       id_token_signed_response_alg: 'RS256'
     });
 
+    //parse the callback params from the request
     const params = client.callbackParams(req);
+    //get the stored login request
     const { code_verifier, nonce, state } = await SsoLogin.findOne({ uid: params.state.split('|')[0] });
+    //exchange the code for the token
     const tokenSet = await client.callback(apple.redirectUri, params, { state, nonce, code_verifier });
 
+    //sub is the unique identifier for the user
     const aId = `${upstream}|${tokenSet.claims().sub}`;
 
+    //merge the claims from the id_token with the user object
     const profile = {
       ...getClaimsFromIdToken(tokenSet.id_token),
       ...userObj,
@@ -75,8 +84,10 @@ export const callback = async (req: Request) => {
       username: userObj.email, //TODO change this it is not part of this pr
       sub: aId
     };
+    //create the account
     const account = await createFederatedAccount(aId, profile);
 
+    //return the account id
     const result = {
       login: {
         accountId: account.accountId

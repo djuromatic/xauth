@@ -32,16 +32,19 @@ export default (app: Express, provider: Provider) => {
       case 'apple': {
         const { code } = req.body;
 
+        //Callback from Apple
         if (code && req.body.state) {
           const result = await callback(req);
           await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
           return undefined;
         }
 
+        //Initial request to Apple
         const { state, nonce } = generateStateAndNonce(uid);
         const code_verifier = generators.codeVerifier();
         const code_challenge = generators.codeChallenge(code_verifier);
 
+        //Store the login request
         await SsoLogin.create({
           uid,
           nonce,
@@ -49,6 +52,7 @@ export default (app: Express, provider: Provider) => {
           code_verifier
         });
 
+        //Redirect to Apple url
         const url = await login({ uid, nonce, state, code_challenge });
 
         if (url) {
