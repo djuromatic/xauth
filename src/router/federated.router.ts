@@ -33,7 +33,9 @@ export default (app: Express, provider: Provider) => {
         const { code } = req.body;
 
         if (code && req.body.state) {
-          return await callback(req);
+          const result = await callback(req);
+          await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
+          return undefined;
         }
 
         const { state, nonce } = generateStateAndNonce(uid);
@@ -42,9 +44,9 @@ export default (app: Express, provider: Provider) => {
 
         await SsoLogin.create({
           uid,
-          code_verifier,
           nonce,
-          state
+          state,
+          code_verifier
         });
 
         const url = await login({ uid, nonce, state, code_challenge });
@@ -103,7 +105,7 @@ export default (app: Express, provider: Provider) => {
   });
 
   app.post('/interaction/callback/apple', async (req: Request, res: Response) => {
-    const { code, state } = req.body;
+    const { code, state, user } = req.body;
 
     const uid = state.split('|')[0];
 
@@ -113,6 +115,7 @@ export default (app: Express, provider: Provider) => {
       uid,
       code,
       state,
+      user,
       nonce: state
     });
   });

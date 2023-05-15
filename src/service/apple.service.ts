@@ -2,9 +2,8 @@ import { Issuer, generators } from 'openid-client';
 import { serverConfig } from '../config/server-config.js';
 import { Logger } from '../utils/winston.js';
 import { Request } from 'express';
-import { UnauthorizedException } from '../common/errors/exceptions.js';
 import SsoLogin from '../models/login.js';
-
+import { createFederatedAccount } from './account.service.js';
 const logger = new Logger('AppleService');
 
 export type AppleLogin = {
@@ -16,8 +15,8 @@ export type AppleLogin = {
 
 export const login = async (login: AppleLogin): Promise<string> => {
   const { apple } = serverConfig;
-  const { uid, nonce, state, code_challenge } = login;
 
+  const { nonce, state, code_challenge } = login;
   const issuer = await Issuer.discover(apple.issuerUrl);
   const client = new issuer.Client({
     client_id: apple.clientID,
@@ -26,12 +25,11 @@ export const login = async (login: AppleLogin): Promise<string> => {
 
   const authOptions = {
     grant_type: 'authorization_code',
-    scope: 'name email',
+    scope: 'openid name email',
     response_mode: 'form_post',
-    // nonce,
+    code_challenge,
+    nonce,
     state,
-    // code_challenge,
-    // code_challenge_method: 'S256',
     token_endpoint_auth_method: 'none'
   };
 
@@ -43,6 +41,16 @@ export const login = async (login: AppleLogin): Promise<string> => {
 export const callback = async (req: Request) => {
   try {
     const { apple } = serverConfig;
+    const { user, upstream } = req.body;
+
+    const removeHtmlEntities = user.replace(/&#34;/g, '"');
+    const parsedUser = JSON.parse(removeHtmlEntities);
+
+    const userObj = {
+      given_name: parsedUser.name.firstName,
+      family_name: parsedUser.name.lastName,
+      email: parsedUser.email
+    };
 
     const issuer = await Issuer.discover(apple.issuerUrl);
     const client = new issuer.Client({
@@ -50,17 +58,32 @@ export const callback = async (req: Request) => {
       client_secret: apple.clientSecret,
       scope: 'name email',
       redirect_uris: [apple.redirectUri],
-      response_types: ['code id_token'],
+      response_types: ['id_token'],
       id_token_signed_response_alg: 'RS256'
     });
 
-    console.log(req.body);
-
     const params = client.callbackParams(req);
     const { code_verifier, nonce, state } = await SsoLogin.findOne({ uid: params.state.split('|')[0] });
-    const tokenSet = await client.callback(apple.redirectUri, params, { state });
+    const tokenSet = await client.callback(apple.redirectUri, params, { state, nonce, code_verifier });
 
-    console.log(tokenSet);
+    const aId = `${upstream}|${tokenSet.claims().sub}`;
+
+    const profile = {
+      ...getClaimsFromIdToken(tokenSet.id_token),
+      ...userObj,
+      locale: 'en',
+      username: userObj.email, //TODO change this it is not part of this pr
+      sub: aId
+    };
+    const account = await createFederatedAccount(aId, profile);
+
+    const result = {
+      login: {
+        accountId: account.accountId
+      }
+    };
+
+    return result;
   } catch (error) {
     logger.error(error);
   }
@@ -71,4 +94,10 @@ export const generateStateAndNonce = (uid: string) => {
   const state = `${uid}|${generators.state()}`; // Generate state
 
   return { nonce, state };
+};
+
+const getClaimsFromIdToken = (idToken: string): object => {
+  const decodedClaims = Buffer.from(idToken.split('.')[1], 'base64').toString('utf8');
+  const claims = JSON.parse(decodedClaims);
+  return claims;
 };
