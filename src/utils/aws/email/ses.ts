@@ -1,5 +1,5 @@
 import * as AWS from '@aws-sdk/client-ses';
-import { fromSSO, fromTokenFile } from '@aws-sdk/credential-providers';
+import { fromProcess, fromSSO } from '@aws-sdk/credential-providers';
 import { Logger } from '../../winston.js';
 import { serverConfig } from '../../../config/server-config.js';
 
@@ -17,13 +17,11 @@ export class SesService {
     const credentials =
       serverConfig.node_env === 'local'
         ? fromSSO({
-            profile: 'mvp-studio'
+            profile: serverConfig.aws.profile
           })
-        : fromTokenFile({
-            roleArn: role_arn,
-            webIdentityTokenFile: web_identity_token_file,
-            roleSessionName: 'session_name'
-          });
+        : fromProcess({
+          profile: serverConfig.aws.profile,
+        })
 
     this.Source = email_from;
     this.SourceArn = source_arn;

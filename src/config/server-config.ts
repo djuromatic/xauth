@@ -1,5 +1,5 @@
 const serverConfig: ServerConfig = {
-  node_env: process.env.NODE_ENV ?? 'local',
+  node_env: process.env.NODE_ENV,
   serviceName: process.env.SERVICE_NAME ?? 'xauth',
   hostname: process.env.HOSTNAME ?? 'xauth.test',
   port: +process.env.PORT ?? 3000,
@@ -19,9 +19,11 @@ const serverConfig: ServerConfig = {
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID ?? '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/google`
+    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/google`,
+    issuerUrl: process.env.GOOGLE_ISSUER_URL ?? 'https://accounts.google.com'
   },
   aws: {
+    profile: process.env.AWS_PROFILE ?? 'mvp-studio',
     region: process.env.AWS_REGION ?? 'us-east-1',
     ses: {
       role_arn: process.env.AWS_SES_ROLE_ARN ?? '',
@@ -39,8 +41,21 @@ const serverConfig: ServerConfig = {
       access_token_ttl: process.env.REGULAR_ACCESS_TOKEN_TTL ? +process.env.REGULAR_ACCESS_TOKEN_TTL : 3600,
       session_ttl: process.env.REGULAR_SESSION_TTL ? +process.env.REGULAR_SESSION_TTL : 3600
     }
+  },
+  apple: {
+    clientID: process.env.APPLE_CLIENT_ID ?? '',
+    clientSecret: process.env.APPLE_CLIENT_SECRET ?? '',
+    redirectUri: process.env.APPLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/apple`,
+    issuerUrl: process.env.APPLE_ISSUER_URL ?? 'https://appleid.apple.com'
   }
 };
+
+export interface FederatedLoginConfig {
+  clientID: string;
+  clientSecret: string;
+  redirectUri: string;
+  issuerUrl: string;
+}
 
 //interface ServerConfig
 export interface ServerConfig {
@@ -61,12 +76,10 @@ export interface ServerConfig {
   logger: {
     level: string;
   };
-  google: {
-    clientID: string;
-    clientSecret: string;
-    redirectUri: string;
-  };
+  google: FederatedLoginConfig;
+  apple: FederatedLoginConfig;
   aws: {
+    profile: string;
     region: string;
     ses: {
       role_arn: string;

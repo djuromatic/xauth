@@ -4,6 +4,8 @@ import AccountDb, { AccountDocument, EmailPasswordAccountDocument } from '../mod
 import { PASSWORD_SALT_ROUNDS } from '../helpers/constants.js';
 import { ProviderName } from '../common/enums/provider.js';
 import { Logger } from '../utils/winston.js';
+import { TokenSet } from 'openid-client';
+import { UnauthorizedException } from '../common/errors/exceptions.js';
 
 const logger = new Logger('AccountService');
 
@@ -58,14 +60,35 @@ export const findByFederated = async (provider: ProviderName, sub: string): Prom
   return account;
 };
 
-export const createFederatedAccount = async (accountId: string, profile: any): Promise<AccountDocument> => {
-  profile.email_verified = true;
-  const account = await AccountDb.create({
-    accountId,
-    profile
-  });
+export const createFederatedAccount = async (
+  sub: string,
+  upstream: ProviderName,
+  tokenSet: TokenSet,
+  user?: any
+): Promise<AccountDocument> => {
+  try {
+    const accountId = `${upstream}|${sub}`;
+    let profile;
+    if (upstream === ProviderName.APPLE) {
+      if (!user) {
+        throw new UnauthorizedException('Failed to create account Apple is missing user');
+      }
+      profile = mapAppleUserProfile(user, tokenSet, accountId);
+    }
 
-  return account;
+    if (upstream === ProviderName.GOOGLE) {
+      profile = mapGoogleProfile(accountId, tokenSet);
+    }
+
+    const account = await AccountDb.create({
+      accountId,
+      profile
+    });
+
+    return account;
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 export const create = async (obj: {
@@ -140,4 +163,44 @@ export const setEthAddress = async (accountId: string, address: string): Promise
 
   const account = await AccountDb.findOne({ accountId });
   return account;
+};
+
+function mapAppleUserProfile(user: string, tokenSet: TokenSet, sub: string) {
+  const removeHtmlEntities = user.replace(/&#34;/g, '"');
+  //parse user string to object
+  const parsedUser = JSON.parse(removeHtmlEntities);
+
+  //create the user object
+  const userObj = {
+    given_name: parsedUser.name.firstName,
+    family_name: parsedUser.name.lastName,
+    email: parsedUser.email
+  };
+
+  //merge the claims from the id_token with the user object
+  const profile = {
+    ...getClaimsFromIdToken(tokenSet.id_token),
+    ...userObj,
+    locale: 'en',
+    username: userObj.email, //TODO set this to username
+    sub
+  };
+  return profile;
+}
+
+function mapGoogleProfile(accountId: string, tokenSet: TokenSet) {
+  const claims = tokenSet.claims();
+  const profile = {
+    ...claims,
+    username: claims.email, //TODO set this to username
+    sub: accountId
+  };
+
+  return profile;
+}
+
+const getClaimsFromIdToken = (idToken: string): object => {
+  const decodedClaims = Buffer.from(idToken.split('.')[1], 'base64').toString('utf8');
+  const claims = JSON.parse(decodedClaims);
+  return claims;
 };
