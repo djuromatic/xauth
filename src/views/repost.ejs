@@ -5,28 +5,16 @@
   </head>
   <body>
     <script nonce="<%= nonce %>">
-    debugger
-      function parseQuery(queryString) {
-        var query = {};
-        var pairs = (
-          queryString[0] === "?" ? queryString.slice(1) : queryString
-        ).split("&");
-        for (var i = 0; i < pairs.length; i++) {
-          var pair = pairs[i].split("=");
-          query[decodeURIComponent(pair[0])] = decodeURIComponent(
-            pair[1] || ""
-          );
-        }
-        return query;
-      }
-      var fields = parseQuery(window.location.hash.slice(1));
+      var fields = {};
       fields.upstream = "<%= upstream %>";
-      debugger
-      const uid = document.getElementById("UID").value === 'none'  ? fields.state.split("|")[0] : document.getElementById("UID").value;
-
+      fields.state = "<%= state %>";
+      fields.code = "<%= code %>";
+      if(fields.upstream === 'apple'){
+      fields.user = "<%= user %>";
+      }
       var form = document.createElement("form");
       form.method = "POST";
-      form.action = `/interaction/${uid}/federated`;
+      form.action = `/interaction/<%= uid %>/federated`;
       Object.keys(fields).forEach((key) => {
         if (key) {
           // empty fragment will yield {"":""};

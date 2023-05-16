@@ -19,7 +19,8 @@ const serverConfig: ServerConfig = {
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID ?? '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/google`
+    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/google`,
+    issuerUrl: process.env.GOOGLE_ISSUER_URL ?? 'https://accounts.google.com'
   },
   aws: {
     profile: process.env.AWS_PROFILE ?? 'mvp-studio',
@@ -49,6 +50,13 @@ const serverConfig: ServerConfig = {
   }
 };
 
+export interface FederatedLoginConfig {
+  clientID: string;
+  clientSecret: string;
+  redirectUri: string;
+  issuerUrl: string;
+}
+
 //interface ServerConfig
 export interface ServerConfig {
   node_env: string;
@@ -68,17 +76,8 @@ export interface ServerConfig {
   logger: {
     level: string;
   };
-  google: {
-    clientID: string;
-    clientSecret: string;
-    redirectUri: string;
-  };
-  apple: {
-    clientID: string;
-    clientSecret: string;
-    redirectUri: string;
-    issuerUrl: string;
-  };
+  google: FederatedLoginConfig;
+  apple: FederatedLoginConfig;
   aws: {
     profile: string;
     region: string;
