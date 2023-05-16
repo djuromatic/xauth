@@ -30,14 +30,14 @@ export default (app: Express, provider: Provider) => {
         case 'google': {
           const { code } = req.body;
           const { google } = serverConfig;
-          //Callback from Apple
+          //Callback from Google with a code and state
           if (code && req.body.state) {
             const result = await callback(req, google);
             await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
             return undefined;
           }
 
-          //Initial request to Apple
+          //Initial request to Google with a state and nonce and code_challenge
           const { state, nonce } = generateStateAndNonce(uid);
           const code_verifier = generators.codeVerifier();
           const code_challenge = generators.codeChallenge(code_verifier);

@@ -1,5 +1,5 @@
 const serverConfig: ServerConfig = {
-  node_env: process.env.NODE_ENV ?? 'local',
+  node_env: process.env.NODE_ENV,
   serviceName: process.env.SERVICE_NAME ?? 'xauth',
   hostname: process.env.HOSTNAME ?? 'xauth.test',
   port: +process.env.PORT ?? 3000,
