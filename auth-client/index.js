@@ -52,7 +52,9 @@ server.once('listening', () => {
 
         console.log('isExpired', isTokenExpired(tokenSet));
 
-        res.end('You can close this screen now...');
+        res.end(
+          `<html>You are logged in...You can close this screen now...\n<a href="${config.issuer}/session/end">Logout</a></html>`
+        );
         server.close();
       }
     });
