@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request, Express } from 'express';
 import Provider, { errors } from 'oidc-provider';
-import { InteractionException, LoginException, SignupException } from './exceptions.js';
+import { BadRequestException, InteractionException, LoginException, SignupException} from './exceptions.js';
 import { debug } from '../../helpers/debug.js';
 import { Logger } from '../../utils/winston.js';
 
@@ -57,7 +57,13 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
       });
     }
 
+<<<<<<< HEAD
     next();
+=======
+    const defaultError = new BadRequestException(err.name);
+    logger.error(err);
+    next(defaultError);
+>>>>>>> main
   };
 
   app.use(errorHandler);

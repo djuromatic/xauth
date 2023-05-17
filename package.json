@@ -7,7 +7,7 @@
   "scripts": {
     "start": "nodemon",
     "build": "webpack --config webpack.config.js",
-    "watch": "nodemon --exec ts-node --esm src/index.ts",
+    "watch": "NODE_ENV=local nodemon --exec ts-node --esm src/index.ts",
     "start:dev": "node -r ts-node/register src/index.ts",
     "login": "cd auth-client && node index.js",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write"

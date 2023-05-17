@@ -2,9 +2,10 @@ import express from 'express';
 import Provider from 'oidc-provider';
 import { oidcConfig } from './config/oidc-config.js';
 import { serverConfig } from './config/server-config.js';
+import http from 'http';
 import https from 'https';
-import fs from 'fs';
 import path from 'path';
+import fs from 'fs';
 import fileDirName from './helpers/file-dir-name.js';
 import interactionRouter from './router/interaction.router.js';
 import emailPasswordRouter from './router/email-password.router.js';
@@ -21,6 +22,9 @@ export const createServer = async () => {
   const logger = new Logger('Init');
 
   const app = express();
+  app.get('/health', (req, res) => {
+    res.send('OK');
+  });
 
   const { __dirname } = fileDirName(import.meta);
 
@@ -28,9 +32,15 @@ export const createServer = async () => {
   app.set('views', path.join(__dirname, 'views'));
 
   app.use(express.json());
+  logger.debug(`Issuer: ${serverConfig.oidc.issuer}`);
   const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
+  if (process.env.NODE_ENV !== 'local') {
+    provider.proxy = true;
+  }
+
   app.use(loggerMiddleware);
+
   const oidc = provider.callback();
 
   interactionRouter(app, provider);
@@ -44,17 +54,21 @@ export const createServer = async () => {
   app.use(oidc);
 
   interactionErrorHandler(app, provider);
+  let server;
+  if (process.env.NODE_ENV === 'local') {
+    server = https.createServer(
+      {
+        key: fs.readFileSync(path.join(__dirname, 'certs/xauth/key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'certs/xauth/cert.pem'))
+      },
+      app
+    );
+  } else {
+    server = http.createServer(app);
+  }
 
-  const server = https.createServer(
-    {
-      key: fs.readFileSync(path.join(__dirname, 'certs/xauth/key.pem')),
-      cert: fs.readFileSync(path.join(__dirname, 'certs/xauth/cert.pem'))
-    },
-    app
-  );
-
-  server.listen(3000, () => {
-    logger.info(`Server is running on port ${3000}`);
+  server.listen(80, () => {
+    logger.info(`Server is running on port ${80}`);
   });
 
   createConnection(serverConfig);
