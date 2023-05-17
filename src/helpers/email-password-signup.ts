@@ -4,7 +4,6 @@ import { SignupException } from '../common/errors/exceptions.js';
 import { checkDateOfBirth, checkEmail, checkPassword, checkUsername } from './input-checks.js';
 
 let errorDescription: any;
-export let passwordChecks: any;
 
 export const check = async (reqBody: Request['body']) => {
   const { email, password, dateOfBirth, username, fullName } = reqBody as any;
@@ -46,16 +45,12 @@ export const check = async (reqBody: Request['body']) => {
   }
 
   //Password verification
-  passwordChecks = () => {
-    const passwordErrors = checkPassword(password);
-    if (passwordErrors.length > 0) {
-      throw new SignupException(
-        'Bad signup attempt',
-        errorDescription(2, passwordErrors[0].field, passwordErrors[0].desc),
-        200
-      );
-    }
-  };
-
-  passwordChecks();
+  const passwordErrors = checkPassword(password);
+  if (passwordErrors.length > 0) {
+    throw new SignupException(
+      'Bad signup attempt',
+      errorDescription(2, passwordErrors[0].field, passwordErrors[0].desc),
+      200
+    );
+  }
 };
