@@ -38,6 +38,7 @@ export default (app: Express, provider: Provider) => {
       return res.render('signup', {
         client,
         uid,
+        serverData: '{}',
         details: prompt.details,
         params,
         validationFcn: () => {
@@ -60,6 +61,12 @@ export default (app: Express, provider: Provider) => {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id as any);
+
+      req.body.given_name = '23';
+      req.body.family_name = '123';
+      req.body.gender = '123';
+      req.body.locale = '123';
+      logger.info('Pre signup checks');
 
       await emailPasswordSignupCheck(req.body);
       await metamaskChecks(req.body);

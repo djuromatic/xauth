@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request, Express } from 'express';
 import Provider, { errors } from 'oidc-provider';
-import { InteractionException, LoginException } from './exceptions.js';
+import { InteractionException, LoginException, SignupException } from './exceptions.js';
 import { debug } from '../../helpers/debug.js';
 import { Logger } from '../../utils/winston.js';
 
@@ -12,6 +12,29 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
       return res.redirect('/login');
     }
 
+    if (err instanceof SignupException) {
+      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+      const client = await provider.Client.find(params.client_id as any);
+
+      const { description, status, message } = err;
+      logger.info('Bad signup attempt');
+      return res.render('signup', {
+        client,
+        uid,
+        serverData: message,
+        details: prompt.details,
+        params,
+        validationFcn: () => {
+          logger.debug('validation function called');
+        },
+        title: 'Sign-Up',
+        session: session ?? undefined,
+        dbg: {
+          params: debug(params),
+          prompt: debug(prompt)
+        }
+      });
+    }
     if (err instanceof InteractionException) {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
@@ -33,6 +56,7 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
         }
       });
     }
+
     next();
   };
 
