@@ -2,13 +2,18 @@
 import assert from 'node:assert';
 import { NextFunction, Request, Response, urlencoded, Express } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider from 'oidc-provider';
-import { findBySub, setFederatedAccountUsername } from '../service/account.service.js';
+import { findByEmail, findBySub, setFederatedAccountUsername, findByUsername } from '../service/account.service.js';
 import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { login, callback, generateStateAndNonce } from '../service/federated.service.js';
 import { generators } from 'openid-client';
 import SsoLogin from '../models/login.js';
 import { serverConfig } from '../config/server-config.js';
+import { createProfileUpdateRequest, profileNeedsUpdate, renderProfileUpdatePage } from '../helpers/profile-update.js';
+import { find as findProfileRequest } from '../service/profile-update.service.js';
+import { debug } from '../helpers/debug.js';
+import { MetamaskException, ProfileUpdateException } from '../common/errors/exceptions.js';
+import { checkUsername } from '../helpers/input-checks.js';
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -33,6 +38,14 @@ export default (app: Express, provider: Provider) => {
           //Callback from Google with a code and state
           if (code && req.body.state) {
             const result = await callback(req, google);
+            const { accountId } = result.login;
+            const needsProfileUpdate = await profileNeedsUpdate(accountId);
+            if (needsProfileUpdate) {
+              const profileUpdateRequest = await createProfileUpdateRequest(accountId);
+              await renderProfileUpdatePage(provider, req, res, profileUpdateRequest);
+              return undefined;
+            }
+
             await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
             return undefined;
           }
@@ -49,7 +62,7 @@ export default (app: Express, provider: Provider) => {
             state,
             code_verifier
           });
-          //Redirect to Apple url
+          //Redirect to Google url
           const url = await login({ uid, nonce, state, code_challenge, upstream }, google);
 
           if (url) {
@@ -109,22 +122,47 @@ export default (app: Express, provider: Provider) => {
       } = await provider.interactionDetails(req, res);
 
       try {
-        await metamaskChecks(req.body);
+        const profileUpdateRequest = await findProfileRequest({ code: req.body.code });
 
-        await setFederatedAccountUsername(req.body.sub, req.body.username);
+        const errorDescription = (field: string, message: string) => {
+          return JSON.stringify({ code: profileUpdateRequest.code, error: { field, message } });
+        };
 
-        const account = await findBySub(req.body.sub);
+        if (!profileUpdateRequest) {
+          throw new ProfileUpdateException(
+            'Profile update error',
+            errorDescription('updateRequest', 'Not a valid token'),
+            404
+          );
+        }
+
+        const usernameErrors = await checkUsername(req.body.username);
+        if (usernameErrors.length > 0) {
+          throw new ProfileUpdateException(
+            'Profile update error',
+            errorDescription('username', usernameErrors[0].desc),
+            404
+          );
+        }
+
+        try {
+          await metamaskChecks(req.body);
+        } catch (err) {
+          if (err instanceof MetamaskException) {
+            const message = JSON.parse(err.message).error.message;
+            throw new ProfileUpdateException(err.description, errorDescription('metamask', message), err.status);
+          }
+        }
+        await setFederatedAccountUsername(profileUpdateRequest.accountId, req.body.username);
+
+        const account = await findBySub(profileUpdateRequest.accountId);
 
         await linkAccount(account.accountId, req.body);
 
-        const nonce = res.locals.cspNonce;
+        const result = { login: { accountId: account.accountId } };
+        await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
 
-        return res.render('repost', {
-          layout: false,
-          upstream: 'google',
-          uid: req.params.uid,
-          nonce
-        });
+        return undefined;
       } catch (err) {
         next(err);
       }

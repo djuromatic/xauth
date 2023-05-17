@@ -15,6 +15,9 @@
     const parentElement = document.getElementById("INPUT-WRAPPER");
     const step = document.getElementById("STEP");
 
+    const stepperWrapper = document.createElement('div');
+    stepperWrapper.id = "stepper-wrapper";
+
     const firstStepBtn = document.createElement('button');
     firstStepBtn.innerText = "1";
     const secondStepBtn = document.createElement('button');
@@ -44,10 +47,12 @@
         render();
       }
 
-      parentElement.appendChild(firstStepBtn);
-      parentElement.appendChild(secondStepBtn);
-      parentElement.appendChild(thirdStepBtn);
+      stepperWrapper.appendChild(firstStepBtn);
+      stepperWrapper.appendChild(secondStepBtn);
+      stepperWrapper.appendChild(thirdStepBtn);
+      parentElement.appendChild(stepperWrapper);
       parentElement.appendChild(document.createElement("hr"));
+
     }
 
     initParentElement();
@@ -111,6 +116,7 @@
     password.type = "password";
     password.placeholder = "8 - 16 characters";
     const errorPassword = document.createElement("div");
+    const errorMetamask = document.createElement("div");
 
     screen2.appendChild(labelUsername);
     screen2.appendChild(username);
@@ -118,6 +124,7 @@
     screen2.appendChild(labelPassword);
     screen2.appendChild(password);
     screen2.appendChild(errorPassword);
+    screen2.appendChild(errorMetamask);
     screen2.appendChild(document.createElement("hr"));
 
     parentElement.appendChild(screen0);
@@ -156,8 +163,6 @@
 
     const render = async () => {
 
-      // await delay(500);
-
       const serverData = JSON.parse(document.getElementById("SERVER-DATA").value);
       const error = serverData.error;
       let step = parseInt(document.getElementById("STEP").value);
@@ -184,6 +189,10 @@
         if(error.field == "password"){
           errorPassword.innerText = error.message;
           errorPassword.hidden = false;
+        }
+        if(error.field == "metamask"){
+          errorMetamask.innerText = error.message;
+          errorMetamask.hidden = false;
         }
 
         frontRespondedToServerError = true;

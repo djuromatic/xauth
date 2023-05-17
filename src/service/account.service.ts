@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Account, KoaContextWithOIDC } from 'oidc-provider';
 import AccountDb, { AccountDocument, EmailPasswordAccountDocument } from '../models/account.js';
-import { PASSWORD_SALT_ROUNDS } from '../helpers/constants.js';
+import { NOT_VALID_USERNAME, PASSWORD_SALT_ROUNDS } from '../helpers/constants.js';
 import { ProviderName } from '../common/enums/provider.js';
 import { Logger } from '../utils/winston.js';
 import { TokenSet } from 'openid-client';
@@ -80,6 +80,7 @@ export const createFederatedAccount = async (
       profile = mapGoogleProfile(accountId, tokenSet);
     }
 
+    profile.username = NOT_VALID_USERNAME; //only for federeate accounts
     const account = await AccountDb.create({
       accountId,
       profile

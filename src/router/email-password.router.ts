@@ -62,11 +62,10 @@ export default (app: Express, provider: Provider) => {
 
       const client = await provider.Client.find(params.client_id as any);
 
-      req.body.given_name = '23';
-      req.body.family_name = '123';
-      req.body.gender = '123';
-      req.body.locale = '123';
-      logger.info('Pre signup checks');
+      req.body.given_name = 'TODO: check if needed';
+      req.body.family_name = 'TODO: check if needed';
+      req.body.gender = 'x';
+      req.body.locale = 'en';
 
       await emailPasswordSignupCheck(req.body);
       await metamaskChecks(req.body);

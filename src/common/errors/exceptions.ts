@@ -41,3 +41,9 @@ export class MetamaskException extends InteractionException {
     super(message, description, 200); //TODO: check if correct status
   }
 }
+
+export class ProfileUpdateException extends InteractionException {
+  constructor(description: string, message: string, status: number) {
+    super(message, description, 200); //TODO: check if correct status
+  }
+}

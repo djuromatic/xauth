@@ -1,8 +1,10 @@
 import { findByEmail, findByUsername } from '../service/account.service.js';
 import { SignupException } from '../common/errors/exceptions.js';
-import { MIN_AGE_REQUIRED, PASSWORD_SALT_ROUNDS } from './constants.js';
+
+import { checkDateOfBirth, checkEmail, checkPassword, checkUsername } from './input-checks.js';
 
 let errorDescription: any;
+export let passwordChecks: any;
 
 export const check = async (reqBody: Request['body']) => {
   const { email, password, dateOfBirth, username, fullName } = reqBody as any;
@@ -14,136 +16,46 @@ export const check = async (reqBody: Request['body']) => {
   };
 
   //Age related verification
-  if (!dateOfBirth) {
+  const dateOfBirthErrors = checkDateOfBirth(dateOfBirth);
+  if (dateOfBirthErrors.length > 0) {
     throw new SignupException(
       'Bad signup attempt',
-      errorDescription(1, 'dateOfBirth', 'Date of birth not provided'),
-      200
-    );
-  }
-
-  if (Date.now() - Date.parse(dateOfBirth) < MIN_AGE_REQUIRED) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(1, 'dateOfBirth', "You're younger than 16 years"),
+      errorDescription(1, dateOfBirthErrors[0].field, dateOfBirthErrors[0].desc),
       200
     );
   }
 
   //Email verification
-  if (!email) {
-    throw new SignupException('Bad signup attempt', errorDescription(1, 'email', 'Email not provided'), 200);
-  }
-
-  if (!email.includes('@') || !email.includes('.')) {
-    throw new SignupException('Bad signup attempt', errorDescription(1, 'email', 'Not a valid email'), 200);
-  }
-
-  const account = await findByEmail(email);
-  if (account) {
-    throw new SignupException('Bad signup attempt', errorDescription(1, 'email', 'Email already in use'), 200);
+  const emailErrors = await checkEmail(email);
+  if (emailErrors.length > 0) {
+    throw new SignupException(
+      'Bad signup attempt',
+      errorDescription(1, emailErrors[0].field, emailErrors[0].desc),
+      200
+    );
   }
 
   //Username verification
-  if (!username) {
-    throw new SignupException('Bad signup attempt', errorDescription(2, 'username', 'Username not provided'), 200);
-  }
-
-  if (username.length < 3) {
+  const usernameErrors = await checkUsername(username);
+  if (usernameErrors.length > 0) {
     throw new SignupException(
       'Bad signup attempt',
-      errorDescription(2, 'username', 'Username length must be above 3 characters'),
+      errorDescription(2, usernameErrors[0].field, usernameErrors[0].desc),
       200
     );
   }
 
-  if (username.length > 16) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'username', 'Username length must be bellow 16 characters'),
-      200
-    );
-  }
-
-  if (!isAlphanumeric(username)) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'username', 'Username must contain only alphanumeric characters'),
-      200
-    );
-  }
-
-  if (await findByUsername(username)) {
-    throw new SignupException('Bad signup attempt', errorDescription(2, 'username', 'Username already exists'), 200);
-  }
   //Password verification
-  passwordChecks(password);
-};
+  passwordChecks = () => {
+    const passwordErrors = checkPassword(password);
+    if (passwordErrors.length > 0) {
+      throw new SignupException(
+        'Bad signup attempt',
+        errorDescription(2, passwordErrors[0].field, passwordErrors[0].desc),
+        200
+      );
+    }
+  };
 
-export const passwordChecks = (password: string) => {
-  //Password verification
-  if (!password) {
-    throw new SignupException('Bad signup attempt', errorDescription(2, 'password', 'Password not provided'), 200);
-  }
-
-  if (password.length < 8) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'password', 'Password length must be above 8 characters'),
-      200
-    );
-  }
-
-  if (password.length > 16) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'password', 'Password length must be bellow 16 characters'),
-      200
-    );
-  }
-
-  if (!hasLowerCaseLetter(password)) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'password', 'Password must contain minimum one lowercase letter'),
-      200
-    );
-  }
-
-  if (!hasTwoUpperCaseLetters(password)) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'password', 'Password must contain minimum two uppercase letters'),
-      200
-    );
-  }
-
-  if (!hasNumeric(password)) {
-    throw new SignupException(
-      'Bad signup attempt',
-      errorDescription(2, 'password', 'Password must contain minimum one number'),
-      200
-    );
-  }
-};
-
-const isAlphanumeric = (str: string) => {
-  return str.match(/^[a-zA-Z0-9]+$/) !== null;
-};
-
-const hasLowerCaseLetter = (str: string) => {
-  return /[a-z]/.test(str);
-};
-
-const hasTwoUpperCaseLetters = (str: string) => {
-  var count = 0,
-    len = str.length;
-  for (var i = 0; i < len; i++) {
-    if (/[A-Z]/.test(str.charAt(i))) count++;
-  }
-  return count > 1;
-};
-
-const hasNumeric = (str: string) => {
-  return /[0-9]/.test(str);
+  passwordChecks();
 };

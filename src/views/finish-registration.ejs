@@ -1,23 +1,48 @@
 <div id="cls111">
 
-<form autocomplete="on" action="/interaction/<%= uid %>/federated/finish-registration" method="post">
-  <input hidden value="<%= sub %>" name="sub"/>
+<form id="FORM" autocomplete="off" action="/interaction/<%= uid %>/federated/finish-registration" method="post">
+  <input hidden value="<%= serverData %>" id="SERVER-DATA"/>
+  <input hidden value="<%= code %>" name="code"/>
   <input value="<%= uid %>" hidden id="UID"/>
   <input hidden id="METAMASK-NONCE" name="metamask_nonce"/>
   <input hidden id="METAMASK-SIGNATURE" name="metamask_signature"/>
-
   <input required type="text" name="username" placeholder="Enter username"/>
-  <button type="submit" class="submit">Set username</button>
+  <div id="INPUT-WRAPPER"></div>
 </form>
 
 <script type="module">
   import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
-  const el = document.createElement("button");
-  el.textContent = "Connect Metamask";
-  el.onclick = async () => {
+
+  let frontRespondedToServerError = false;
+  const parentElement = document.getElementById("INPUT-WRAPPER");
+
+  const errorUsername = document.createElement("div");
+
+  const metamaskButton = document.createElement("button");
+  const errorMetamask = document.createElement("div");
+  errorMetamask.hidden = true;
+  errorUsername.hidden = true;
+
+  const serverData = JSON.parse(document.getElementById("SERVER-DATA").value);
+  const error = serverData.error;
+  if(!frontRespondedToServerError && error){ //server returning bad user input data
+    if(error.field == 'username'){
+      errorUsername.hidden = false;
+      errorUsername.innerText = error.message;
+    }
+    if(error.field == 'metamask'){
+      errorMetamask.hidden = false;
+      errorMetamask.innerText = error.message;
+    }
+    frontRespondedToServerError = true;
+  }
+
+  metamaskButton.textContent = "Connect Metamask";
+
+  metamaskButton.onclick = async () => {
 
     const uid = document.getElementById("UID").value;
- 
+
     try{
 
       // Get the provider and signer from the browser window
@@ -45,14 +70,25 @@
       document.getElementById("METAMASK-NONCE").value = nonce;
       document.getElementById("METAMASK-SIGNATURE").value = signature;
 
-      el.textContent = 'Connected';
-      el.onclick = () => {}
+      metamaskButton.textContent = 'Connected';
+      metamaskButton.onclick = () => {}
     } catch {
-      el.textContent = 'Install Metamask';
+      metamaskButton.textContent = 'Install Metamask';
     }
   }
+  parentElement.appendChild(errorUsername);
+  parentElement.appendChild(metamaskButton);
+  parentElement.appendChild(errorMetamask);
 
-  document.getElementById("cls111").appendChild(el);
+  const submitButton = document.createElement("button");
+  submitButton.innerText = "Submit";
+  submitButton.onclick = () => {
+    document.getElementById("FORM").submit();
+  }
+
+  parentElement.appendChild(submitButton);
+
+  document.getElementById("cls111").appendChild(parentElement);
 
 </script>
 
