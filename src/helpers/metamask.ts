@@ -4,8 +4,6 @@ import { findByEthAddress, setEthAddress } from '../service/account.service.js';
 import { find as findNonceRequest, remove as removeNonceRequest } from '../service/nonce-request.service.js';
 import { MetamaskException } from '../common/errors/exceptions.js';
 
-let errorDescription: any;
-
 export const generateNonce = () => {
   return crypto.randomBytes(32).toString('hex');
 };
@@ -29,7 +27,7 @@ export const check = async (reqBody: Request['body']) => {
 
   const serverData = { email, password, dateOfBirth, username, fullName };
 
-  errorDescription = (step: number, field: string, message: string) => {
+  const errorDescription = (step: number, field: string, message: string) => {
     return JSON.stringify({ ...serverData, step, error: { field, message } });
   };
 
