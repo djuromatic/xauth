@@ -59,6 +59,10 @@ export const oidcConfig: Configuration = {
       // 'zoneinfo'
     ]
   },
+  clientBasedCORS: (ctx: KoaContextWithOIDC, origin: string) => {
+    // eslint-disable-line no-unused-vars
+    return true;
+  },
   features: {
     devInteractions: { enabled: false }, // defaults to true
     clientCredentials: { enabled: true },
@@ -66,7 +70,7 @@ export const oidcConfig: Configuration = {
     // userinfo: {
     //   enabled: true
     // },
-    // deviceFlow: { enabled: true }, // defaults to false
+    deviceFlow: { enabled: true }, // defaults to false
     // revocation: { enabled: true }, // defaults to false
     resourceIndicators: {
       enabled: true,
