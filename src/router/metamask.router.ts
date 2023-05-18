@@ -24,7 +24,7 @@ import {
 import account from '../models/account.js';
 import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
 import { serverConfig } from '../config/server-config.js';
-import { MetamaskException } from '../common/errors/exceptions.js';
+import { LoginException } from '../common/errors/exceptions.js';
 
 const logger = new Logger('MetamaskRouter');
 
@@ -67,7 +67,7 @@ export default (app: Express, provider: Provider) => {
       const account = await findByEthAddress(ethAddress);
 
       if (!account) {
-        throw new MetamaskException('No Account has been linked with that address', 'Metmask Error', 404);
+        throw new LoginException('No Account has been linked with that address', 'Metmask Error', 404);
       }
 
       const result = {

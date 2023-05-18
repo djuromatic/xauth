@@ -38,6 +38,7 @@ export default (app: Express, provider: Provider) => {
           //Callback from Google with a code and state
           if (code && req.body.state) {
             const result = await callback(req, google);
+
             const { accountId } = result.login;
             const needsProfileUpdate = await profileNeedsUpdate(accountId);
             if (needsProfileUpdate) {
@@ -78,6 +79,15 @@ export default (app: Express, provider: Provider) => {
           //Callback from Apple
           if (code && req.body.state) {
             const result = await callback(req, apple);
+
+            const { accountId } = result.login;
+            const needsProfileUpdate = await profileNeedsUpdate(accountId);
+            if (needsProfileUpdate) {
+              const profileUpdateRequest = await createProfileUpdateRequest(accountId);
+              await renderProfileUpdatePage(provider, req, res, profileUpdateRequest);
+              return undefined;
+            }
+
             await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
             return undefined;
           }
