@@ -1,5 +1,5 @@
 import { KoaContextWithOIDC } from 'oidc-provider';
-import htmlSafe from '../common/html.js';
+import htmlSafe from '../../common/html.js';
 
 const errorHtmlBody = (out: any) => {
   return `<!DOCTYPE html>
@@ -16,10 +16,7 @@ const errorHtmlBody = (out: any) => {
       <div class="container">
         <h1>oops! something wfdsafsadfasent wrong</h1>
         ${Object.entries(out)
-          .map(
-            ([key, value]) =>
-              `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`
-          )
+          .map(([key, value]) => `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`)
           .join('')}
       </div>
     </body>

@@ -1,6 +1,6 @@
 import express from 'express';
 import Provider from 'oidc-provider';
-import { oidcConfig } from './config/oidc-config.js';
+import { oidcConfig } from './config/oidc/oidc-config.js';
 import { serverConfig } from './config/server-config.js';
 import http from 'http';
 import https from 'https';

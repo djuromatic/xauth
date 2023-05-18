@@ -1,3 +1,5 @@
+import { ClientMetadata } from 'oidc-provider';
+
 const serverConfig: ServerConfig = {
   node_env: process.env.NODE_ENV,
   serviceName: process.env.SERVICE_NAME ?? 'xauth',
@@ -11,7 +13,19 @@ const serverConfig: ServerConfig = {
     dbPass: process.env.DB_PASS ?? 'xauth'
   },
   oidc: {
-    issuer: process.env.OIDC_ISSUER ?? 'https://xauth.test:3000'
+    issuer: process.env.OIDC_ISSUER ?? 'https://xauth.test:3000',
+    defaultResourceServer: process.env.OIDC_DEFAULT_RESOURCE_SERVER ?? 'https://xauth.test:3000',
+    clients: [
+      {
+        client_id: process.env.OIDC_CLIENT_ID ?? 'xauth',
+        client_secret: process.env.client_secret ?? 'xauth',
+        grant_types: process.env.OIDC_GRANT_TYPES?.split(',') ?? ['authorization_code'],
+        scope: process.env.OIDC_SCOPE ?? 'openid profile email',
+        redirect_uris: process.env.OIDC_REDIRECT_URIS?.split(',') ?? ['https://xauth.test:6001'],
+        response_types: (process.env.OIDC_RESPONSE_TYPES?.split(',') as any) ?? ['code'],
+        token_endpoint_auth_method: 'none'
+      }
+    ]
   },
   logger: {
     level: process.env.LOGGER_LEVEL ?? 'debug'
@@ -72,6 +86,8 @@ export interface ServerConfig {
   };
   oidc: {
     issuer: string;
+    defaultResourceServer: string;
+    clients: ClientMetadata[];
   };
   logger: {
     level: string;
