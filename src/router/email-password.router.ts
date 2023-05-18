@@ -193,6 +193,4 @@ export default (app: Express, provider: Provider) => {
       }
     }
   );
-
-  interactionErrorHandler(app, provider);
 };
