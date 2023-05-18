@@ -1,7 +1,5 @@
 /* eslint-disable no-console, camelcase, no-unused-vars */
-import { strict as assert } from 'node:assert';
-import * as querystring from 'node:querystring';
-import { inspect } from 'node:util';
+
 import { Express } from 'express';
 
 import isEmpty from 'lodash/isEmpty.js';
@@ -17,7 +15,8 @@ import {
 import { debug } from '../helpers/debug.js';
 import { generateEmailCode, sendEmail as sendForgottenPasswordEmail } from '../helpers/forgoten-password.js';
 import { serverConfig } from '../config/server-config.js';
-import { passwordChecks } from '../helpers/email-password-signup.js';
+import { PasswordReplacementException } from '../common/errors/exceptions.js';
+import { checkPassword } from '../helpers/input-checks.js';
 
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
@@ -205,7 +204,12 @@ export default (app: Express, provider: Provider) => {
       try {
         const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
-        passwordChecks(req.body.password);
+        const { password } = req.body;
+
+        const passwordErrors = checkPassword(password);
+        if (passwordErrors.length > 0) {
+          throw new PasswordReplacementException('Bad password replacemeent attempt', passwordErrors[0].desc, 200);
+        }
 
         const client = await provider.Client.find(params.client_id as any);
 

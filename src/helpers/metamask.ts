@@ -23,6 +23,14 @@ export const linkAccount = async (accountId: string, reqBody: Request['body']) =
 };
 
 export const check = async (reqBody: Request['body']) => {
+  const { email, password, dateOfBirth, username, fullName } = reqBody as any;
+
+  const serverData = { email, password, dateOfBirth, username, fullName };
+
+  const errorDescription = (step: number, field: string, message: string) => {
+    return JSON.stringify({ ...serverData, step, error: { field, message } });
+  };
+
   const { metamask_nonce, metamask_signature } = reqBody as any;
 
   if (metamask_nonce === '') {
@@ -32,7 +40,7 @@ export const check = async (reqBody: Request['body']) => {
   const nonceRequest = await findNonceRequest({ nonce: metamask_nonce });
 
   if (!nonceRequest) {
-    throw new MetamaskException('Not a valid nonce', 'Metamask Error', 404);
+    throw new MetamaskException('Not a valid nonce', errorDescription(2, 'metamask', 'Not a valid nonce'), 404);
   }
 
   const ethAddress = utils.verifyMessage(metamask_nonce, metamask_signature);
@@ -40,6 +48,10 @@ export const check = async (reqBody: Request['body']) => {
   const account = await findByEthAddress(ethAddress);
 
   if (account) {
-    throw new MetamaskException('ETH address already in use', 'Metamask Error', 404);
+    throw new MetamaskException(
+      'ETH address already in use',
+      errorDescription(2, 'metamask', 'Address already in use'),
+      404
+    );
   }
 };

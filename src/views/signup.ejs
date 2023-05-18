@@ -1,38 +1,288 @@
 
 <div id="cls111">
 
-<form id="signup-form" autocomplete="off" action="/interaction/<%= uid %>/signup" method="post" onsubmit="return verificationCheck()">
+  <input hidden value="<%= serverData %>" id="SERVER-DATA"/>
 
-  <input value="<%= uid %>" hidden id="UID"/>
+  <input hidden value="0" id="STEP"/>
+  <div id="INPUT-WRAPPER"></div>
+
+  <script>
+    const delay = (delayInms) => {
+      return new Promise(resolve => setTimeout(resolve, delayInms));
+    }
+    let frontReceivedServerError = false;
+    let frontRespondedToServerError = false;
+    const parentElement = document.getElementById("INPUT-WRAPPER");
+    const step = document.getElementById("STEP");
+
+    const stepperWrapper = document.createElement('div');
+    stepperWrapper.id = "stepper-wrapper";
+
+    const firstStepBtn = document.createElement('button');
+    firstStepBtn.innerText = "1";
+    const secondStepBtn = document.createElement('button');
+    secondStepBtn.innerText = "2";
+    const thirdStepBtn = document.createElement('button');
+    thirdStepBtn.innerText = "3";
+
+    const initParentElement = () => {
+
+      parentElement.replaceChildren();
+
+      firstStepBtn.onclick = () => {
+        step.value = "0";
+        hideAllElements();
+        render();
+      }
+
+      secondStepBtn.onclick = () => {
+        step.value = "1";
+        hideAllElements();
+        render();
+      }
+
+      thirdStepBtn.onclick = () => {
+        step.value = "2";
+        hideAllElements();
+        render();
+      }
+
+      stepperWrapper.appendChild(firstStepBtn);
+      stepperWrapper.appendChild(secondStepBtn);
+      stepperWrapper.appendChild(thirdStepBtn);
+      parentElement.appendChild(stepperWrapper);
+      parentElement.appendChild(document.createElement("hr"));
+
+    }
+
+    initParentElement();
+
+    const screen0 = document.createElement("div");
+
+    const labelFullName = document.createElement("div");
+    labelFullName.innerText = "Full Name";
+    const fullName = document.createElement("input");
+    fullName.placeholder = "Enter your full name";
+    const errorFullName = document.createElement("div");
+    const googleBtn = document.createElement("div");
+    googleBtn.id = "GGL-BTN"
+    googleBtn.innerHTML = `<form height="100px" id="GOOGLE-REGISTER" autocomplete="off" action="/interaction/<%= uid %>/federated" method="post">
+      <input type="hidden" name="upstream" value="google">
+      <button type="submit" class="google-button">
+        <span class="google-button__icon">
+          <svg viewBox="0 0 366 372" xmlns="http://www.w3.org/2000/svg"><path d="M125.9 10.2c40.2-13.9 85.3-13.6 125.3 1.1 22.2 8.2 42.5 21 59.9 37.1-5.8 6.3-12.1 12.2-18.1 18.3l-34.2 34.2c-11.3-10.8-25.1-19-40.1-23.6-17.6-5.3-36.6-6.1-54.6-2.2-21 4.5-40.5 15.5-55.6 30.9-12.2 12.3-21.4 27.5-27 43.9-20.3-15.8-40.6-31.5-61-47.3 21.5-43 60.1-76.9 105.4-92.4z" id="Shape" fill="#EA4335"/><path d="M20.6 102.4c20.3 15.8 40.6 31.5 61 47.3-8 23.3-8 49.2 0 72.4-20.3 15.8-40.6 31.6-60.9 47.3C1.9 232.7-3.8 189.6 4.4 149.2c3.3-16.2 8.7-32 16.2-46.8z" id="Shape" fill="#FBBC05"/><path d="M361.7 151.1c5.8 32.7 4.5 66.8-4.7 98.8-8.5 29.3-24.6 56.5-47.1 77.2l-59.1-45.9c19.5-13.1 33.3-34.3 37.2-57.5H186.6c.1-24.2.1-48.4.1-72.6h175z" id="Shape" fill="#4285F4"/><path d="M81.4 222.2c7.8 22.9 22.8 43.2 42.6 57.1 12.4 8.7 26.6 14.9 41.4 17.9 14.6 3 29.7 2.6 44.4.1 14.6-2.6 28.7-7.9 41-16.2l59.1 45.9c-21.3 19.7-48 33.1-76.2 39.6-31.2 7.1-64.2 7.3-95.2-1-24.6-6.5-47.7-18.2-67.6-34.1-20.9-16.6-38.3-38-50.4-62 20.3-15.7 40.6-31.5 60.9-47.3z" fill="#34A853"/></svg>
+        </span>
+        <span class="google-button__text">Sign up with Google</span>
+      </button>
+    </form>`;
+
+    screen0.appendChild(labelFullName);
+    screen0.appendChild(fullName);
+    screen0.appendChild(errorFullName);
+    screen0.appendChild(document.createElement("hr"));
+    screen0.appendChild(googleBtn);
+
+    const screen1 = document.createElement("div");
+
+    const labelDateOfBirth = document.createElement("div");
+    labelDateOfBirth.innerText = "Date of Birth";
+    const dateOfBirth = document.createElement("input");
+    dateOfBirth.type = "date";
+    const errorDateOfBirth = document.createElement("div");
+    const labelEmail = document.createElement("div");
+    labelEmail.innerText = "Email";
+    const email = document.createElement("input");
+    email.placeholder = "Enter your email";
+    const errorEmail = document.createElement("div");
+
+    screen1.appendChild(labelDateOfBirth);
+    screen1.appendChild(dateOfBirth);
+    screen1.appendChild(errorDateOfBirth);
+    screen1.appendChild(labelEmail);
+    screen1.appendChild(email);
+    screen1.appendChild(errorEmail);
+
+    const screen2 = document.createElement("div");
+    screen2.id = "LAST-SCREEN";
+
+    const labelUsername = document.createElement("div");
+    labelUsername.innerText = "User Name"
+    const username = document.createElement("input");
+    username.placeholder = "3 - 16 characters";
+    const errorUsername = document.createElement("div");
+    const labelPassword = document.createElement("div");
+    labelPassword.innerText = "Password"
+    const password =  document.createElement("input");
+    password.type = "password";
+    password.placeholder = "8 - 16 characters";
+    const errorPassword = document.createElement("div");
+    const errorMetamask = document.createElement("div");
+
+    screen2.appendChild(labelUsername);
+    screen2.appendChild(username);
+    screen2.appendChild(errorUsername);
+    screen2.appendChild(labelPassword);
+    screen2.appendChild(password);
+    screen2.appendChild(errorPassword);
+    screen2.appendChild(errorMetamask);
+    screen2.appendChild(document.createElement("hr"));
+
+    parentElement.appendChild(screen0);
+    parentElement.appendChild(screen1);
+    parentElement.appendChild(screen2);
+
+
+    const btn = document.createElement("button");
+    const storeValues = () => {
+      document.getElementById("fullName").value = fullName.value;
+      document.getElementById("email").value = email.value;
+      document.getElementById("dateOfBirth").value = dateOfBirth.value;
+      document.getElementById("username").value = username.value;
+      document.getElementById("password").value = password.value;
+    }
+
+    btn.innerText = parseInt(step.value) < 2 ? "Continue" : 'Submit';
+    btn.onclick = () => {
+
+      const form = document.getElementById("signup-form");
+      storeValues();
+      stepValue = parseInt(step.value);
+      if(stepValue == 2){
+        form.submit();
+      } else{
+        step.value = `${stepValue + 1}`;
+        hideAllElements();
+        render();
+      }
+    }
+    parentElement.appendChild(btn);
+
+    const hideAllElements = () => {
+      screen0.hidden = screen1.hidden = screen2.hidden = true;
+    }
+
+    const render = async () => {
+
+      const serverData = JSON.parse(document.getElementById("SERVER-DATA").value);
+      const error = serverData.error;
+      let step = parseInt(document.getElementById("STEP").value);
+
+      if(!frontRespondedToServerError && error){ //server returning bad user input data
+        fullName.value = fullName.value == "" ? serverData.fullName : fullName.value;
+        username.value = username.value == "" ? serverData.username : username.value;
+        email.value = email.value == "" ? serverData.email : email.value;
+        dateOfBirth.value = dateOfBirth.value == "" ? serverData.dateOfBirth : dateOfBirth.value;
+        password.value = password.value == "" ? serverData.password : password.value;
+
+        if(error.field == "dateOfBirth"){
+          errorDateOfBirth.innerText = error.message;
+          errorDateOfBirth.hidden = false;
+        }
+        if(error.field == "email"){
+          errorEmail.innerText = error.message;
+          errorEmail.hidden = false;
+        }
+        if(error.field == "username"){
+          errorUsername.innerText = error.message;
+          errorUsername.hidden = false;
+        }
+        if(error.field == "password"){
+          errorPassword.innerText = error.message;
+          errorPassword.hidden = false;
+        }
+        if(error.field == "metamask"){
+          errorMetamask.innerText = error.message;
+          errorMetamask.hidden = false;
+        }
+
+        frontRespondedToServerError = true;
+        document.getElementById("STEP").value = step = serverData.step;
+      }
+
+      btn.innerText = "Continue";
+      if(step == 0) {
+
+        screen0.hidden = false;
+
+        if(fullName.value == ""){
+          btn.disabled = true;
+          secondStepBtn.disabled = true;
+          thirdStepBtn.disabled = true;
+        }else{
+          btn.disabled = false;
+          secondStepBtn.disabled = false;
+        } 
+
+      } else if (step == 1) {
+
+        screen1.hidden = false;
+
+        if(dateOfBirth.value == "" || email.value == ""){
+          btn.disabled = true;
+          thirdStepBtn.disabled = true;
+        } else {
+          btn.disabled = false;
+          thirdStepBtn.disabled = false;
+        }
+      
+      } else if (step == 2) {
+
+        screen2.hidden = false;
+
+        btn.innerText = "Submit";
+
+        if(username.value == "" || password.value == ""){
+          btn.disabled = true;
+        } else {
+          btn.disabled = false;
+        }
+
+      }
+    }
+
+    fullName.addEventListener("keydown", render);
+    fullName.addEventListener("keyup", render);
+    dateOfBirth.addEventListener("change", render);
+    email.addEventListener("keydown", render);
+    email.addEventListener("keyup", render);
+    username.addEventListener("keydown", render);
+    username.addEventListener("keyup", render);
+
+    hideAllElements();
+    render();
+  
+  </script>
+
+<form id="signup-form" autocomplete="off" action="/interaction/<%= uid %>/signup" method="post" >
+
+  <input hidden value="<%= uid %>" id="UID"/>
   <input hidden id="METAMASK-NONCE" name="metamask_nonce"/>
   <input hidden id="METAMASK-SIGNATURE" name="metamask_signature"/>
 
+  <input hidden id="fullName"  type="text" name="fullName" placeholder="Enter full name" />
 
-  <input required type="text" name="given_name" placeholder="Enter given name" />
-  <input required type="text" name="family_name" placeholder="Enter family name" />
+  <input hidden id="email" type="text" name="email" placeholder="Enter email" />
 
-  <input required type="text" name="email" placeholder="Enter email" />
+  <input hidden id="password" type="password" name="password" placeholder="Enter password" />
+  <input hidden type="password" name="repeatedPassword" placeholder="Repeat password" />
 
-  <input required type="password" name="password" placeholder="Enter password" />
-  <input required type="password" name="repeatedPassword" placeholder="Repeat password" />
+  <input hidden id="username" type="text" name="username" placeholder="Enter username" />
 
-  <input required type="text" name="username" placeholder="Enter username" />
+  <input hidden id="dateOfBirth" type="date" name="dateOfBirth" placeholder="Enter date of birth" />
 
-  <input required type="date" name="dateOfBirth" placeholder="Enter date of birth" />
-
-  <select required name="gender">
+  <!-- <select hidden required name="gender">
     <option value="male">Male</option>
     <option value="female">Female</option>
     <option value="other">Other</option>
   </select>
 
-  <select required name="locale">
+  <select hidden required name="locale">
     <option value="en">en</option>
     <option value="ger">ger</option>
     <option value="other">other</option>
-  </select>
+  </select> -->
 
-  <button type="submit" class="signup signup-submit">Sign-Up</button>
+ 
 
   <script type="module">
     import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
@@ -48,8 +298,6 @@
       await provider.send("eth_requestAccounts", []);
 
       const signer = await provider.getSigner();
-
-      console.log({signer, addr: await signer.getAddress()});
 
       const response = await fetch(`/interaction/${uid}/metamask/request-nonce`,  {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -69,13 +317,12 @@
       document.getElementById("METAMASK-NONCE").value = nonce;
       document.getElementById("METAMASK-SIGNATURE").value = signature;
 
-      console.log({signature});
 
       el.textContent = 'Connected';
-      el.onclick = () => {console.log('already_connected');}
+      el.onclick = () => {}
     }
 
-    document.getElementById("cls111").appendChild(el);
+    document.getElementById("LAST-SCREEN").appendChild(el);
 
   </script>
 
@@ -90,26 +337,12 @@
       }else{
       }
       return true;
-    
     }
-
 
   </script>
 
-  
-
 </form>
 
-<!-- <button id="connect-metamask-btn" onclick="func">Connect Metamask</button> -->
 
-<form autocomplete="off" action="/interaction/<%= uid %>/federated" method="post">
-  <input type="hidden" name="upstream" value="google">
-  <button type="submit" class="google-button">
-    <span class="google-button__icon">
-      <svg viewBox="0 0 366 372" xmlns="http://www.w3.org/2000/svg"><path d="M125.9 10.2c40.2-13.9 85.3-13.6 125.3 1.1 22.2 8.2 42.5 21 59.9 37.1-5.8 6.3-12.1 12.2-18.1 18.3l-34.2 34.2c-11.3-10.8-25.1-19-40.1-23.6-17.6-5.3-36.6-6.1-54.6-2.2-21 4.5-40.5 15.5-55.6 30.9-12.2 12.3-21.4 27.5-27 43.9-20.3-15.8-40.6-31.5-61-47.3 21.5-43 60.1-76.9 105.4-92.4z" id="Shape" fill="#EA4335"/><path d="M20.6 102.4c20.3 15.8 40.6 31.5 61 47.3-8 23.3-8 49.2 0 72.4-20.3 15.8-40.6 31.6-60.9 47.3C1.9 232.7-3.8 189.6 4.4 149.2c3.3-16.2 8.7-32 16.2-46.8z" id="Shape" fill="#FBBC05"/><path d="M361.7 151.1c5.8 32.7 4.5 66.8-4.7 98.8-8.5 29.3-24.6 56.5-47.1 77.2l-59.1-45.9c19.5-13.1 33.3-34.3 37.2-57.5H186.6c.1-24.2.1-48.4.1-72.6h175z" id="Shape" fill="#4285F4"/><path d="M81.4 222.2c7.8 22.9 22.8 43.2 42.6 57.1 12.4 8.7 26.6 14.9 41.4 17.9 14.6 3 29.7 2.6 44.4.1 14.6-2.6 28.7-7.9 41-16.2l59.1 45.9c-21.3 19.7-48 33.1-76.2 39.6-31.2 7.1-64.2 7.3-95.2-1-24.6-6.5-47.7-18.2-67.6-34.1-20.9-16.6-38.3-38-50.4-62 20.3-15.7 40.6-31.5 60.9-47.3z" fill="#34A853"/></svg>
-    </span>
-    <span class="google-button__text">Sign up with Google</span>
-  </button>
-</form>
 
 </div>
