@@ -5,9 +5,9 @@ import { Logger } from '../utils/winston.js';
 const logger = new Logger('Database');
 
 export function createConnection(serverConfig: ServerConfig) {
-  const { host, port, dbName, dbUser, dbPass } = serverConfig.database;
+  const { connectionString, dbName, dbUser, dbPass } = serverConfig.database;
 
-  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${host}:${port}/${dbName}`, {});
+  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}/${dbName}`, {});
 
   connection
     .then(() => {
