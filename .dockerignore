@@ -1,0 +1,13 @@
+.vscode
+dist
+docs
+examples
+infra
+mongodb_query
+node_modules
+.gitignore
+.prettierrc
+.prettierignore
+README.md
+*.sh
+*.yml
