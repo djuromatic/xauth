@@ -1,6 +1,6 @@
 import express from 'express';
 import Provider from 'oidc-provider';
-import { oidcConfig } from './config/oidc-config.js';
+import { oidcConfig } from './config/oidc/oidc-config.js';
 import { serverConfig } from './config/server-config.js';
 import http from 'http';
 import https from 'https';
@@ -17,6 +17,8 @@ import forgotenPasswordRouter from './router/forgot-password.router.js';
 import metamaskRouter from './router/metamask.router.js';
 import demoRouter from './router/demo.router.js';
 import { interactionErrorHandler } from './common/errors/interaction-error-handler.js';
+
+const { port } = serverConfig;
 
 export const createServer = async () => {
   const logger = new Logger('Init');
@@ -67,8 +69,8 @@ export const createServer = async () => {
     server = http.createServer(app);
   }
 
-  server.listen(80, () => {
-    logger.info(`Server is running on port ${80}`);
+  server.listen(port, () => {
+    logger.info(`Server is running on port ${port}`);
   });
 
   createConnection(serverConfig);

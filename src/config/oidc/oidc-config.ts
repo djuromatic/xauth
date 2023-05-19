@@ -1,13 +1,13 @@
 import { Configuration, KoaContextWithOIDC } from 'oidc-provider';
-import { getInteractionPolicy } from '../helpers/interaction-policy.js';
-import { getProviderClients } from '../helpers/provider-clients.js';
-import { findAccount } from '../service/account.service.js';
-import { renderError } from '../helpers/render-error.js';
-import { Logger } from '../utils/winston.js';
-import { findDemoAccount } from '../service/demo-account.service.js';
-import { jwkPrivate } from '../helpers/keystore.js';
-import { ttlHandler } from './handlers/ttl.handler.js';
-import { MongoAdapter } from '../database/mongoose.adapter.js';
+import { getInteractionPolicy } from './interaction-policy.js';
+import { findAccount } from '../../service/account.service.js';
+import { renderError } from './render-error.js';
+import { Logger } from '../../utils/winston.js';
+import { findDemoAccount } from '../../service/demo-account.service.js';
+import { jwkPrivate } from '../../helpers/keystore.js';
+import { ttlHandler } from './ttl.handler.js';
+import { MongoAdapter } from '../../database/mongoose.adapter.js';
+import { serverConfig } from '../server-config.js';
 
 const logger = new Logger('ProviderService');
 
@@ -15,8 +15,12 @@ const jwks = {
   keys: [jwkPrivate]
 };
 
+const { oidc } = serverConfig;
+
+const { defaultResourceServer, clients } = oidc;
+
 export const oidcConfig: Configuration = {
-  clients: getProviderClients(),
+  clients,
   findAccount: (ctx: KoaContextWithOIDC, id: string) => {
     if (id.split('|')[0] === 'demo') {
       return findDemoAccount(ctx, id);
@@ -75,7 +79,7 @@ export const oidcConfig: Configuration = {
     resourceIndicators: {
       enabled: true,
       defaultResource: (ctx: KoaContextWithOIDC) => {
-        return 'https://xauth.test';
+        return defaultResourceServer;
       },
       getResourceServerInfo: (ctx, resourceIndicator, client) => {
         logger.debug('get resource server info', client);

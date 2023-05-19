@@ -1,5 +1,5 @@
 import { KoaContextWithOIDC } from 'oidc-provider';
-import htmlSafe from '../common/html.js';
+import htmlSafe from '../../common/html.js';
 
 const errorHtmlBody = (out: any) => {
   return `<!DOCTYPE html>

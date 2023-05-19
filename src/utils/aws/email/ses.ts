@@ -19,9 +19,9 @@ export class SesService {
         ? fromSSO({
             profile: serverConfig.aws.profile
           })
-        : fromProcess({
-          profile: serverConfig.aws.profile,
-        })
+        : fromSSO({
+            profile: serverConfig.aws.profile
+          });
 
     this.Source = email_from;
     this.SourceArn = source_arn;
