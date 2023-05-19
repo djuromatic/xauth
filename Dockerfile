@@ -9,7 +9,7 @@ FROM node:18.14.2-alpine3.17 as final
 WORKDIR /app
 
 COPY --from=builder /app/dist/ ./
-COPY --from=builder ./db-cert.pem ./db-cert.pem
+COPY --from=builder /app/db-cert.pem ./db-cert.pem
 #copy package.json
 COPY --from=builder /app/package*.json ./
 
