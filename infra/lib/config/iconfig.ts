@@ -5,6 +5,7 @@ export interface AppConfig {
     vpcId?: string;
     cidr?: string;
   };
+  baseRepoName: string;
   git: {
     owner: string;
     branch: string;

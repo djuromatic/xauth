@@ -100,7 +100,8 @@ export class EcsStack extends cdk.Stack {
         serviceConfig,
         certificate: cert.certificate,
         usCertificate: usCert.certificate,
-        zone
+        zone,
+        baseRepoName: appConfig.baseRepoName
       });
     });
 

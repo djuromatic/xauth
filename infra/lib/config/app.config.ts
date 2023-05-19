@@ -7,6 +7,7 @@ export const appConfig: AppConfig = {
     vpcId: process.env.VPC_ID,
     cidr: ''
   },
+  baseRepoName: process.env.BASE_REPO_NAME || 'xauth-base',
   git: {
     owner: process.env.GIT_OWNER!,
     branch: process.env.GIT_BRANCH!,

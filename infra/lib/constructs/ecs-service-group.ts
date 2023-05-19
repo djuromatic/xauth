@@ -22,6 +22,7 @@ export interface EcsServiceGroupProps {
   executionRolePolicy: any;
   cluster: ICluster;
   zone: IHostedZone;
+  baseRepoName: string;
 }
 
 export class ECSServiceGroup extends Construct {
@@ -46,11 +47,12 @@ export class ECSServiceGroup extends Construct {
     });
     const { httpsListener, alb } = explorerAlb;
 
-    if (!privateNode) {
-      new WafExplorer(this, `waf`, {
-        alb
-      });
-    }
+    //TODO - add WAF
+    // if (!privateNode) {
+    //   new WafExplorer(this, `waf`, {
+    //     alb
+    //   });
+    // }
 
     // Create the Fargate Service
     const fargateService = new FargateServiceConstruct(this, `service`, {
@@ -67,7 +69,7 @@ export class ECSServiceGroup extends Construct {
     const { service, repository } = fargateService;
 
     //Repo containing images for node and nginx
-    const baseRepo = Repository.fromRepositoryName(this, `${serviceConfig.hostname}-node-repo`, `explorer-nightfall`);
+    const baseRepo = Repository.fromRepositoryName(this, `${serviceConfig.hostname}-node-repo`, props.baseRepoName);
     const cicd = new CiCdConstruct(this, `cicd`, {
       service: serviceConfig,
       cluster,

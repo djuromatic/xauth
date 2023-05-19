@@ -131,8 +131,8 @@ export class CiCdConstruct extends Construct {
       imageFile: new codepipeline.ArtifactPath(buildOutput, `imagedefinitions.json`)
     });
     // PIPELINE STAGES
-    new codepipeline.Pipeline(this, `${service.hostname}-pipeline`, {
-      pipelineName: `${envName}-${service.hostname}-pipeline`,
+    new codepipeline.Pipeline(this, `${envName}-${service.hostname}`, {
+      pipelineName: `${envName}-${service.hostname}`,
       stages: [
         {
           stageName: 'Source',
