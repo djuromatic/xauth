@@ -8,7 +8,6 @@ export function createConnection(serverConfig: ServerConfig) {
   const { connectionString, dbName, dbUser, dbPass } = serverConfig.database;
 
   const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}/${dbName}`, {});
-  logger.info(`Connecting to database: mongodb://${dbUser}:${dbPass}@${connectionString}/${dbName}`);
   connection
     .then(() => {
       logger.info('Connected to database');
