@@ -1,0 +1,57 @@
+#Prerequisits:
+# 1. Install the AWS CLI
+# 2. Install docker
+
+PROFILE=xxxxxxxx                           #Aws cli profile ~/.aws/credentials
+REGION=eu-central-1                            #Aws region
+TOKEN=xxxxxxxx #Github token
+BRANCH=master                                  #Github branch from which we will deploy. Aws Pipeline will also build from this branch
+SECRETPATH=/github/explorer/token              #secretpath where to store github token. Used by AWS Pipeline to pull and create hooks
+ACCOUNTID=xxxxxxxx                         #Aws accout id
+BASE_REPO_NAME=explorer-nightfall              # Name for ECR base repo
+
+ECRURL=${ACCOUNTID}.dkr.ecr.${REGION}.amazonaws.com #Base ECR URL for account and region
+
+repo="github.com/MVPWorkshop/nightfall_explorer"
+services=(## root folder of service where is located in repo. for this services cdk will create ecr repo and build docker image
+    "backend"
+    "proposer-scoreboard"
+)
+
+# Add git tocken to secret manager
+aws secretsmanager create-secret --profile ${PROFILE} --region ${REGION} --name ${SECRETPATH} --secret-string ${TOKEN} >/dev/null 2>&1
+# Reference git token to cloudbuild
+aws codebuild import-source-credentials --profile ${PROFILE} --region ${REGION} --server-type GITHUB --auth-type PERSONAL_ACCESS_TOKEN --token ${TOKEN} >/dev/null 2>&1
+
+# Create Aws ecr base repository
+# This repository will hold nodejs and nginx
+# Reason for this is Docker Hub limitation on pull for free accounts.
+aws ecr create-repository --repository-name $BASE_REPO_NAME --profile ${PROFILE} --region ${REGION} --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE >/dev/null 2>&1
+
+# need this image because docker hub has pull limit for free accounts
+# it will be used in aws ci/cd pipeline to build application services | cicd-construct.ts in buildSpec
+# Pull nodejs image
+docker pull node:16.17.0-alpine
+
+# Login docker to aws ECR
+aws ecr get-login-password --region ${REGION} --profile ${PROFILE} | docker login --username AWS --password-stdin ${ECRURL}
+# move back in root folder
+cd ..
+git checkout ${BRANCH}
+git pull
+for i in "${services[@]}"; do
+    # Repository name from git url as defined it will take 3. string from url (f3)
+    service=${i}
+    # Create ECR repository for service
+    aws ecr create-repository --repository-name explorer-${service} --profile ${PROFILE} --region ${REGION} --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE >/dev/null
+
+    cd ${service}
+
+    docker build -t ${service} .
+    docker tag ${service} ${ECRURL}/explorer-${service}:latest
+    docker push ${ECRURL}/explorer-${service}:latest
+    cd ..
+done
+
+#push node16.17.0-alpine to base repository
+docker tag node:16.17.0-alpine ${ECRURL}/$BASE_REPO_NAME:node-alpine

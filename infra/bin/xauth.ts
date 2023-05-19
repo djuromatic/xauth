@@ -3,6 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as config from '../lib/config';
 import { ExplorerTools } from '../lib/stacks/ec2';
 import { DocumentDBStack } from '../lib/stacks/documentdb-stack';
+import { EcsStack } from '../lib/stacks/ecs-stack';
 
 const env = {
   account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -11,10 +12,14 @@ const env = {
 
 const app = new cdk.App();
 
-const db = new DocumentDBStack(app, `tamdyo-db`, {
-  env,
-  vpcId: config.explorer.vpc.vpcId!,
-  username: 'xauth'
+// const db = new DocumentDBStack(app, `tamdyo-db`, {
+//   env,
+//   vpcId: config.appConfig.vpc.vpcId!,
+//   username: 'xauth'
+// });
+
+const xauth = new EcsStack(app, `tamdyo-xauth`, {
+  env
 });
 
 // const vpcStack = new VpcXauth(app, `vpc-xauth`);
