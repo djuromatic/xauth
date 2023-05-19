@@ -1,7 +1,6 @@
 import { ServiceConfig } from '../iconfig';
 
 export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
-  projectFolderName: '.',
   hostname: process.env.API_HOSTNAME || 'id',
   port: process.env.API_TARGET_PORT ? +process.env.API_TARGET_PORT : 80,
   logGroup: process.env.API_LOG_GROUP || 'log-id',
@@ -24,7 +23,7 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
       : 10000
   },
   ecr: {
-    repositoryName: process.env.API_ECR_REPOSITORY!,
+    repositoryName: process.env.XAUTH_ECR_REPOSITORY!,
     tag: 'latest'
   },
   env: {
@@ -32,8 +31,7 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     NODE_ENV: process.env.NODE_ENV,
     HOSTNAME: process.env.HOSTNAME,
     PORT: process.env.PORT,
-    DB_HOST: process.env.DB_HOST,
-    DB_PORT: process.env.DB_PORT,
+    DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
     DB_NAME: process.env.DB_NAME,
     OIDC_ISSUER: process.env.OIDC_ISSUER,
     LOGGER_LEVEL: process.env.LOGGER_LEVEL,

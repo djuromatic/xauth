@@ -41,11 +41,7 @@ export class CiCdConstruct extends Construct {
       owner: gitOwner,
       repo: gitRepository,
       webhook: true, // optional, default: true if `webhookFilteres` were provided, false otherwise
-      webhookFilters: [
-        codebuild.FilterGroup.inEventOf(codebuild.EventAction.PUSH)
-          .andBranchIs(`${gitBranch}`)
-          .andFilePathIs(`./${service.projectFolderName}/*`)
-      ] // optional, by default all pushes and Pull Requests will trigger a build
+      webhookFilters: [codebuild.FilterGroup.inEventOf(codebuild.EventAction.PUSH).andBranchIs(`${gitBranch}`)] // optional, by default all pushes and Pull Requests will trigger a build
     });
 
     // CODEBUILD - project
@@ -79,12 +75,11 @@ export class CiCdConstruct extends Construct {
           },
           build: {
             commands: [
-              `cd ${service.projectFolderName}`,
               'docker pull $BASE_REPO_URI:node-alpine',
               'docker tag $BASE_REPO_URI:node-alpine node:18.14.2-alpine3.17',
+              'wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem -O db-cert.pem',
               `docker build -t $ECR_REPO_URI:$TAG .`,
-              'docker push $ECR_REPO_URI:$TAG',
-              'cd ..'
+              'docker push $ECR_REPO_URI:$TAG'
             ]
           },
           post_build: {

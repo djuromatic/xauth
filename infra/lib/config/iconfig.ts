@@ -14,7 +14,6 @@ export interface AppConfig {
 }
 
 export interface ServiceConfig {
-  projectFolderName: string; // the name of folder in the project that contains the service
   hostname: string; // the hostname of the service
   privateNode?: boolean; // if true, the service will be deployed in a private subnet with private alb
   cloudfront?: {
