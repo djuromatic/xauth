@@ -2,7 +2,7 @@
 import assert from 'node:assert';
 import { NextFunction, Request, Response, urlencoded, Express } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider from 'oidc-provider';
-import { findByEmail, findBySub, setFederatedAccountUsername, findByUsername } from '../service/account.service.js';
+import { findBySub, setFederatedAccountUsername } from '../service/account.service.js';
 import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { login, callback, generateStateAndNonce } from '../service/federated.service.js';

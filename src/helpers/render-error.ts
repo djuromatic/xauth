@@ -14,12 +14,9 @@ const errorHtmlBody = (out: any) => {
     </head>
     <body>
       <div class="container">
-        <h1>oops! something wfdsafsadfasent wrong</h1>
+        <h1>oops! something went wrong</h1>
         ${Object.entries(out)
-          .map(
-            ([key, value]) =>
-              `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`
-          )
+          .map(([key, value]) => `<pre><strong>${key}</strong>: ${htmlSafe(value)}</pre>`)
           .join('')}
       </div>
     </body>

@@ -4,13 +4,6 @@ import Provider, { InteractionResults } from 'oidc-provider';
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 import { Logger } from '../utils/winston.js';
 import { debug } from '../helpers/debug.js';
-import {
-  create as createEmailVerification,
-  find as findEmailVerification,
-  remove as removeEmailVerification
-} from '../service/email-verification.service.js';
-import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
-import { findAccount, findByEmail } from '../service/account.service.js';
 
 const logger = new Logger('InteractionRouter');
 
@@ -123,14 +116,15 @@ export default (app: Express, provider: Provider) => {
       await provider.interactionFinished(req, res, result, {
         mergeWithLastSubmission: false
       });
+      return undefined;
     } catch (err) {
-      const { error_description } = err;
+      const { message: err_message } = err;
 
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id as any);
-      logger.info(JSON.stringify({ error_description }));
-      if (error_description === 'Email has not yet been verified') {
+      logger.info(JSON.stringify({ err_message }));
+      if (err_message === 'Email has not yet been verified') {
         return res.render('email-not-verified', {
           client,
           uid,

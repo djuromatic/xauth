@@ -1,5 +1,5 @@
-import { Issuer, TokenSet, generators } from 'openid-client';
-import { FederatedLoginConfig, serverConfig } from '../config/server-config.js';
+import { Issuer, generators } from 'openid-client';
+import { FederatedLoginConfig } from '../config/server-config.js';
 import { Logger } from '../utils/winston.js';
 import { Request } from 'express';
 import SsoLogin from '../models/login.js';

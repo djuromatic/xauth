@@ -2,11 +2,10 @@
 
 import { Express } from 'express';
 
-import isEmpty from 'lodash/isEmpty.js';
-import { NextFunction, Request, Response, urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
-import Provider, { InteractionResults } from 'oidc-provider';
+import { NextFunction, Request, Response } from 'express'; // eslint-disable-line import/no-unresolved
+import Provider from 'oidc-provider';
 
-import { findByEmail, create as createAccount, updateAccountPassword } from '../service/account.service.js';
+import { findByEmail, updateAccountPassword } from '../service/account.service.js';
 import {
   create as createPasswordResetRequest,
   find as findPasswordResetRequest,

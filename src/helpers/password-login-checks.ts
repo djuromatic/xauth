@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { findByEmail } from '../service/account.service.js';
 import { LoginException } from '../common/errors/exceptions.js';
-import { PASSWORD_SALT_ROUNDS } from './constants.js';
 
 export const check = async (reqBody: Request['body']) => {
   const { email, password } = reqBody as any;

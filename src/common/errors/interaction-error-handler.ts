@@ -3,7 +3,6 @@ import Provider, { errors } from 'oidc-provider';
 import {
   BadRequestException,
   InteractionException,
-  LoginException,
   MetamaskException,
   ProfileUpdateException,
   SignupException
@@ -45,7 +44,6 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
 
       const { message } = err;
       const code = JSON.parse(message).code;
-      console.log({ code });
       return res.render('finish-registration', {
         code,
         client,
