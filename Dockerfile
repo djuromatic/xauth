@@ -4,7 +4,7 @@ WORKDIR /app
 RUN npm install
 RUN npm run build
 
-COPY ./views ./dist/views
+COPY ./src/views ./dist/views
 
 # stage 2 build copy dist folder and package.json
 FROM node:18.14.2-alpine3.17 as final
