@@ -40,10 +40,8 @@ const serverConfig: ServerConfig = {
     profile: process.env.AWS_PROFILE ?? 'mvp-studio',
     region: process.env.AWS_REGION ?? 'us-east-1',
     ses: {
-      role_arn: process.env.AWS_SES_ROLE_ARN ?? '',
       email_from: process.env.AWS_SES_EMAIL_FROM ?? '',
-      source_arn: process.env.AWS_SES_SOURCE_ARN ?? '',
-      web_identity_token_file: process.env.AWS_SES_WEB_IDENTITY_TOKEN_FILE ?? ''
+      source_arn: process.env.AWS_SES_SOURCE_ARN ?? ''
     }
   },
   users: {
@@ -98,10 +96,8 @@ export interface ServerConfig {
     profile: string;
     region: string;
     ses: {
-      role_arn: string;
       email_from: string;
       source_arn: string;
-      web_identity_token_file: string;
     };
   };
   users: {

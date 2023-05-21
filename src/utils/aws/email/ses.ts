@@ -12,7 +12,7 @@ export class SesService {
 
   constructor() {
     const { region, ses } = serverConfig.aws;
-    const { role_arn, email_from, source_arn, web_identity_token_file } = ses;
+    const { email_from, source_arn } = ses;
 
     const sesConfig: AWS.SESClientConfig = {
       region: region
