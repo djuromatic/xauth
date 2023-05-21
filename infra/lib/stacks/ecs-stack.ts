@@ -57,6 +57,13 @@ export class EcsStack extends cdk.Stack {
     });
     taskRole.addToPolicy(cloudWatchPolicy);
 
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        resources: ['arn:aws:ses:eu-central-1:430792124313:identity/xauth.mvpworkshop.co'], // Adjust the resources based on your specific needs
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'] // Adjust the actions based on your requirements
+      })
+    );
+
     // Add policy to role for ecs task definitions
     const executionRolePolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,

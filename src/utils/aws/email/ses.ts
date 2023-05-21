@@ -14,20 +14,20 @@ export class SesService {
     const { region, ses } = serverConfig.aws;
     const { role_arn, email_from, source_arn, web_identity_token_file } = ses;
 
-    const credentials =
-      serverConfig.node_env === 'local'
-        ? fromSSO({
-            profile: serverConfig.aws.profile
-          })
-        : fromSSO({
-            profile: serverConfig.aws.profile
-          });
+    // const credentials =
+    //   serverConfig.node_env === 'local'
+    //     ? fromSSO({
+    //         profile: serverConfig.aws.profile
+    //       })
+    //     : from({
+    //         profile: serverConfig.aws.profile
+    //       });
 
     this.Source = email_from;
     this.SourceArn = source_arn;
     this.client = new AWS.SES({
-      region: region,
-      credentials
+      region: region
+      // credentials
     });
   }
 
