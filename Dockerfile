@@ -10,8 +10,6 @@ WORKDIR /app
 
 COPY --from=builder /app/dist/ ./
 COPY --from=builder /app/db-cert.pem ./database/db-cert.pem
-
-RUN ls ./src/database
 #copy package.json
 COPY --from=builder /app/package*.json ./
 
