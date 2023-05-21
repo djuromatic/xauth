@@ -1,7 +1,7 @@
 import { ServerConfig } from '../config/server-config';
 import mongoose, { Collection, ConnectOptions } from 'mongoose';
 import { Logger } from '../utils/winston.js';
-import fileDirName from '../helpers/file-dir-name';
+import fileDirName from '../helpers/file-dir-name.js';
 import path from 'path';
 const logger = new Logger('Database');
 
