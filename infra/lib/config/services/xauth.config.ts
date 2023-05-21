@@ -33,6 +33,7 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     PORT: process.env.PORT,
     DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
     DB_NAME: process.env.DB_NAME,
+    DB_TLS_PATH: process.env.DB_TLS_PATH,
     OIDC_ISSUER: process.env.OIDC_ISSUER,
     LOGGER_LEVEL: process.env.LOGGER_LEVEL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
