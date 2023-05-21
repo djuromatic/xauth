@@ -9,7 +9,8 @@ const serverConfig: ServerConfig = {
     connectionString: process.env.DB_CONNECTION_STRING ?? 'localhost:27017',
     dbName: process.env.DB_NAME ?? 'xauth',
     dbUser: process.env.DB_USER ?? 'xauth',
-    dbPass: process.env.DB_PASS ?? 'xauth'
+    dbPass: process.env.DB_PASS ?? 'xauth',
+    tlsPath: process.env.DB_TLS_PATH ?? ''
   },
   oidc: {
     issuer: process.env.OIDC_ISSUER ?? 'https://xauth.test:3000',
@@ -81,6 +82,7 @@ export interface ServerConfig {
     dbName: string;
     dbUser: string;
     dbPass: string;
+    tlsPath: string;
   };
   oidc: {
     issuer: string;

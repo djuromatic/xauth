@@ -1,15 +1,24 @@
 import { ServerConfig } from '../config/server-config';
-import mongoose, { Collection } from 'mongoose';
+import mongoose, { Collection, ConnectOptions } from 'mongoose';
 import { Logger } from '../utils/winston.js';
-
+import fileDirName from '../helpers/file-dir-name';
+import path from 'path';
 const logger = new Logger('Database');
+
+const { __dirname } = fileDirName(import.meta);
 
 export function createConnection(serverConfig: ServerConfig) {
   const { connectionString, dbName, dbUser, dbPass } = serverConfig.database;
 
-  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}`, {
-    tlsCAFile: './db-cert.pem'
-  });
+  const dbOptions: ConnectOptions = {};
+
+  if (serverConfig.database.tlsPath) {
+    dbOptions['tlsCAFile'] = path.join(__dirname, serverConfig.database.tlsPath);
+  }
+
+  logger.info(`options ${JSON.stringify(dbOptions)}`);
+
+  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}`, dbOptions);
   connection
     .then(() => {
       logger.info('Connected to database');
