@@ -7,7 +7,7 @@ const logger = new Logger('Database');
 export function createConnection(serverConfig: ServerConfig) {
   const { connectionString, dbName, dbUser, dbPass } = serverConfig.database;
 
-  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}/${dbName}`, {
+  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}`, {
     tlsCAFile: './db-cert.pem'
   });
   connection
