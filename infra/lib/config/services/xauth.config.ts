@@ -49,5 +49,8 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     AWS_SES_SOURCE_ARN: process.env.AWS_SES_SOURCE_ARN,
 
     OIDC_REDIRECT_URIS: process.env.OIDC_REDIRECT_URIS
+  },
+  secretsARN: {
+    db: process.env.DB_SECRET_ARN!
   }
 };

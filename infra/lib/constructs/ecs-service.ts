@@ -14,7 +14,7 @@ import {
 import { PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { IRepository, Repository } from 'aws-cdk-lib/aws-ecr';
-import { ISubnet, IVpc, SecurityGroup, Port } from 'aws-cdk-lib/aws-ec2';
+import { ISubnet, IVpc, SecurityGroup, Port, Peer } from 'aws-cdk-lib/aws-ec2';
 import {
   ApplicationListener,
   ApplicationLoadBalancer,
@@ -61,11 +61,7 @@ export class FargateServiceConstruct extends Construct {
       cpu: serviceConfig.taskDefinition.cpu
     });
 
-    const docDbSecret = secretsmanager.Secret.fromSecretCompleteArn(
-      this,
-      'docDbSecret',
-      'arn:aws:secretsmanager:eu-central-1:430792124313:secret:DocumentDevDbSecret74D6FED2-G3HU0y3CQTAm-S7C8bB'
-    );
+    const docDbSecret = secretsmanager.Secret.fromSecretCompleteArn(this, 'docDbSecret', serviceConfig.secretsARN.db);
 
     taskDefinition.addToExecutionRolePolicy(executionRolePolicy);
     this.repository = Repository.fromRepositoryName(
