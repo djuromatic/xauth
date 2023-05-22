@@ -42,7 +42,7 @@ export default (app: Express, provider: Provider) => {
         validationFcn: () => {
           logger.debug('validation function called');
         },
-        title: 'Sign-Up',
+        title: '',
         session: session ?? undefined,
         dbg: {
           params: debug(params),

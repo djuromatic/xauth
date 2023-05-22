@@ -65,14 +65,15 @@ export default (app: Express, provider: Provider) => {
         });
       }
 
-      return res.render('landing', {
+      return res.render('login', {
         client,
         uid,
         details: prompt.details,
         params,
+        serverData: '{}',
         google: true,
         apple: true,
-        title: 'Landing',
+        title: '',
         session: session ?? undefined,
         dbg: {
           params: debug(params),
@@ -94,6 +95,7 @@ export default (app: Express, provider: Provider) => {
         client,
         uid,
         details: prompt.details,
+        serverData: '{}',
         params,
         google: true,
         apple: true,
@@ -111,6 +113,8 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/login', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+      await provider.interactionDetails(req, res);
+
       const result = await passwordLoginCheck(req.body);
 
       await provider.interactionFinished(req, res, result, {

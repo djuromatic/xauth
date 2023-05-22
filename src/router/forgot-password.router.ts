@@ -14,7 +14,7 @@ import {
 import { debug } from '../helpers/debug.js';
 import { generateEmailCode, sendEmail as sendForgottenPasswordEmail } from '../helpers/forgoten-password.js';
 import { serverConfig } from '../config/server-config.js';
-import { PasswordReplacementException } from '../common/errors/exceptions.js';
+import { PasswordReplacementException, PasswordResetException } from '../common/errors/exceptions.js';
 import { checkPassword } from '../helpers/input-checks.js';
 
 export default (app: Express, provider: Provider) => {
@@ -37,6 +37,7 @@ export default (app: Express, provider: Provider) => {
           uid,
           details: prompt.details,
           params,
+          serverData: '{}',
           title: 'Forgot password',
           session: session ?? undefined,
           dbg: {
@@ -56,22 +57,16 @@ export default (app: Express, provider: Provider) => {
 
       const client = await provider.Client.find(params.client_id as any);
 
-      const account = await findByEmail(req.body.email);
+      const { email } = req.body;
+
+      const account = await findByEmail(email);
 
       if (!account) {
-        return res.render('non-existent-email', {
-          client,
-          uid,
-          details: prompt.details,
-          params,
-          email: req.body.email,
-          title: 'That email does not exist',
-          session: session ?? undefined,
-          dbg: {
-            params: debug(params),
-            prompt: debug(prompt)
-          }
-        });
+        throw new PasswordResetException(
+          '',
+          JSON.stringify({ email, error: { field: 'email', message: `Email not registered` } }),
+          200
+        );
       } else {
         const xauthCode = generateEmailCode();
 
@@ -88,7 +83,7 @@ export default (app: Express, provider: Provider) => {
           uid,
           details: prompt.details,
           params,
-          email: req.body.email,
+          email,
           link: `/interaction/${uid}/forgot-password-resend-email/${req.body.email}`,
           title: 'Email sent',
           message: `Your username and password reset link has been succefully sent.\nCan find it? Pleasec check your Spam box too.`,

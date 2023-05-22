@@ -3,9 +3,11 @@ import Provider, { errors } from 'oidc-provider';
 import {
   BadRequestException,
   InteractionException,
+  LoginException,
   MetamaskException,
   ProfileUpdateException,
-  SignupException
+  SignupException,
+  PasswordResetException
 } from './exceptions.js';
 import { debug } from '../../helpers/debug.js';
 import { Logger } from '../../utils/winston.js';
@@ -18,68 +20,49 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
       return res.redirect('/login');
     }
 
-    if (err instanceof SignupException || err instanceof MetamaskException) {
-      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-      const client = await provider.Client.find(params.client_id as any);
-
-      const { message } = err;
-      return res.render('signup', {
-        client,
-        uid,
-        serverData: message,
-        details: prompt.details,
-        params,
-        title: 'Sign-Up',
-        session: session ?? undefined,
-        dbg: {
-          params: debug(params),
-          prompt: debug(prompt)
-        }
-      });
-    }
-
-    if (err instanceof ProfileUpdateException) {
-      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-      const client = await provider.Client.find(params.client_id as any);
-
-      const { message } = err;
-      const code = JSON.parse(message).code;
-      return res.render('finish-registration', {
-        code,
-        client,
-        uid,
-        serverData: message,
-        details: prompt.details,
-        params,
-        title: 'Finish registration',
-        session: session ?? undefined,
-        dbg: {
-          params: debug(params),
-          prompt: debug(prompt)
-        }
-      });
-    }
+    const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+    const client = await provider.Client.find(params.client_id as any);
 
     if (err instanceof InteractionException) {
-      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-
-      const { description, status, message } = err;
-
-      const client = await provider.Client.find(params.client_id as any);
       logger.error(err);
-      res.render('error', {
+
+      const { message } = err;
+
+      const returnObject = {
         client,
         uid,
         details: prompt.details,
-        error: { description, status, message },
         params,
-        title: 'Interaction Error',
-        session: session ? debug(session) : undefined,
+        title: '',
+        error: err,
+        session: session ?? undefined,
         dbg: {
           params: debug(params),
           prompt: debug(prompt)
-        }
-      });
+        },
+        serverData: message
+      };
+
+      if (err instanceof SignupException || err instanceof MetamaskException) {
+        return res.render('signup', returnObject);
+      }
+
+      if (err instanceof ProfileUpdateException) {
+        const { code } = JSON.parse(message);
+        returnObject.title = 'Finish registration';
+        return res.render('finish-registration', { ...returnObject, code });
+      }
+
+      if (err instanceof LoginException) {
+        return res.render('login', returnObject);
+      }
+
+      if (err instanceof PasswordResetException) {
+        return res.render('forgot-password', returnObject);
+      }
+
+      returnObject.title = 'Finish registration';
+      return res.render('error', returnObject);
     }
 
     const defaultError = new BadRequestException(err.name);
