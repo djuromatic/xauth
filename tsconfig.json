@@ -6,7 +6,7 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "outDir": "dist",
+    "outDir": "./dist",
     "skipLibCheck": true,
     "allowJs": true,
     "importHelpers": true,

@@ -6,8 +6,7 @@ const serverConfig: ServerConfig = {
   hostname: process.env.HOSTNAME ?? 'xauth.test',
   port: +process.env.PORT ?? 3000,
   database: {
-    host: process.env.DB_HOST ?? 'localhost',
-    port: +process.env.DB_PORT ?? 27017,
+    connectionString: process.env.DB_CONNECTION_STRING ?? 'localhost:27017',
     dbName: process.env.DB_NAME ?? 'xauth',
     dbUser: process.env.DB_USER ?? 'xauth',
     dbPass: process.env.DB_PASS ?? 'xauth'
@@ -78,8 +77,7 @@ export interface ServerConfig {
   hostname: string;
   port: number;
   database: {
-    host: string;
-    port: number;
+    connectionString: string;
     dbName: string;
     dbUser: string;
     dbPass: string;
