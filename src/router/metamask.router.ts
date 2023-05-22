@@ -67,4 +67,6 @@ export default (app: Express, provider: Provider) => {
       next(err);
     }
   });
+
+  interactionErrorHandler(app, provider);
 };

@@ -173,6 +173,35 @@
       screen0.hidden = screen1.hidden = screen2.hidden = true;
     }
 
+
+    const fullNameValidation = () => {
+      if(fullName.value == "") return false;
+      if(fullName.value.split(' ').length < 2) return false;
+
+      return true;
+    }
+
+    const dateOfBirthAndEmailValidation = () => {
+      if(dateOfBirth.value == "") return false;
+      try {
+        const date = new Date(dateOfBirth.value);
+      }catch(err){
+        return false;
+      }
+      if(email.value == "") return false;
+      if(email.value.split(' ').length > 1) return false;
+
+      return true;
+    }
+
+    const usernameAndPasswordValidation = () => {
+      if(username.value == "") return false;
+      if(username.value.split(' ').length > 1) return false;
+      if(password.value == "") return false;
+      
+      return true;
+    }
+
     const render = async () => {
 
       const serverData = JSON.parse(document.getElementById("SERVER-DATA").value);
@@ -216,7 +245,7 @@
 
         screen0.hidden = false;
 
-        if(fullName.value == ""){
+        if(!fullNameValidation()){
           btn.disabled = true;
           secondStepBtn.disabled = true;
           thirdStepBtn.disabled = true;
@@ -229,7 +258,7 @@
 
         screen1.hidden = false;
 
-        if(dateOfBirth.value == "" || email.value == ""){
+        if(!dateOfBirthAndEmailValidation()){
           btn.disabled = true;
           thirdStepBtn.disabled = true;
         } else {
@@ -243,7 +272,7 @@
 
         btn.innerText = "Submit";
 
-        if(username.value == "" || password.value == ""){
+        if(!usernameAndPasswordValidation()){
           btn.disabled = true;
         } else {
           btn.disabled = false;
@@ -259,6 +288,8 @@
     email.addEventListener("keyup", render);
     username.addEventListener("keydown", render);
     username.addEventListener("keyup", render);
+    password.addEventListener("keydown", render);
+    password.addEventListener("keyup", render);
 
     hideAllElements();
     render();

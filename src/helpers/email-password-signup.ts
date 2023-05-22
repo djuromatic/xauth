@@ -51,3 +51,11 @@ export const check = async (reqBody: Request['body']) => {
     );
   }
 };
+
+export const addAdditionalUserInfoToReq = (req: any) => {
+  const names = req.body.fullName.split(' ');
+  req.body.given_name = names[0];
+  req.body.family_name = names.length > 1 ? names.slice(1).join(' ') : '';
+  req.body.gender = 'x';
+  req.body.locale = 'en';
+};

@@ -61,10 +61,13 @@ export default class DemoService {
       // not expired
     }
 
-    // create demo account
-    const demoAccount = await this.createDemoAccount(fingerprint);
-    logger.debug(`Demo account created: ${demoAccount.accountId}`);
+    let demoAccount = await this.findDemoByFingerprint(fingerprint);
 
+    if (!demoAccount) {
+      // create demo account
+      demoAccount = await this.createDemoAccount(fingerprint);
+      logger.debug(`Demo account created: ${demoAccount.accountId}`);
+    }
     return demoAccount;
   }
 
