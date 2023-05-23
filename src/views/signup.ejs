@@ -317,8 +317,21 @@
 
   <input hidden id="dateOfBirth" type="date" name="dateOfBirth" placeholder="Enter date of birth" />
 
-  <script type="module">
-    import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
+  <!-- <select hidden required name="gender">
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+    <option value="other">Other</option>
+  </select>
+
+  <select hidden required name="locale">
+    <option value="en">en</option>
+    <option value="ger">ger</option>
+    <option value="other">other</option>
+  </select> -->
+
+ 
+
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js">
     const el = document.createElement("button");
     el.textContent = "Connect Metamask";
     el.onclick = async () => {
