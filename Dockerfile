@@ -4,12 +4,14 @@ WORKDIR /app
 RUN npm install
 RUN npm run build
 
+COPY ./src/views ./dist/views
+
 # stage 2 build copy dist folder and package.json
 FROM node:18.14.2-alpine3.17 as final
 WORKDIR /app
 
 COPY --from=builder /app/dist/ ./
-COPY --from=builder /app/db-cert.pem ./db-cert.pem
+COPY --from=builder /app/db-cert.pem ./database/db-cert.pem
 #copy package.json
 COPY --from=builder /app/package*.json ./
 

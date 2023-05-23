@@ -19,22 +19,10 @@ export class ExplorerTools extends Stack {
       vpcId: props.vpcId
     });
 
-    const xauth = new EC2Web(this, 'xmanna', {
-      hostname: 'id',
-      vpc: vpc,
-      instanceType: InstanceType.of(InstanceClass.M5, InstanceSize.LARGE),
-      subnetType: SubnetType.PUBLIC,
-      zone: props.zone,
-      whitelistedIps: [Peer.ipv4('109.198.9.3/32')],
-      sshKeyName: props.sshKeyName,
-      sshOnly: false,
-      healthCheck: '/health'
-    });
-
     const react = new EC2Web(this, 'client-example', {
       hostname: 'app',
       vpc: vpc,
-      instanceType: InstanceType.of(InstanceClass.M5, InstanceSize.LARGE),
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
       subnetType: SubnetType.PUBLIC,
       zone: props.zone,
       whitelistedIps: [Peer.ipv4('109.198.9.3/32')],

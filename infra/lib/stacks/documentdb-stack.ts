@@ -41,7 +41,7 @@ export class DocumentDBStack extends cdk.Stack {
       generateSecretString: {
         secretStringTemplate: JSON.stringify({ username: props.username }),
         generateStringKey: 'password',
-        excludeCharacters: '"@/\\'
+        excludeCharacters: '"@/\\%[]?=&#;01:' // Exclude characters that are not valid in a password
       }
     });
 
@@ -51,14 +51,17 @@ export class DocumentDBStack extends cdk.Stack {
         username: props.username,
         password: docDbSecret.secretValueFromJson('password')
       },
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.R5, ec2.InstanceSize.LARGE),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.MEDIUM),
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED
+        subnets: vpc.privateSubnets
       },
       vpc,
       dbClusterName: 'XauthDevDocumentDB',
       removalPolicy: cdk.RemovalPolicy.DESTROY // Update this based on your removal policy
     });
+
+    //allow all traffic from within vpc 10.10.10.0/24
+    cluster.connections.allowDefaultPortFrom(ec2.Peer.ipv4(vpc.vpcCidrBlock));
 
     //output secretArn
     new cdk.CfnOutput(this, 'SecretArn', {

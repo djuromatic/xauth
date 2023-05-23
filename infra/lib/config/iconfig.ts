@@ -43,5 +43,8 @@ export interface ServiceConfig {
     tag: string;
   };
   env?: any;
+  secretsARN: {
+    db: string;
+  };
   secretVars?: { envName: string; type: string; parameterName: string }[];
 }
