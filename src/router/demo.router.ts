@@ -15,7 +15,7 @@ export default (app: Express, provider: Provider) => {
     next();
   }
 
-  app.post('/interaction/:uid/demo/login', urlencoded({ extended: true }), setNoCache, async (req, res) => {
+  app.post('/interaction/:uid/demo/login', urlencoded({ extended: true }), setNoCache, async (req, res, next) => {
     try {
       const {
         prompt: { name },
@@ -36,10 +36,11 @@ export default (app: Express, provider: Provider) => {
         error_description: error.message
       });
       logger.error(error);
+      next(error);
     }
   });
 
-  app.post('/interaction/:uid/demo/repost', urlencoded({ extended: true }), setNoCache, async (req, res) => {
+  app.post('/interaction/:uid/demo/repost', urlencoded({ extended: true }), setNoCache, async (req, res, next) => {
     try {
       const {
         prompt: { name }
@@ -64,7 +65,8 @@ export default (app: Express, provider: Provider) => {
       });
     } catch (error) {
       logger.error(error);
-      return provider.interactionFinished(req, res, { error_description: error.description, error: error });
+      next(error);
+      // return provider.interactionFinished(req, res, { error_description: error.description, error: error });
     }
   });
 };

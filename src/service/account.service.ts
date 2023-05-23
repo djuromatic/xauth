@@ -34,7 +34,6 @@ export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<
 
 export const findByEmail = async (email: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
   const account = await AccountDb.findOne({ 'profile.email': email });
-
   return account;
 };
 

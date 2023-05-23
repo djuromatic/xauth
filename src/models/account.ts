@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { NOT_VALID_USERNAME } from '../helpers/constants.js';
 
 export interface AccountDocument {
   accountId: string;

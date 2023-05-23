@@ -4,7 +4,7 @@ import { Logger } from '../utils/winston.js';
 import { DemoAccountDocument } from '../models/demo-account.js';
 import { BadRequestException, UnauthorizedException } from '../common/errors/exceptions.js';
 import { ProviderName } from '../common/enums/provider.js';
-import { subMinutes } from 'date-fns';
+import { addSeconds } from 'date-fns';
 import mongoose from 'mongoose';
 import { serverConfig } from '../config/server-config.js';
 const logger = new Logger('DemoAccountService');
@@ -19,9 +19,10 @@ export const findDemoAccount = async (ctx: KoaContextWithOIDC, id: string): Prom
   }
 
   const now = new Date();
-  const expiredAt = subMinutes(now, serverConfig.users.demo.access_token_ttl);
 
-  if (account.createdAt < expiredAt) {
+  const expiredAt = addSeconds(account.createdAt, serverConfig.users.demo.access_token_ttl);
+
+  if (expiredAt < now) {
     await ctx.oidc.session.destroy();
     throw new UnauthorizedException('Demo account expired');
   }
@@ -47,9 +48,9 @@ export default class DemoService {
       // check if still valid (not expired)
 
       const now = new Date();
-      const expiredAt = subMinutes(now, serverConfig.users.demo.access_token_ttl);
+      const expiredAt = addSeconds(checkIfFingerprintExists.createdAt, serverConfig.users.demo.access_token_ttl);
       logger.debug(`Expired at: ${expiredAt}`);
-      const isExpired = checkIfFingerprintExists.createdAt < expiredAt;
+      const isExpired = expiredAt < now;
       logger.debug(`Is expired: ${isExpired}`);
 
       if (isExpired) {
@@ -61,10 +62,13 @@ export default class DemoService {
       // not expired
     }
 
-    // create demo account
-    const demoAccount = await this.createDemoAccount(fingerprint);
-    logger.debug(`Demo account created: ${demoAccount.accountId}`);
+    let demoAccount = await this.findDemoByFingerprint(fingerprint);
 
+    if (!demoAccount) {
+      // create demo account
+      demoAccount = await this.createDemoAccount(fingerprint);
+      logger.debug(`Demo account created: ${demoAccount.accountId}`);
+    }
     return demoAccount;
   }
 

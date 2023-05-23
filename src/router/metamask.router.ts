@@ -5,25 +5,12 @@ import { utils } from 'ethers';
 import { NextFunction, Request, Response } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider from 'oidc-provider';
 
-import {
-  create as createAccount,
-  findByEmail,
-  findByEthAddress,
-  updateAccountVerificationStatus
-} from '../service/account.service.js';
+import { findByEthAddress } from '../service/account.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
-import { debug } from '../helpers/debug.js';
 import { generateNonce } from '../helpers/metamask.js';
 import { Logger } from '../utils/winston.js';
 
-import {
-  create as createNonceRequest,
-  find as findNonceRequest,
-  remove as removeNonceRequest
-} from '../service/nonce-request.service.js';
-import account from '../models/account.js';
-import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
-import { serverConfig } from '../config/server-config.js';
+import { create as createNonceRequest } from '../service/nonce-request.service.js';
 import { LoginException } from '../common/errors/exceptions.js';
 
 const logger = new Logger('MetamaskRouter');
@@ -39,11 +26,9 @@ export default (app: Express, provider: Provider) => {
     setNoCache,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        logger.info('route hit');
+        const { uid, params } = await provider.interactionDetails(req, res);
 
-        const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-
-        const client = await provider.Client.find(params.client_id as any);
+        await provider.Client.find(params.client_id as any);
 
         const nonce = generateNonce();
 
@@ -58,7 +43,7 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/metamask/login', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+      await provider.interactionDetails(req, res);
 
       const { metamask_nonce, metamask_signature } = req.body as any;
 
@@ -82,4 +67,6 @@ export default (app: Express, provider: Provider) => {
       next(err);
     }
   });
+
+  interactionErrorHandler(app, provider);
 };

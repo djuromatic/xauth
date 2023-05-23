@@ -7,15 +7,13 @@ import Provider from 'oidc-provider';
 import { create as createAccount, findByEmail, updateAccountVerificationStatus } from '../service/account.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
-import { check as emailPasswordSignupCheck } from '../helpers/email-password-signup.js';
+import { check as emailPasswordSignupCheck, addAdditionalUserInfoToReq } from '../helpers/email-password-signup.js';
 import { Logger } from '../utils/winston.js';
-
 import {
   create as createEmailVerification,
   find as findEmailVerification,
   remove as removeEmailVerification
 } from '../service/email-verification.service.js';
-import account from '../models/account.js';
 import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
 import { serverConfig } from '../config/server-config.js';
 import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
@@ -44,7 +42,7 @@ export default (app: Express, provider: Provider) => {
         validationFcn: () => {
           logger.debug('validation function called');
         },
-        title: 'Sign-Up',
+        title: '',
         session: session ?? undefined,
         dbg: {
           params: debug(params),
@@ -62,10 +60,7 @@ export default (app: Express, provider: Provider) => {
 
       const client = await provider.Client.find(params.client_id as any);
 
-      req.body.given_name = 'TODO: check if needed';
-      req.body.family_name = 'TODO: check if needed';
-      req.body.gender = 'x';
-      req.body.locale = 'en';
+      addAdditionalUserInfoToReq(req);
 
       await emailPasswordSignupCheck(req.body);
       await metamaskChecks(req.body);
@@ -193,4 +188,5 @@ export default (app: Express, provider: Provider) => {
       }
     }
   );
+  interactionErrorHandler(app, provider);
 };

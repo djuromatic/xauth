@@ -4,13 +4,6 @@ import Provider, { InteractionResults } from 'oidc-provider';
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 import { Logger } from '../utils/winston.js';
 import { debug } from '../helpers/debug.js';
-import {
-  create as createEmailVerification,
-  find as findEmailVerification,
-  remove as removeEmailVerification
-} from '../service/email-verification.service.js';
-import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
-import { findAccount, findByEmail } from '../service/account.service.js';
 
 const logger = new Logger('InteractionRouter');
 
@@ -72,14 +65,15 @@ export default (app: Express, provider: Provider) => {
         });
       }
 
-      return res.render('landing', {
+      return res.render('login', {
         client,
         uid,
         details: prompt.details,
         params,
+        serverData: '{}',
         google: true,
         apple: true,
-        title: 'Landing',
+        title: '',
         session: session ?? undefined,
         dbg: {
           params: debug(params),
@@ -101,6 +95,7 @@ export default (app: Express, provider: Provider) => {
         client,
         uid,
         details: prompt.details,
+        serverData: '{}',
         params,
         google: true,
         apple: true,
@@ -118,19 +113,22 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/login', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+      await provider.interactionDetails(req, res);
+
       const result = await passwordLoginCheck(req.body);
 
       await provider.interactionFinished(req, res, result, {
         mergeWithLastSubmission: false
       });
+      return undefined;
     } catch (err) {
-      const { error_description } = err;
+      const { message: err_message } = err;
 
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id as any);
-      logger.info(JSON.stringify({ error_description }));
-      if (error_description === 'Email has not yet been verified') {
+      logger.info(JSON.stringify({ err_message }));
+      if (err_message === 'Email has not yet been verified') {
         return res.render('email-not-verified', {
           client,
           uid,
