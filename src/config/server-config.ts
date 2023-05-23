@@ -38,7 +38,7 @@ const serverConfig: ServerConfig = {
   },
   aws: {
     profile: process.env.AWS_PROFILE ?? 'mvp-studio',
-    region: process.env.AWS_REGION ?? 'us-east-1',
+    region: process.env.AWS_REGION ?? 'eu-central-1',
     ses: {
       email_from: process.env.AWS_SES_EMAIL_FROM ?? '',
       source_arn: process.env.AWS_SES_SOURCE_ARN ?? ''
