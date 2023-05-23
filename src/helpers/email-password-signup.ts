@@ -1,16 +1,13 @@
-import { findByEmail, findByUsername } from '../service/account.service.js';
 import { SignupException } from '../common/errors/exceptions.js';
 
 import { checkDateOfBirth, checkEmail, checkPassword, checkUsername } from './input-checks.js';
-
-let errorDescription: any;
 
 export const check = async (reqBody: Request['body']) => {
   const { email, password, dateOfBirth, username, fullName } = reqBody as any;
 
   const serverData = { email, password, dateOfBirth, username, fullName };
 
-  errorDescription = (step: number, field: string, message: string) => {
+  const errorDescription = (step: number, field: string, message: string) => {
     return JSON.stringify({ ...serverData, step, error: { field, message } });
   };
 
@@ -53,4 +50,12 @@ export const check = async (reqBody: Request['body']) => {
       200
     );
   }
+};
+
+export const addAdditionalUserInfoToReq = (req: any) => {
+  const names = req.body.fullName.split(' ');
+  req.body.given_name = names[0];
+  req.body.family_name = names.length > 1 ? names.slice(1).join(' ') : '';
+  req.body.gender = 'x';
+  req.body.locale = 'en';
 };

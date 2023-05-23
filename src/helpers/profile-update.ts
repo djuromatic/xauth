@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { findBySub, setFederatedAccountUsername } from '../service/account.service.js';
-import { create, find, remove } from '../service/profile-update.service.js';
+import { findBySub } from '../service/account.service.js';
+import { create, remove } from '../service/profile-update.service.js';
 import { NOT_VALID_USERNAME } from './constants.js';
 
 import { debug } from '../helpers/debug.js';

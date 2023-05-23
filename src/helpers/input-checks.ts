@@ -4,6 +4,7 @@ import { MIN_AGE_REQUIRED } from './constants.js';
 
 export const checkDateOfBirth = (dateOfBirth: string) => {
   const errors = [];
+
   if (!dateOfBirth) {
     errors.push({ field: 'dateOfBirth', desc: 'Date of birth not provided' });
   }
@@ -20,9 +21,14 @@ export const checkEmail = async (email: string) => {
     errors.push({ field: 'email', desc: 'Email not provided' });
   }
 
-  if (!email.includes('@') || !email.includes('.')) {
+  if (!email.includes('@') || !email.includes('.') || email.includes(' ')) {
     errors.push({ field: 'email', desc: 'Not a valid email' });
   }
+
+  //TODO: check if email+33221@g.com should be disabled
+  // if (!/^\w+([\.-]?\w+)*(\+)?@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+  //   errors.push({ field: 'email', desc: 'Not a valid email' });
+  // }
 
   const account = await findByEmail(email);
   if (account) {
@@ -37,6 +43,10 @@ export const checkUsername = async (username: string) => {
 
   if (!username) {
     errors.push({ field: 'username', desc: 'Username not provided' });
+  }
+
+  if (username.includes(' ')) {
+    errors.push({ field: 'username', desc: 'Username cannot contain empty spaces' });
   }
 
   if (username.length < 3) {
