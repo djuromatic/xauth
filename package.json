@@ -8,7 +8,7 @@
     "start": "nodemon",
     "build": "tsc",
     "watch": "nodemon --exec ts-node --esm src/index.ts",
-    "login": "cd auth-client && node index.js",
+    "login": "cd examples/auth-client && node index.js",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "engines": {

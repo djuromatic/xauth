@@ -24,7 +24,7 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
   },
   ecr: {
     repositoryName: process.env.XAUTH_ECR_REPOSITORY!,
-    tag: 'latest'
+    tag: '9b92389809db71e766e0b2ceb603f046d1565e32'
   },
   env: {
     SERVICE_NAME: process.env.SERVICE_NAME,
@@ -33,21 +33,25 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     PORT: process.env.PORT,
     DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
     DB_NAME: process.env.DB_NAME,
+    DB_TLS_PATH: process.env.DB_TLS_PATH,
     OIDC_ISSUER: process.env.OIDC_ISSUER,
     LOGGER_LEVEL: process.env.LOGGER_LEVEL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URL: process.env.GOOGLE_REDIRECT_URL,
+    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
     GOOGLE_ISSUER_URL: process.env.GOOGLE_ISSUER_URL,
     APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID,
     APPLE_CLIENT_SECRET: process.env.APPLE_CLIENT_SECRET,
-    APPLE_REDIRECT_URL: process.env.APPLE_REDIRECT_URL,
+    APPLE_REDIRECT_URI: process.env.APPLE_REDIRECT_URI,
     APPLE_ISSUER_URL: process.env.APPLE_ISSUER_URL,
-
     AWS_SES_EMAIL_FROM: process.env.AWS_SES_EMAIL_FROM,
     AWS_REGION: process.env.AWS_REGION,
     AWS_SES_SOURCE_ARN: process.env.AWS_SES_SOURCE_ARN,
 
-    OIDC_REDIRECT_URIS: process.env.OIDC_REDIRECT_URIS
+    OIDC_REDIRECT_URIS: process.env.OIDC_REDIRECT_URIS,
+    OIDC_DEFAULT_RESOURCE_SERVER: process.env.OIDC_DEFAULT_RESOURCE_SERVER
+  },
+  secretsARN: {
+    db: process.env.DB_SECRET_ARN!
   }
 };
