@@ -52,7 +52,11 @@ export default (app: Express, provider: Provider) => {
       const account = await findByEthAddress(ethAddress);
 
       if (!account) {
-        throw new LoginException('No Account has been linked with that address', 'Metmask Error', 404);
+        throw new LoginException(
+          'Metamask Error',
+          JSON.stringify({ error: { field: 'metamask', message: 'Address not linked with any account' } }),
+          404
+        );
       }
 
       const result = {
