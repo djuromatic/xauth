@@ -12,8 +12,8 @@
 
 
 <script type="module">
-  import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
-  
+
+
   let frontRespondedToServerError = false;
   const parentElement = document.getElementById("INPUT-WRAPPER");
 
@@ -40,6 +40,18 @@
 
   metamaskButton.textContent = "Connect Metamask";
 
+  
+  parentElement.appendChild(errorUsername);
+  parentElement.appendChild(metamaskButton);
+  parentElement.appendChild(errorMetamask);
+
+  const submitButton = document.createElement("button");
+  submitButton.innerText = "Submit";
+  submitButton.onclick = () => {
+    document.getElementById("FORM").submit();
+  }
+
+  import { ethers } from "/static/js/ethers.esm.min.js";
   metamaskButton.onclick = async () => {
 
     const uid = document.getElementById("UID").value;
@@ -76,15 +88,6 @@
     } catch {
       metamaskButton.textContent = 'Install Metamask';
     }
-  }
-  parentElement.appendChild(errorUsername);
-  parentElement.appendChild(metamaskButton);
-  parentElement.appendChild(errorMetamask);
-
-  const submitButton = document.createElement("button");
-  submitButton.innerText = "Submit";
-  submitButton.onclick = () => {
-    document.getElementById("FORM").submit();
   }
 
   parentElement.appendChild(submitButton);

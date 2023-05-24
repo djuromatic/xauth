@@ -4,7 +4,7 @@ import Provider, { InteractionResults } from 'oidc-provider';
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 import { Logger } from '../utils/winston.js';
 import { debug } from '../helpers/debug.js';
-
+import { ethers } from 'ethers';
 const logger = new Logger('InteractionRouter');
 
 export default (app: Express, provider: Provider) => {
@@ -101,6 +101,7 @@ export default (app: Express, provider: Provider) => {
         apple: true,
         title: 'Sign-In',
         session: session ?? undefined,
+        ethers,
         dbg: {
           params: debug(params),
           prompt: debug(prompt)

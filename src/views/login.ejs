@@ -42,19 +42,20 @@
 
 </div>
 
+<div id="error-metamask" hidden></div>
+
 <div id="cls111">
 
   <form id="METAMASK-FORM" autocomplete="on" action="/interaction/<%= uid %>/metamask/login" method="post">
     <input value="<%= uid %>" hidden id="UID"/>
     <input hidden id="METAMASK-NONCE" name="metamask_nonce"/>
     <input hidden id="METAMASK-SIGNATURE" name="metamask_signature"/>
-
   </form>
   
 
   <script type="module">
-    import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
-    
+    import { ethers } from "/static/js/ethers.esm.min.js";
+
     let frontRespondedToServerError = false;
     const serverData = JSON.parse(document.getElementById("SERVER-DATA").value);
     const error = serverData.error;
@@ -65,6 +66,7 @@
 
       const errorEmail = document.getElementById("error-email");
       const errorPassword = document.getElementById("error-password");
+      const errorMetamask = document.getElementById("error-metamask");
 
       if(error.field == "email"){
         errorEmail.innerText = error.message;
@@ -74,6 +76,11 @@
       if(error.field == "password"){
         errorPassword.innerText = error.message;
         errorPassword.hidden = false;
+      }
+
+      if(error.field == "metamask"){
+        errorMetamask.innerText = error.message;
+        errorMetamask.hidden = false;
       }
       frontRespondedToServerError = true;
     }
