@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAuth } from 'oidc-react';
-import axios from 'axios';
 
 const LoggedIn = () => {
   const auth = useAuth();
@@ -9,7 +8,7 @@ const LoggedIn = () => {
     e.preventDefault();
     //redirect user to logout page
     await auth.signOut();
-    window.location.href = 'https://xauth.xauth.mvpworkshop.co/session/end';
+    window.location.href = `${process.env.REACT_APP_AUTHORITY_URL}/session/end`;
   };
 
   if (auth && auth.userData) {

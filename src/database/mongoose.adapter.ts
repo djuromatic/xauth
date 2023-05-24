@@ -8,7 +8,7 @@ const logger = new Logger('Database');
 const { __dirname } = fileDirName(import.meta);
 
 export function createConnection(serverConfig: ServerConfig) {
-  const { connectionString, dbName, dbUser, dbPass } = serverConfig.database;
+  const { connectionString, dbUser, dbPass } = serverConfig.database;
 
   const dbOptions: ConnectOptions = {};
 

@@ -1,10 +1,10 @@
 import { KoaContextWithOIDC } from 'oidc-provider';
 import htmlSafe from '../../common/html.js';
-import { Logger } from 'ethers/lib/utils.js';
+import { Logger } from '../../utils/winston.js';
 
 const logger = new Logger('Error Handler');
 const errorHtmlBody = (out: any) => {
-  console.log('out', out);
+  logger.info(`Error: ${out.error}`);
   return `<!DOCTYPE html>
     <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge">

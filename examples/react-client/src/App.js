@@ -23,17 +23,18 @@ const oidcConfig = {
     clearSearchParams();
   },
 
-  postLogoutRedirectUri: 'https://xauth.xauth.mvpworkshop.co/session/end',
+  postLogoutRedirectUri: `${process.env.REACT_APP_AUTHORITY_URL}/session/end`,
 
-  scope: 'openid email profile',
-  authority: 'https://xauth.xauth.mvpworkshop.co',
-  clientId: 'xauth',
-  responseType: 'code',
+  scope: process.env.REACT_APP_SCOPE,
+  authority: `${process.env.REACT_APP_AUTHORITY_URL}`,
+  clientId: process.env.REACT_APP_CLIENT_ID,
+  responseType: process.env.REACT_APP_RESPONSE_TYPE,
   loadUserInfo: false,
-  redirectUri: 'https://xauth.test:6001'
+  redirectUri: `${process.env.REACT_APP_REDIRECT_URL}`
 };
 
 function App() {
+  console.log(oidcConfig);
   return (
     <AuthProvider {...oidcConfig}>
       <div className="App">

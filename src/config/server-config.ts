@@ -6,8 +6,7 @@ const serverConfig: ServerConfig = {
   hostname: process.env.HOSTNAME ?? 'xauth.test',
   port: +process.env.PORT ?? 3000,
   database: {
-    connectionString: process.env.DB_CONNECTION_STRING ?? 'localhost:27017',
-    dbName: process.env.DB_NAME ?? 'xauth',
+    connectionString: process.env.DB_CONNECTION_STRING ?? 'localhost:27017/xauth',
     dbUser: process.env.DB_USER ?? 'xauth',
     dbPass: process.env.DB_PASS ?? 'xauth',
     tlsPath: process.env.DB_TLS_PATH ?? ''
@@ -37,7 +36,7 @@ const serverConfig: ServerConfig = {
     issuerUrl: process.env.GOOGLE_ISSUER_URL ?? 'https://accounts.google.com'
   },
   aws: {
-    profile: process.env.AWS_PROFILE ?? 'mvp-studio',
+    profile: process.env.AWS_PROFILE ?? 'xauth',
     region: process.env.AWS_REGION ?? 'eu-central-1',
     ses: {
       email_from: process.env.AWS_SES_EMAIL_FROM ?? '',
@@ -77,7 +76,6 @@ export interface ServerConfig {
   port: number;
   database: {
     connectionString: string;
-    dbName: string;
     dbUser: string;
     dbPass: string;
     tlsPath: string;
