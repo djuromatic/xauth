@@ -34,7 +34,7 @@ export const createServer = async () => {
   app.set('views', path.join(__dirname, 'views'));
 
   app.use(express.json());
-  app.use('/static/js', express.static('src/views/js'));
+  app.use('/static/js', express.static(path.join(__dirname, 'views/js')));
   logger.debug(`Issuer: ${serverConfig.oidc.issuer}`);
   const provider = new Provider(serverConfig.oidc.issuer, oidcConfig);
 
