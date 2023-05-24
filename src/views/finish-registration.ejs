@@ -10,7 +10,10 @@
   <div id="INPUT-WRAPPER"></div>
 </form>
 
-<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js">
+
+<script type="module">
+  import { ethers } from "https://cdn.ethers.io/lib/ethers-5.2.esm.min.js";
+  
   let frontRespondedToServerError = false;
   const parentElement = document.getElementById("INPUT-WRAPPER");
 
