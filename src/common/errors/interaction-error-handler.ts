@@ -16,9 +16,9 @@ const logger = new Logger('Interaction Error Handler');
 
 export const interactionErrorHandler = async (app: Express, provider: Provider) => {
   const errorHandler = async (err: Error, req: Request, res: Response, next: NextFunction) => {
-    if (err instanceof errors.SessionNotFound) {
-      return res.redirect('/login');
-    }
+    // if (err instanceof errors.SessionNotFound) {
+    //   return res.redirect('/login');
+    // }
 
     const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
     const client = await provider.Client.find(params.client_id as any);
