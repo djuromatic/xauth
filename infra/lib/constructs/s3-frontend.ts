@@ -8,7 +8,6 @@ import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import { DnsAndCertificateConstruct } from './dns-certificate-construct';
 import { frontend } from '../config';
-import { zone } from '../config/app.config';
 import { CiCdS3Frontend } from './cicd-s3-front';
 import * as cloudfrontOrigins from 'aws-cdk-lib/aws-cloudfront-origins';
 export interface S3ReactProps {
@@ -16,7 +15,7 @@ export interface S3ReactProps {
   bucketName: string;
   zoneName: string;
   zone: IHostedZone;
-  repo: string;
+  repoName: string;
   repoOwner: string;
   repoBranch: string;
   gitTokenSecretPath: string;
@@ -138,7 +137,7 @@ export class S3Frontend extends Construct {
     new CiCdS3Frontend(this, 'cicd', {
       distributionId: distribution.distributionId,
       bucket: props.bucketName,
-      repo: props.repo,
+      repo: props.repoName,
       repoOwner: props.repoOwner,
       repoBranch: props.repoBranch,
       gitTokenSecretPath: props.gitTokenSecretPath,

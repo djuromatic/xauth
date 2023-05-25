@@ -21,7 +21,7 @@ const serverConfig: ServerConfig = {
         grant_types: process.env.OIDC_GRANT_TYPES?.split(',') ?? ['authorization_code'],
         scope: process.env.OIDC_SCOPE ?? 'openid profile email',
         redirect_uris: process.env.OIDC_REDIRECT_URIS?.split(',') ?? ['https://xauth.test:6001'],
-        response_types: (process.env.OIDC_RESPONSE_TYPES?.split(',') as any) ?? ['code'],
+        response_types: ['code'],
         token_endpoint_auth_method: 'none'
       }
     ]

@@ -24,7 +24,7 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
   },
   ecr: {
     repositoryName: process.env.XAUTH_ECR_REPOSITORY!,
-    tag: '9b92389809db71e766e0b2ceb603f046d1565e32'
+    tag: process.env.XAUTH_ECR_TAG!
   },
   env: {
     SERVICE_NAME: process.env.SERVICE_NAME,
@@ -32,7 +32,6 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     HOSTNAME: process.env.HOSTNAME,
     PORT: process.env.PORT,
     DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
-    DB_NAME: process.env.DB_NAME,
     DB_TLS_PATH: process.env.DB_TLS_PATH,
     OIDC_ISSUER: process.env.OIDC_ISSUER,
     LOGGER_LEVEL: process.env.LOGGER_LEVEL,
@@ -47,7 +46,6 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     AWS_SES_EMAIL_FROM: process.env.AWS_SES_EMAIL_FROM,
     AWS_REGION: process.env.AWS_REGION,
     AWS_SES_SOURCE_ARN: process.env.AWS_SES_SOURCE_ARN,
-
     OIDC_REDIRECT_URIS: process.env.OIDC_REDIRECT_URIS,
     OIDC_DEFAULT_RESOURCE_SERVER: process.env.OIDC_DEFAULT_RESOURCE_SERVER
   },
