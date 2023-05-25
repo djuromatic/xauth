@@ -1,17 +1,10 @@
-import { SecretValue, StackProps } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { Artifact, Pipeline } from "aws-cdk-lib/aws-codepipeline";
-import {
-  CodeBuildAction,
-  GitHubSourceAction,
-} from "aws-cdk-lib/aws-codepipeline-actions";
-import {
-  BuildSpec,
-  LinuxBuildImage,
-  PipelineProject,
-} from "aws-cdk-lib/aws-codebuild";
-import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import { FrontendEnvVars } from "../config";
+import { SecretValue, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { Artifact, Pipeline } from 'aws-cdk-lib/aws-codepipeline';
+import { CodeBuildAction, GitHubSourceAction } from 'aws-cdk-lib/aws-codepipeline-actions';
+import { BuildSpec, LinuxBuildImage, PipelineProject } from 'aws-cdk-lib/aws-codebuild';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { FrontendEnvVars } from '../config';
 
 export interface CiCdS3FrontendProps extends StackProps {
   readonly distributionId: string;
@@ -36,14 +29,14 @@ export class CiCdS3Frontend extends Construct {
 
     // Create the source action
     const github_token = SecretValue.secretsManager(props.gitTokenSecretPath);
-    const sourceOutput = new Artifact("SourceOutput");
+    const sourceOutput = new Artifact('SourceOutput');
     const sourceAction = new GitHubSourceAction({
-      actionName: "SOURCE",
+      actionName: 'SOURCE',
       owner: props.repoOwner,
       repo: props.repo,
       branch: props.repoBranch,
       oauthToken: github_token,
-      output: sourceOutput,
+      output: sourceOutput
     });
 
     // Create the build action
@@ -57,9 +50,9 @@ export class CiCdS3Frontend extends Construct {
       props.environmentVariables
     );
     const buildAction = new CodeBuildAction({
-      actionName: "BUILD_DEPLOY",
+      actionName: 'BUILD_DEPLOY',
       project: webBuildProject,
-      input: sourceOutput,
+      input: sourceOutput
     });
 
     // Create the pipeline
@@ -68,14 +61,14 @@ export class CiCdS3Frontend extends Construct {
       pipelineName: pipelineName,
       stages: [
         {
-          stageName: "Source",
-          actions: [sourceAction],
+          stageName: 'Source',
+          actions: [sourceAction]
         },
         {
-          stageName: "Build",
-          actions: [buildAction],
-        },
-      ],
+          stageName: 'Build',
+          actions: [buildAction]
+        }
+      ]
     });
   }
 
@@ -88,59 +81,51 @@ export class CiCdS3Frontend extends Construct {
     projectFolderName: string,
     environmentVariables: FrontendEnvVars
   ) {
-    const buildProject = new PipelineProject(
-      this,
-      `${bucketName}-build-project`,
-      {
-        environmentVariables,
-        buildSpec: BuildSpec.fromObject({
-          version: "0.2",
-          phases: {
-            install: {
-              "runtime-versions": {
-                nodejs,
-              },
-              commands: [`cd ${projectFolderName}`, "npm install"],
+    const buildProject = new PipelineProject(this, `${bucketName}-build-project`, {
+      environmentVariables,
+      buildSpec: BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          install: {
+            'runtime-versions': {
+              nodejs
             },
-            build: {
-              commands: ["npm run build"],
-            },
-            post_build: {
-              commands: [
-                `aws s3 sync "dist" "s3://${staticWebsiteBucket}" --delete`,
-                `aws cloudfront create-invalidation --distribution-id ${distributionId} --paths "/*"`,
-              ],
-            },
+            commands: [`cd ${projectFolderName}`, 'npm install']
           },
-        }),
-        environment: {
-          buildImage: LinuxBuildImage.AMAZON_LINUX_2_4,
-        },
+          build: {
+            commands: ['npm run build']
+          },
+          post_build: {
+            commands: [
+              `aws s3 sync "dist" "s3://${staticWebsiteBucket}" --delete`,
+              `aws cloudfront create-invalidation --distribution-id ${distributionId} --paths "/*"`
+            ]
+          }
+        }
+      }),
+      environment: {
+        buildImage: LinuxBuildImage.AMAZON_LINUX_2_4
       }
-    );
+    });
 
     const codeBuildS3ListObjectsPolicy = new PolicyStatement({
       effect: Effect.ALLOW,
       actions: [
-        "s3:GetObject",
-        "s3:GetBucketLocation",
-        "s3:ListBucket",
-        "s3:PutObject",
-        "s3:DeleteObject",
-        "s3:PutObjectAcl",
+        's3:GetObject',
+        's3:GetBucketLocation',
+        's3:ListBucket',
+        's3:PutObject',
+        's3:DeleteObject',
+        's3:PutObjectAcl',
+        'cloudwatch:PutMetricData'
       ],
-      resources: [
-        `arn:aws:s3:::${staticWebsiteBucket}`,
-        `arn:aws:s3:::${staticWebsiteBucket}/*`,
-      ],
+      resources: [`arn:aws:s3:::${staticWebsiteBucket}`, `arn:aws:s3:::${staticWebsiteBucket}/*`]
     });
     buildProject.role?.addToPrincipalPolicy(codeBuildS3ListObjectsPolicy);
     const codeBuildCreateInvalidationPolicy = new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: ["cloudfront:CreateInvalidation"],
-      resources: [
-        `arn:aws:cloudfront::${account}:distribution/${distributionId}`,
-      ],
+      actions: ['cloudfront:CreateInvalidation'],
+      resources: [`arn:aws:cloudfront::${account}:distribution/${distributionId}`]
     });
     buildProject.role?.addToPrincipalPolicy(codeBuildCreateInvalidationPolicy);
 

@@ -4,7 +4,7 @@ import { Logger } from '../../utils/winston.js';
 
 const logger = new Logger('Error Handler');
 const errorHtmlBody = (out: any) => {
-  logger.info(`Error: ${out.error}`);
+  logger.info(JSON.stringify(out));
   return `<!DOCTYPE html>
     <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
