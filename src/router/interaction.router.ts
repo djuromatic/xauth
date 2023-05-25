@@ -53,13 +53,10 @@ export default (app: Express, provider: Provider) => {
     try {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
       logger.debug(req.params.uid, { uid, prompt, params, session });
-      logger.info('PROMPT_NAME: ' + prompt.name);
 
       const client = await provider.Client.find(params.client_id as any);
 
       if (prompt.name === 'consent') {
-        logger.info('RENDERING CONSENT');
-
         return res.render('interaction', {
           client,
           uid,
