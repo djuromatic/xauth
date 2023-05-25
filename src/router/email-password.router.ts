@@ -4,7 +4,13 @@ import { Express } from 'express';
 import { NextFunction, Request, Response } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider from 'oidc-provider';
 
-import { create as createAccount, findByEmail, updateAccountVerificationStatus } from '../service/account.service.js';
+import {
+  create as createAccount,
+  findAccount,
+  findByEmail,
+  updateAccountVerificationStatus,
+  findAccountByAccountId
+} from '../service/account.service.js';
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { debug } from '../helpers/debug.js';
 import { check as emailPasswordSignupCheck, addAdditionalUserInfoToReq } from '../helpers/email-password-signup.js';
@@ -14,6 +20,11 @@ import {
   find as findEmailVerification,
   remove as removeEmailVerification
 } from '../service/email-verification.service.js';
+import {
+  create as createUnverifiedEmailLoginAttempt,
+  find as findUnverifiedEmailLoginAttempt,
+  remove as removeUnverifiedEmailLoginAttempt
+} from '../service/unverified-email-login-attempt.service.js';
 import { generateEmailCode, sendEmail } from '../helpers/email-verification.js';
 import { serverConfig } from '../config/server-config.js';
 import { linkAccount, check as metamaskChecks } from '../helpers/metamask.js';
@@ -77,13 +88,15 @@ export default (app: Express, provider: Provider) => {
         `https://${serverConfig.hostname}/interaction/${uid}/signup-verification/${xauthCode}`
       );
 
-      return res.render('email-sent', {
+      await createUnverifiedEmailLoginAttempt({ interactionId: uid, accountId: account.accountId });
+
+      return res.render('email-not-verified', {
         client,
         uid,
         details: prompt.details,
         params,
-        link: `/interaction/${uid}/signup-resend-email/${req.body.email}`,
         title: 'Email sent',
+        emailResendlink: `/interaction/${uid}/signup-resend-email/${req.body.email}`,
         message: `Verification email has been sent. If you can't find it, please check your Spam box too.`,
         session: session ?? undefined,
         dbg: {
@@ -117,13 +130,13 @@ export default (app: Express, provider: Provider) => {
           `https://${serverConfig.hostname}/interaction/${uid}/signup-verification/${xauthCode}`
         );
 
-        return res.render('email-sent', {
+        return res.render('email-not-verified', {
           client,
           uid,
           details: prompt.details,
           params,
           title: 'Email sent',
-          link: '',
+          emailResendlink: `/interaction/${uid}/signup-resend-email/${req.body.email}`,
           message: `Verification email has been sent. If you can't find it, please check your Spam box too.`,
           session: session ?? undefined,
           dbg: {
@@ -188,5 +201,40 @@ export default (app: Express, provider: Provider) => {
       }
     }
   );
+
+  app.post(
+    '/interaction/:uid/continue-without-verification',
+    setNoCache,
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+
+        const client = await provider.Client.find(params.client_id as any);
+
+        const loginAttempt = await findUnverifiedEmailLoginAttempt({ interactionId: uid });
+
+        if (!loginAttempt) {
+          return res.redirect(`/interaction/${uid}`);
+        }
+
+        const account = await findAccountByAccountId(loginAttempt.accountId);
+        if (!account) {
+          return res.redirect(`/interaction/${uid}`);
+        }
+
+        await removeUnverifiedEmailLoginAttempt({ interactionId: uid });
+
+        const result = { login: { accountId: loginAttempt.accountId } };
+        await provider.interactionFinished(req, res, result, {
+          mergeWithLastSubmission: false
+        });
+        // return res.redirect(`/interaction/${uid}`);
+      } catch (err) {
+        logger.error(err.message);
+        next(err);
+      }
+    }
+  );
+
   interactionErrorHandler(app, provider);
 };

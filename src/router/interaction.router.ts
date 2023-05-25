@@ -4,6 +4,13 @@ import Provider, { InteractionResults } from 'oidc-provider';
 import { check as passwordLoginCheck } from '../helpers/password-login-checks.js';
 import { Logger } from '../utils/winston.js';
 import { debug } from '../helpers/debug.js';
+import { EmailNotVerifiedException } from '../common/errors/exceptions.js';
+import { findByEmail } from '../service/account.service.js';
+import {
+  create as createUnverifiedEmailLoginAttempt,
+  find as findUnverifiedEmailLoginAttempt,
+  remove as removeUnverifiedEmailLoginAttempt
+} from '../service/unverified-email-login-attempt.service.js';
 
 const logger = new Logger('InteractionRouter');
 
@@ -46,17 +53,19 @@ export default (app: Express, provider: Provider) => {
     try {
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
       logger.debug(req.params.uid, { uid, prompt, params, session });
+      logger.info('PROMPT_NAME: ' + prompt.name);
 
       const client = await provider.Client.find(params.client_id as any);
 
       if (prompt.name === 'consent') {
+        logger.info('RENDERING CONSENT');
+
         return res.render('interaction', {
           client,
           uid,
           details: prompt.details,
           params,
           title: 'Authorize',
-
           session: session ? debug(session) : undefined,
           dbg: {
             params: debug(params),
@@ -128,13 +137,17 @@ export default (app: Express, provider: Provider) => {
 
       const client = await provider.Client.find(params.client_id as any);
       logger.info(JSON.stringify({ err_message }));
-      if (err_message === 'Email has not yet been verified') {
+      if (err instanceof EmailNotVerifiedException) {
+        const account = await findByEmail(req.body.email);
+
+        await createUnverifiedEmailLoginAttempt({ interactionId: uid, accountId: account.accountId });
+
         return res.render('email-not-verified', {
           client,
           uid,
           details: prompt.details,
           params,
-          link: `/interaction/${uid}/signup-resend-email/${req.body.email}`,
+          emailResendlink: `/interaction/${uid}/signup-resend-email/${req.body.email}`,
           title: 'Email not verified',
           session: session ?? undefined,
           dbg: {

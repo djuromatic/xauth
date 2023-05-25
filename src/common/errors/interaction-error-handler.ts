@@ -60,9 +60,6 @@ export const interactionErrorHandler = async (app: Express, provider: Provider) 
       if (err instanceof PasswordResetException) {
         return res.render('forgot-password', returnObject);
       }
-
-      returnObject.title = 'Finish registration';
-      return res.render('error', returnObject);
     }
 
     const defaultError = new BadRequestException(err.name);

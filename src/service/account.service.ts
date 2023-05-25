@@ -22,6 +22,7 @@ export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<
     async claims(use, scope, claims, rejected) {
       return {
         sub: account.accountId,
+        username: account.profile.username,
         email: account.profile.email,
         email_verified: account.profile.email_verified,
         family_name: account.profile.family_name,
@@ -30,6 +31,13 @@ export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<
       };
     }
   };
+};
+
+export const findAccountByAccountId = async (
+  accountId: string
+): Promise<AccountDocument | EmailPasswordAccountDocument> => {
+  const account = await AccountDb.findOne({ accountId });
+  return account;
 };
 
 export const findByEmail = async (email: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
