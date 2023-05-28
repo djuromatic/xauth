@@ -51,7 +51,6 @@ export const createServer = async () => {
   forgotenPasswordRouter(app, provider);
   metamaskRouter(app, provider);
 
-  app.use(loggerMiddleware);
   demoRouter(app, provider);
   app.use(oidc);
 
