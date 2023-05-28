@@ -46,16 +46,29 @@ export const createServer = async () => {
 
   const oidc = provider.callback();
 
+  provider.on('server_error', function (error, ctx) {
+    logger.debug(`server_error ${error} ${ctx}`);
+  });
+
+  provider.on('authorization.error', function (error, ctx) {
+    logger.debug(`authorization.error ${error} ${ctx}`);
+  });
+
+  provider.on('grant.error', function (error, ctx) {
+    logger.debug(`grant.erro ${error} ${ctx}`);
+  });
+
   interactionRouter(app, provider);
   emailPasswordRouter(app, provider);
   federatedRouter(app, provider);
   forgotenPasswordRouter(app, provider);
   metamaskRouter(app, provider);
-
   demoRouter(app, provider);
-  app.use(oidc);
 
   interactionErrorHandler(app, provider);
+
+  app.use(oidc);
+
   let server;
   if (process.env.NODE_ENV === 'local') {
     server = https.createServer(
