@@ -160,16 +160,16 @@ export const updateAccountVerificationStatus = async (accountId: string, status:
 };
 
 export const setFederatedAccountUsername = async (sub: string, username: string): Promise<AccountDocument | null> => {
-  const account = await AccountDb.findOne({ 'profile.sub': sub });
+  const account = await AccountDb.findOne({ profile: { sub } });
 
   if (account) {
     account.profile.username = username;
-    await AccountDb.updateOne({ 'profile.sub': sub }, { $set: account });
+    await AccountDb.updateOne({ profile: { sub } }, { $set: account });
   } else {
     throw new Error(`Account with id ${sub} not found`);
   }
 
-  return await AccountDb.findOne({ 'profile.sub': `${sub}` });
+  return await AccountDb.findOne({ profile: { sub } });
 };
 
 export const setEthAddress = async (accountId: string, address: string): Promise<AccountDocument | null> => {
