@@ -119,7 +119,16 @@ export const create = async (obj: {
     }
   });
 
-  await AccountDb.updateOne({ _id: account._id }, { $set: { 'profile.sub': account._id } });
+  await AccountDb.updateOne(
+    { _id: account._id },
+    {
+      $set: {
+        profile: {
+          sub: account._id
+        }
+      }
+    }
+  );
 
   account = await AccountDb.findOne({ _id: account._id });
   return account;
@@ -135,7 +144,16 @@ export const updateAccountPassword = async (accountId: string, newPassword: stri
 };
 
 export const updateAccountVerificationStatus = async (accountId: string, status: boolean): Promise<AccountDocument> => {
-  await AccountDb.updateOne({ accountId }, { $set: { 'profile.email_verified': status } });
+  await AccountDb.updateOne(
+    { accountId },
+    {
+      $set: {
+        profile: {
+          email_verified: status
+        }
+      }
+    }
+  );
 
   const account = await AccountDb.findOne({ accountId });
   return account;
