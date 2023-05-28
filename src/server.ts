@@ -1,5 +1,5 @@
 import express from 'express';
-import Provider from 'oidc-provider';
+import Provider, { KoaContextWithOIDC } from 'oidc-provider';
 import { oidcConfig } from './config/oidc/oidc-config.js';
 import { serverConfig } from './config/server-config.js';
 import http from 'http';
@@ -45,16 +45,16 @@ export const createServer = async () => {
 
   const oidc = provider.callback();
 
-  provider.on('server_error', function (error, ctx) {
-    logger.debug(`server_error ${error} ${ctx}`);
+  provider.on('server_error', function (ctx, error) {
+    debuggLog('server_error', ctx, error);
   });
 
-  provider.on('authorization.error', function (error, ctx) {
-    logger.debug(`authorization.error ${error} ${ctx}`);
+  provider.on('authorization.error', function (ctx, error) {
+    debuggLog('authorization.error', ctx, error);
   });
 
-  provider.on('grant.error', function (error, ctx) {
-    logger.debug(`grant.erro ${error} ${ctx}`);
+  provider.on('grant.error', function (ctx, error) {
+    debuggLog('grant.error', ctx, error);
   });
 
   interactionRouter(app, provider);
@@ -86,4 +86,8 @@ export const createServer = async () => {
   });
 
   createConnection(serverConfig);
+
+  function debuggLog(message: string, ctx: KoaContextWithOIDC, error: Error) {
+    logger.debug(`${message} ${JSON.stringify(error)} ${JSON.stringify(ctx)}`);
+  }
 };

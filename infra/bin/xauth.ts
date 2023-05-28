@@ -14,11 +14,11 @@ const env = {
 
 const app = new cdk.App();
 
-// const db = new DocumentDBStack(app, `xmanna-db`, {
-//   env,
-//   vpcId: appConfig.vpc.vpcId!,
-//   username: 'xauth'
-// });
+const db = new DocumentDBStack(app, `xmanna-db`, {
+  env,
+  vpcId: appConfig.vpc.vpcId!,
+  username: 'xauth'
+});
 
 const xauth = new EcsStack(app, `xmanna-xauth`, {
   env
