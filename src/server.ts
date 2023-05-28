@@ -89,6 +89,7 @@ export const createServer = async () => {
   createConnection(serverConfig);
 
   function debuggLog(message: string, ctx: KoaContextWithOIDC, error: Error) {
-    logger.debug(`${message} ${JSON.stringify(error)} ${JSON.stringify(ctx)}`);
+    logger.debug(`${message} [CONTEXT] ${JSON.stringify(ctx, null, 4)}`);
+    logger.debug(`${message} [ERROR] ${JSON.stringify(error, null, 4)}`);
   }
 };
