@@ -48,7 +48,7 @@ export class MongoAdapter {
 
     if (doc) {
       // If document exists, replace it
-      await this.collection.updateOne({ _id: _id as any }, { payload, ...(expiresAt ? { expiresAt } : {}) });
+      await this.collection.updateOne({ _id: _id as any }, { $set: { payload, ...(expiresAt ? { expiresAt } : {}) } });
     } else {
       // If document does not exist, insert it
       await this.collection.insertOne({ _id: _id as any, payload, ...(expiresAt ? { expiresAt } : {}) });
@@ -89,7 +89,7 @@ export class MongoAdapter {
     const doc = await this.collection.findOne({ _id: _id as any });
     if (doc) {
       doc.payload.consumed = Math.floor(Date.now() / 1000);
-      await this.collection.updateOne({ _id: _id as any }, doc);
+      await this.collection.updateOne({ _id: _id as any }, { $set: doc });
     } else {
       throw new Error('Key not found');
     }
