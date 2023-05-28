@@ -142,27 +142,29 @@ export const updateAccountVerificationStatus = async (accountId: string, status:
 };
 
 export const setFederatedAccountUsername = async (sub: string, username: string): Promise<AccountDocument | null> => {
-  await AccountDb.updateOne(
-    {
-      'profile.sub': sub
-    },
-    { $set: { 'profile.username': username } }
-  );
+  const account = await AccountDb.findOne({ 'profile.sub': sub });
 
-  const account = await AccountDb.findOne({ 'profile.sub': `${sub}` });
-  return account;
+  if (account) {
+    account.profile.username = username;
+    await AccountDb.updateOne({ 'profile.sub': sub }, account);
+  } else {
+    throw new Error(`Account with id ${sub} not found`);
+  }
+
+  return await AccountDb.findOne({ 'profile.sub': `${sub}` });
 };
 
 export const setEthAddress = async (accountId: string, address: string): Promise<AccountDocument | null> => {
-  await AccountDb.updateOne(
-    {
-      accountId
-    },
-    { $set: { 'profile.ethAddress': address } }
-  );
+  const account = await AccountDb.findOne({ accountId: accountId });
 
-  const account = await AccountDb.findOne({ accountId });
-  return account;
+  if (account) {
+    account.profile.ethAddress = address;
+    await AccountDb.updateOne({ accountId: accountId }, account);
+  } else {
+    throw new Error(`Account with id ${accountId} not found`);
+  }
+
+  return await AccountDb.findOne({ accountId });
 };
 
 function mapAppleUserProfile(user: string, tokenSet: TokenSet, sub: string) {

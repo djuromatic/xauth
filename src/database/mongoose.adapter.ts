@@ -44,13 +44,16 @@ export class MongoAdapter {
       expiresAt = new Date(Date.now() + expiresIn * 1000);
     }
 
-    await this.collection.updateOne(
-      { _id: _id as any },
-      { $set: { payload, ...(expiresAt ? { expiresAt } : undefined) } as any },
-      { upsert: true }
-    );
-  }
+    let doc = await this.collection.findOne({ _id: _id as any });
 
+    if (doc) {
+      // If document exists, replace it
+      await this.collection.updateOne({ _id: _id as any }, { payload, ...(expiresAt ? { expiresAt } : {}) });
+    } else {
+      // If document does not exist, insert it
+      await this.collection.insertOne({ _id: _id as any, payload, ...(expiresAt ? { expiresAt } : {}) });
+    }
+  }
   async find(_id: string): Promise<any | undefined> {
     const result: any = await this.collection.findOne({ _id: _id as any }, {
       payload: 1
@@ -83,8 +86,12 @@ export class MongoAdapter {
   }
 
   async consume(_id: string) {
-    await this.collection.findOneAndUpdate({ _id: _id as any }, {
-      $set: { 'payload.consumed': Math.floor(Date.now() / 1000) }
-    } as any);
+    const doc = await this.collection.findOne({ _id: _id as any });
+    if (doc) {
+      doc.payload.consumed = Math.floor(Date.now() / 1000);
+      await this.collection.updateOne({ _id: _id as any }, doc);
+    } else {
+      throw new Error('Key not found');
+    }
   }
 }
