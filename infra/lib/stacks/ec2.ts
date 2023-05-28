@@ -25,7 +25,7 @@ export class ExplorerTools extends Stack {
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
       subnetType: SubnetType.PUBLIC,
       zone: props.zone,
-      whitelistedIps: [Peer.ipv4('78.2.196.184/32')],
+      whitelistedIps: [Peer.ipv4('109.198.9.3/32')],
       sshKeyName: props.sshKeyName,
       sshOnly: false
     });
