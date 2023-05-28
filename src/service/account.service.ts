@@ -169,7 +169,7 @@ export const setFederatedAccountUsername = async (sub: string, username: string)
     throw new Error(`Account with id ${sub} not found`);
   }
 
-  return await AccountDb.findOne({ 'profile.sub': `${sub}` });
+  return await AccountDb.findOne({ 'profile.sub': sub });
 };
 
 export const setEthAddress = async (accountId: string, address: string): Promise<AccountDocument | null> => {
