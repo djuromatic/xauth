@@ -66,9 +66,7 @@ export class MongoAdapter {
   async findByUserCode(userCode: string): Promise<any | undefined> {
     const result: any = await this.collection.findOne(
       {
-        payload: {
-          userCode: userCode as any
-        }
+        'payload.userCode': userCode as any
       },
       { payload: 1 } as any
     );
@@ -78,7 +76,7 @@ export class MongoAdapter {
   }
 
   async findByUid(uid: string): Promise<any | undefined> {
-    const result: any = await this.collection.findOne({ payload: { uid } }, { payload: 1 } as any);
+    const result: any = await this.collection.findOne({ 'payload.uid': uid as any }, { payload: 1 } as any);
 
     if (!result) return undefined;
     return result.payload;
@@ -89,7 +87,7 @@ export class MongoAdapter {
   }
 
   async revokeByGrantId(grantId: string) {
-    await this.collection.deleteMany({ payload: { grantId } });
+    await this.collection.deleteMany({ 'payload.grandId': grantId });
   }
 
   async consume(_id: string) {
