@@ -12,13 +12,13 @@ export function createConnection(serverConfig: ServerConfig) {
 
   const dbOptions: ConnectOptions = {};
 
-  if (serverConfig.database.tlsPath) {
-    dbOptions['tlsCAFile'] = path.join(__dirname, serverConfig.database.tlsPath);
-  }
+  //TODO add tls support
+  // if (serverConfig.database.tlsPath) {
+  //   dbOptions['tlsCAFile'] = path.join(__dirname, serverConfig.database.tlsPath);
+  // }
+  // logger.info(`options ${JSON.stringify(dbOptions)}`);
 
-  logger.info(`options ${JSON.stringify(dbOptions)}`);
-
-  const connection = mongoose.connect(`mongodb://${dbUser}:${dbPass}@${connectionString}`, dbOptions);
+  const connection = mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@${connectionString}`);
   connection
     .then(() => {
       logger.info('Connected to database');
@@ -38,65 +38,88 @@ export class MongoAdapter {
   }
 
   async upsert(_id: string, payload: any, expiresIn: number) {
-    let expiresAt;
+    try {
+      let expiresAt;
 
-    if (expiresIn) {
-      expiresAt = new Date(Date.now() + expiresIn * 1000);
-    }
+      if (expiresIn) {
+        expiresAt = new Date(Date.now() + expiresIn * 1000);
+      }
 
-    let doc = await this.collection.findOne({ _id: _id as any });
+      let doc = await this.collection.findOne({ _id: _id as any });
 
-    if (doc) {
-      // If document exists, replace it
-      await this.collection.updateOne({ _id: _id as any }, { $set: { payload, ...(expiresAt ? { expiresAt } : {}) } });
-    } else {
-      // If document does not exist, insert it
-      await this.collection.insertOne({ _id: _id as any, payload, ...(expiresAt ? { expiresAt } : {}) });
+      if (doc) {
+        // If document exists, replace it
+        await this.collection.updateOne(
+          { _id: _id as any },
+          { $set: { payload, ...(expiresAt ? { expiresAt } : {}) } }
+        );
+      } else {
+        // If document does not exist, insert it
+        await this.collection.insertOne({ _id: _id as any, payload, ...(expiresAt ? { expiresAt } : {}) });
+      }
+    } catch (err) {
+      logger.error(err);
     }
   }
-  async find(_id: string): Promise<any | undefined> {
-    const result: any = await this.collection.findOne({ _id: _id as any }, {
-      payload: 1
-    } as any);
 
-    if (!result) return undefined;
-    return result.payload ? result.payload : {};
+  async find(_id: string): Promise<any | undefined> {
+    try {
+      const result: any = await this.collection.findOne({ _id: _id as any }, {
+        payload: 1
+      } as any);
+
+      if (!result) return undefined;
+      return result.payload ? result.payload : {};
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   async findByUserCode(userCode: string): Promise<any | undefined> {
-    const result: any = await this.collection.findOne(
-      {
-        'payload.userCode': userCode as any
-      },
-      { payload: 1 } as any
-    );
+    try {
+      const result: any = await this.collection.findOne({ 'payload.userCode': userCode as any }, { payload: 1 } as any);
 
-    if (!result) return undefined;
-    return result.payload;
+      if (!result) return undefined;
+      return result.payload;
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   async findByUid(uid: string): Promise<any | undefined> {
-    const result: any = await this.collection.findOne({ 'payload.uid': uid as any }, { payload: 1 } as any);
+    try {
+      const result: any = await this.collection.findOne({ 'payload.uid': uid as any }, { payload: 1 } as any);
 
-    if (!result) return undefined;
-    return result.payload;
+      if (!result) return undefined;
+      return result.payload;
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   async destroy(_id: string) {
-    await this.collection.deleteOne({ _id: _id as any });
+    try {
+      await this.collection.deleteOne({ _id: _id as any });
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   async revokeByGrantId(grantId: string) {
-    await this.collection.deleteMany({ 'payload.grandId': grantId });
+    try {
+      await this.collection.deleteMany({ 'payload.grantId': grantId as any });
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   async consume(_id: string) {
-    const doc = await this.collection.findOne({ _id: _id as any });
-    if (doc) {
-      doc.payload.consumed = Math.floor(Date.now() / 1000);
-      await this.collection.updateOne({ _id: _id as any }, { $set: doc });
-    } else {
-      throw new Error('Key not found');
+    try {
+      await this.collection.findOneAndUpdate({ _id: _id as any }, {
+        $set: { 'payload.consumed': Math.floor(Date.now() / 1000) }
+      } as any);
+    } catch (err) {
+      logger.error(err);
     }
   }
 }

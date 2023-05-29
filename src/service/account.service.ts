@@ -119,16 +119,7 @@ export const create = async (obj: {
     }
   });
 
-  await AccountDb.updateOne(
-    { _id: account._id },
-    {
-      $set: {
-        profile: {
-          sub: account._id
-        }
-      }
-    }
-  );
+  await AccountDb.updateOne({ _id: account._id }, { 'profile.sub': account._id });
 
   account = await AccountDb.findOne({ _id: account._id });
   return account;
@@ -137,52 +128,41 @@ export const create = async (obj: {
 export const updateAccountPassword = async (accountId: string, newPassword: string): Promise<AccountDocument> => {
   const password = await bcrypt.hash(newPassword, PASSWORD_SALT_ROUNDS);
 
-  await AccountDb.updateOne({ accountId }, { $set: { password } });
+  await AccountDb.updateOne({ accountId }, { password });
 
   const account = await AccountDb.findOne({ accountId });
   return account;
 };
 
 export const updateAccountVerificationStatus = async (accountId: string, status: boolean): Promise<AccountDocument> => {
-  await AccountDb.updateOne(
-    { accountId },
-    {
-      $set: {
-        profile: {
-          email_verified: status
-        }
-      }
-    }
-  );
+  await AccountDb.updateOne({ accountId }, { 'profile.email_verified': status });
 
   const account = await AccountDb.findOne({ accountId });
   return account;
 };
 
 export const setFederatedAccountUsername = async (sub: string, username: string): Promise<AccountDocument | null> => {
-  const account = await AccountDb.findOne({ 'profile.sub': sub });
+  await AccountDb.updateOne(
+    {
+      'profile.sub': sub
+    },
+    { $set: { 'profile.username': username } }
+  );
 
-  if (account) {
-    account.profile.username = username;
-    await AccountDb.updateOne({ 'profile.sub': sub }, { $set: account });
-  } else {
-    throw new Error(`Account with id ${sub} not found`);
-  }
-
-  return await AccountDb.findOne({ 'profile.sub': sub });
+  const account = await AccountDb.findOne({ 'profile.sub': `${sub}` });
+  return account;
 };
 
 export const setEthAddress = async (accountId: string, address: string): Promise<AccountDocument | null> => {
-  const account = await AccountDb.findOne({ accountId: accountId });
+  await AccountDb.updateOne(
+    {
+      accountId
+    },
+    { $set: { 'profile.ethAddress': address } }
+  );
 
-  if (account) {
-    account.profile.ethAddress = address;
-    await AccountDb.updateOne({ accountId: accountId }, { $set: account });
-  } else {
-    throw new Error(`Account with id ${accountId} not found`);
-  }
-
-  return await AccountDb.findOne({ accountId });
+  const account = await AccountDb.findOne({ accountId });
+  return account;
 };
 
 function mapAppleUserProfile(user: string, tokenSet: TokenSet, sub: string) {

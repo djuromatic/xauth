@@ -24,7 +24,7 @@ const oidcConfig = {
   },
 
   postLogoutRedirectUri: `${process.env.REACT_APP_AUTHORITY_URL}/session/end`,
-
+  audiance: 'https://xauth.test:3000',
   scope: process.env.REACT_APP_SCOPE,
   authority: `${process.env.REACT_APP_AUTHORITY_URL}`,
   clientId: process.env.REACT_APP_CLIENT_ID,
