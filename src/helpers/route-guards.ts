@@ -59,7 +59,7 @@ const _verifyToken = async (req: Request) => {
   const bearerToken = req.headers['authorization'];
 
   const url = serverConfig.oidc.issuer + '/jwks';
-  const JWKS = jose.createRemoteJWKSet(new URL(url));
+  const JWKS = await jose.createRemoteJWKSet(new URL(url));
   const jwtToken = bearerToken.split(' ')[1];
 
   const { payload, protectedHeader } = await jose.jwtVerify(jwtToken, JWKS, {

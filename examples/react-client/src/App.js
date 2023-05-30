@@ -3,6 +3,7 @@ import { AuthProvider } from 'oidc-react';
 import logo from './logo.svg';
 import './App.css';
 import LoggedIn from './LoggedIn';
+import AdminPanel from './adminPanel';
 
 const clearSearchParams = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -41,6 +42,7 @@ function App() {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>OIDC React</p>
+          <AdminPanel />
           <LoggedIn />
         </header>
       </div>

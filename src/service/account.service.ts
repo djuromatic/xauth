@@ -7,6 +7,7 @@ import { Logger } from '../utils/winston.js';
 import { TokenSet } from 'openid-client';
 import { UnauthorizedException } from '../common/errors/exceptions.js';
 import { serverConfig } from '../config/server-config.js';
+import { ObjectId } from 'mongodb';
 
 const logger = new Logger('AccountService');
 
@@ -20,7 +21,8 @@ export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<
 
   return {
     accountId: account.accountId,
-    async claims(use, scope, claims, rejected) {
+    roles: account.roles,
+    async claims() {
       return {
         sub: account.accountId,
         username: account.profile.username,
@@ -119,11 +121,15 @@ export const create = async (obj: {
 
   const roles = await userRoles(email);
 
-  let account = await AccountDb.create({
-    accountId: email,
+  const id = new ObjectId();
+  const accountId = `xmanna|${id.toString()}`;
+
+  const account = await AccountDb.create({
+    _id: id,
+    accountId: accountId,
     password,
     profile: {
-      sub: email,
+      sub: accountId,
       username: username,
       email: email,
       email_verified: false,
@@ -134,9 +140,6 @@ export const create = async (obj: {
     roles
   });
 
-  await AccountDb.updateOne({ _id: account._id }, { 'profile.sub': account._id });
-
-  account = await AccountDb.findOne({ _id: account._id });
   return account;
 };
 

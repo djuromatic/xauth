@@ -8,12 +8,15 @@ const LoggedIn = () => {
     e.preventDefault();
     //redirect user to logout page
     await auth.signOut();
-    window.location.href = `${process.env.REACT_APP_AUTHORITY_URL}/session/end`;
+    window.location.href = `${process.env.REACT_APP_AUTHORITY_URL}/session/end?redirect_uri=${process.env.REACT_APP_REDIRECT_URL}`;
   };
+
+  // const [isAdmin, setIsAdmin] = useState(false);
 
   if (auth && auth.userData) {
     return (
       <div>
+        isAdmin: {auth.userData.profile.roles.includes('admin')}
         <h1>Welcome {auth.userData.profile.given_name}!</h1>
         <ul>
           {

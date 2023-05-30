@@ -10,7 +10,7 @@ import { debug } from '../helpers/debug.js';
 import { Logger } from '../utils/winston.js';
 import { findAccountByAccountId, updateAccountRoles, revokeRole } from '../service/account.service.js';
 import { adminGuard } from '../helpers/route-guards.js';
-
+import cors from 'cors';
 const logger = new Logger('RolesRouter');
 
 export default (app: Express, provider: Provider) => {
@@ -18,6 +18,8 @@ export default (app: Express, provider: Provider) => {
     res.set('cache-control', 'no-store');
     next();
   }
+
+  app.use('/roles', cors());
 
   app.post('/roles/create', setNoCache, adminGuard, async (req: Request, res: Response, next: NextFunction) => {
     try {

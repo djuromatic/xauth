@@ -43,7 +43,8 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     AWS_REGION: process.env.AWS_REGION,
     AWS_SES_SOURCE_ARN: process.env.AWS_SES_SOURCE_ARN,
     OIDC_REDIRECT_URIS: process.env.OIDC_REDIRECT_URIS,
-    OIDC_DEFAULT_RESOURCE_SERVER: process.env.OIDC_DEFAULT_RESOURCE_SERVER
+    OIDC_DEFAULT_RESOURCE_SERVER: process.env.OIDC_DEFAULT_RESOURCE_SERVER,
+    START_ADMINS: process.env.START_ADMINS
   },
   secrets: {
     [`${process.env.MONGO_CLIENT_SECRET_ARN}`]: [

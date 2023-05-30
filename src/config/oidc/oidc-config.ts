@@ -31,6 +31,24 @@ export const oidcConfig: Configuration = {
   adapter: MongoAdapter,
   renderError,
   ttl: ttlHandler(),
+  formats: {
+    customizers: {
+      jwt: async (ctx: KoaContextWithOIDC, token: any, parts: any): Promise<any> => {
+        const payload = {
+          ...parts.payload
+        };
+
+        const { accountId } = token;
+        const account = await ctx.oidc.provider.Account.findAccount(ctx, accountId, undefined);
+
+        if (account) {
+          payload.roles = account.roles;
+        }
+
+        parts.payload = payload;
+      }
+    }
+  },
   interactions: {
     url(ctx: KoaContextWithOIDC, interaction: any) {
       // cannot import Interaction that is why I am using any
@@ -70,6 +88,14 @@ export const oidcConfig: Configuration = {
     return true;
   },
   features: {
+    rpInitiatedLogout: {
+      enabled: true,
+      postLogoutSuccessSource: async (ctx) => {
+        //render logout success page
+        ctx.body = 'Logout Success';
+        ctx.status = 200;
+      }
+    },
     devInteractions: { enabled: false }, // defaults to true
     clientCredentials: { enabled: true },
     jwtResponseModes: { enabled: true },
