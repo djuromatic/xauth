@@ -35,12 +35,8 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     DB_TLS_PATH: process.env.DB_TLS_PATH,
     OIDC_ISSUER: process.env.OIDC_ISSUER,
     LOGGER_LEVEL: process.env.LOGGER_LEVEL,
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
     GOOGLE_ISSUER_URL: process.env.GOOGLE_ISSUER_URL,
-    APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID,
-    APPLE_CLIENT_SECRET: process.env.APPLE_CLIENT_SECRET,
     APPLE_REDIRECT_URI: process.env.APPLE_REDIRECT_URI,
     APPLE_ISSUER_URL: process.env.APPLE_ISSUER_URL,
     AWS_SES_EMAIL_FROM: process.env.AWS_SES_EMAIL_FROM,
@@ -49,7 +45,51 @@ export const xAuthIdentityProviderConfiguretion: ServiceConfig = {
     OIDC_REDIRECT_URIS: process.env.OIDC_REDIRECT_URIS,
     OIDC_DEFAULT_RESOURCE_SERVER: process.env.OIDC_DEFAULT_RESOURCE_SERVER
   },
-  secretsARN: {
-    db: process.env.DB_SECRET_ARN!
+  secrets: {
+    [`${process.env.MONGO_CLIENT_SECRET_ARN}`]: [
+      {
+        envName: 'DB_PASS',
+        parametarName: 'password'
+      },
+      {
+        envName: 'DB_USER',
+        parametarName: 'username'
+      }
+    ],
+    [`${process.env.GOOGLE_CLIENT_SECRET_ARN}`]: [
+      {
+        envName: 'GOOGLE_CLIENT_ID',
+        parametarName: 'client_id'
+      },
+      {
+        envName: 'GOOGLE_CLIENT_SECRET',
+        parametarName: 'client_secret'
+      }
+    ],
+    [`${process.env.APPLE_CLIENT_SECRET_ARN}`]: [
+      {
+        envName: 'APPLE_CLIENT_ID',
+        parametarName: 'client_id'
+      },
+      {
+        envName: 'APPLE_CLIENT_SECRET',
+        parametarName: 'client_secret'
+      }
+    ],
+    [`${process.env.OIDC_CLIENT_SECRET_ARN}`]: [
+      {
+        envName: 'OIDC_CLIENT_ID',
+        parametarName: 'client_id'
+      },
+      {
+        envName: 'OIDC_CLIENT_SECRET',
+        parametarName: 'client_secret'
+      }
+    ]
   }
 };
+
+// db: process.env.MONGO_CLIENT_SECRET_ARN!,
+// google: process.env.GOOGLE_CLIENT_SECRET_ARN!,
+// apple: process.env.APPLE_CLIENT_SECRET_ARN!,
+// oidc: process.env.OIDC_CLIENT_SECRET_ARN!

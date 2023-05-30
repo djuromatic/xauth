@@ -7,13 +7,17 @@ import { ECSServiceGroup } from '../constructs/ecs-service-group';
 import { S3Frontend } from '../constructs/s3-frontend';
 import { xAuthIdentityProviderConfiguretion } from '../config';
 import { appConfig, zone } from '../config/app.config';
+import { SecretsStack } from './secrets-stack';
+
+export interface EcsStackProps extends cdk.StackProps {
+  secrets: SecretsStack;
+}
 
 /**
  * This stack is responsible for creating the infrastructure for the ECS services.
  */
-
 export class EcsStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.App, id: string, props: EcsStackProps) {
     super(scope, id, props);
 
     /**

@@ -1,3 +1,5 @@
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+
 export interface AppConfig {
   name: string;
   envName: string;
@@ -43,8 +45,12 @@ export interface ServiceConfig {
     tag: string;
   };
   env?: any;
-  secretsARN: {
-    db: string;
+  secrets?: {
+    [key: string]: SecretProp[];
   };
-  secretVars?: { envName: string; type: string; parameterName: string }[];
 }
+
+export type SecretProp = {
+  envName: string;
+  parametarName: string;
+};

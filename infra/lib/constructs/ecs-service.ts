@@ -22,6 +22,8 @@ import {
 } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as kms from 'aws-cdk-lib/aws-kms';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export interface FargateServiceProps {
   serviceConfig: ServiceConfig;
@@ -61,27 +63,36 @@ export class FargateServiceConstruct extends Construct {
       cpu: serviceConfig.taskDefinition.cpu
     });
 
-    const docDbSecret = secretsmanager.Secret.fromSecretCompleteArn(this, 'docDbSecret', serviceConfig.secretsARN.db);
-
     taskDefinition.addToExecutionRolePolicy(executionRolePolicy);
     this.repository = Repository.fromRepositoryName(
       this,
       `${serviceConfig.hostname}-repo`,
       `${serviceConfig.ecr.repositoryName}`
     );
+    let secrets = {};
+    if (serviceConfig.secrets) {
+      //for eache secret map it to [key, value] pair
+      secrets = Object.entries(serviceConfig.secrets).reduce((acc, [key, value]) => {
+        const secret = secretsmanager.Secret.fromSecretCompleteArn(this, `${key.split(':').pop()}-secret`, key);
+        //grant read access to the secret to the task role
+        secret.grantRead(taskRole);
+        //map each secret to the container env variable
+        value.forEach(({ parametarName, envName }) => {
+          acc = { ...acc, [envName]: ecs.Secret.fromSecretsManager(secret, parametarName) };
+        });
+        return acc;
+      }, {});
+    }
+
+    console.log(JSON.stringify(secrets));
 
     const container = taskDefinition.addContainer(`container`, {
       image: ContainerImage.fromEcrRepository(this.repository, serviceConfig.ecr.tag),
       containerName: serviceConfig.hostname,
-      secrets: {
-        DB_USER: ecs.Secret.fromSecretsManager(docDbSecret, 'username'),
-        DB_PASS: ecs.Secret.fromSecretsManager(docDbSecret, 'password')
-      },
+      secrets,
       logging,
       environment: { ...serviceConfig.env }
     });
-
-    docDbSecret.grantRead(container.taskDefinition.taskRole);
 
     container.addPortMappings({
       containerPort: serviceConfig.port,
