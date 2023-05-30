@@ -9,10 +9,9 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy:stress": "source ./tmp-stress.sh && cdk deploy --profile stress",
-    "deploy:testnet": "source ./testnet.sh && cdk deploy --profile testnet",
-    "destroy:stress": "source ./tmp-stress.sh && cdk destroy --profile stress",
-    "destroy:testnet": "source ./testnet.sh && cdk destroy --profile testnet"
+    "deploy:xauth": "source ./cdk-deploy.sh && cdk deploy xmanna-xauth --profile xauth",
+    "deploy:secrets": "source ./cdk-deploy.sh && cdk deploy xmanna-secrets --profile xauth",
+    "destroy:stress": "source ./cdk-deploy.sh && cdk deploy xmanna-vpc --profile xauth"
   },
   "devDependencies": {
     "@types/jest": "^27.5.2",
