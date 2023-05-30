@@ -1,5 +1,5 @@
 import express from 'express';
-import Provider from 'oidc-provider';
+import Provider, { KoaContextWithOIDC } from 'oidc-provider';
 import { oidcConfig } from './config/oidc/oidc-config.js';
 import { serverConfig } from './config/server-config.js';
 import http from 'http';
@@ -50,6 +50,18 @@ export const createServer = async () => {
 
   const oidc = provider.callback();
 
+  provider.on('server_error', function (ctx, error) {
+    debuggLog('server_error', ctx, error);
+  });
+
+  provider.on('authorization.error', function (ctx, error) {
+    debuggLog('authorization.error', ctx, error);
+  });
+
+  provider.on('grant.error', function (ctx, error) {
+    debuggLog('grant.error', ctx, error);
+  });
+
   interactionRouter(app, provider);
   emailPasswordRouter(app, provider);
   federatedRouter(app, provider);
@@ -60,9 +72,11 @@ export const createServer = async () => {
 
   app.use(loggerMiddleware);
   demoRouter(app, provider);
-  app.use(oidc);
 
   interactionErrorHandler(app, provider);
+
+  app.use(oidc);
+
   let server;
   if (process.env.NODE_ENV === 'local') {
     server = https.createServer(
@@ -82,4 +96,9 @@ export const createServer = async () => {
 
   createConnection(serverConfig);
   await initialDBSetup();
+
+  function debuggLog(message: string, ctx: KoaContextWithOIDC, error: Error) {
+    logger.debug(`${message} [CONTEXT] ${JSON.stringify(ctx, null, 4)}`);
+    logger.debug(`${message} [ERROR] ${JSON.stringify(error, null, 4)}`);
+  }
 };

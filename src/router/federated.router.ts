@@ -15,13 +15,19 @@ import { debug } from '../helpers/debug.js';
 import { MetamaskException, ProfileUpdateException } from '../common/errors/exceptions.js';
 import { checkUsername } from '../helpers/input-checks.js';
 
+import { Logger } from '../utils/winston.js';
+
+const logger = new Logger('FederatedRouter');
+
 export default (app: Express, provider: Provider) => {
   function setNoCache(req: Request, res: Response, next: NextFunction) {
+    logger.debug(`Setting no cache for ${req.originalUrl}`);
     res.set('cache-control', 'no-store');
     next();
   }
 
   app.post('/interaction/:uid/federated', urlencoded({ extended: true }), setNoCache, async (req, res, next) => {
+    logger.debug(`Interaction Federated [${req.originalUrl}] [${req.params['uid']}]  `);
     try {
       const {
         prompt: { name },
@@ -31,17 +37,22 @@ export default (app: Express, provider: Provider) => {
       assert.equal(name, 'login');
       const { upstream } = req.body;
 
+      logger.debug(`upstream: ${upstream}`);
       switch (upstream) {
         case 'google': {
           const { code } = req.body;
           const { google } = serverConfig;
           //Callback from Google with a code and state
           if (code && req.body.state) {
+            logger.debug(
+              `Interaction Federated [${req.originalUrl}] [${req.params['uid']}] [${req.body.state}] Callback from Google`
+            );
             const result = await callback(req, google);
 
             const { accountId } = result.login;
             const needsProfileUpdate = await profileNeedsUpdate(accountId);
             if (needsProfileUpdate) {
+              logger.debug(`profile needs update for ${accountId}`);
               const profileUpdateRequest = await createProfileUpdateRequest(accountId);
               await renderProfileUpdatePage(provider, req, res, profileUpdateRequest);
               return undefined;
@@ -63,10 +74,12 @@ export default (app: Express, provider: Provider) => {
             state,
             code_verifier
           });
+
           //Redirect to Google url
           const url = await login({ uid, nonce, state, code_challenge, upstream }, google);
 
           if (url) {
+            logger.debug(`redirecting to ${url}`);
             return res.redirect(url);
           } else {
             throw new Error('Error in google login');
@@ -181,8 +194,8 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/callback/google', async (req: Request, res: Response) => {
     const { code, state } = req.body;
-
     const uid = state.split('|')[0];
+    logger.debug(`Interaction Federated [${req.originalUrl}] [${uid}] [${state}] Callback from Google`);
     return res.render('repost', {
       layout: false,
       upstream: 'google',

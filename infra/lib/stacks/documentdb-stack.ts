@@ -47,6 +47,7 @@ export class DocumentDBStack extends cdk.Stack {
 
     // Create a DocumentDB cluster
     const cluster = new docdb.DatabaseCluster(this, 'XauthDevDocumentDB', {
+      engineVersion: '5.0.0',
       masterUser: {
         username: props.username,
         password: docDbSecret.secretValueFromJson('password')

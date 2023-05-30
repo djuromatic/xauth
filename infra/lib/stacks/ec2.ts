@@ -20,7 +20,7 @@ export class ExplorerTools extends Stack {
     });
 
     const react = new EC2Web(this, 'client-example', {
-      hostname: 'app',
+      hostname: 'jumpbox',
       vpc: vpc,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
       subnetType: SubnetType.PUBLIC,

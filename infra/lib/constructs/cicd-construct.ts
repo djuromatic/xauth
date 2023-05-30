@@ -77,7 +77,7 @@ export class CiCdConstruct extends Construct {
             commands: [
               'docker pull $BASE_REPO_URI:node-alpine',
               'docker tag $BASE_REPO_URI:node-alpine node:18.14.2-alpine3.17',
-              'wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem -O db-cert.pem',
+              'wget https://truststore.pki.rds.amazonaws.com/eu-central-1/eu-central-1-bundle.pem -O db-cert.pem',
               `docker build -t $ECR_REPO_URI:$TAG .`,
               'docker push $ECR_REPO_URI:$TAG'
             ]

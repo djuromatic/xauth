@@ -1,22 +1,15 @@
-import { Construct } from "constructs";
-import {
-  IVpc,
-  SecurityGroup,
-  Peer,
-  Port,
-  ISubnet,
-  IPeer,
-} from "aws-cdk-lib/aws-ec2";
+import { Construct } from 'constructs';
+import { IVpc, SecurityGroup, Peer, Port, ISubnet, IPeer } from 'aws-cdk-lib/aws-ec2';
 import {
   ApplicationListener,
   ApplicationLoadBalancer,
   ApplicationProtocol,
-  ListenerAction,
-} from "aws-cdk-lib/aws-elasticloadbalancingv2";
-import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
-import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
-import { LoadBalancerTarget } from "aws-cdk-lib/aws-route53-targets";
-import { CfnOutput } from "aws-cdk-lib";
+  ListenerAction
+} from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { CfnOutput } from 'aws-cdk-lib';
 
 export interface ExplorerALBProps {
   hostname: string;
@@ -41,35 +34,31 @@ export class ExplorerALB extends Construct {
     this.securityGroup = new SecurityGroup(this, `alb-sg`, {
       description: `ALB Endpoint SG`,
       vpc,
-      allowAllOutbound: true, // Rules to access the Fargate apps will be added by CDK
+      allowAllOutbound: true // Rules to access the Fargate apps will be added by CDK
     });
 
-    this.securityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(443),
-      "Allow all"
-    );
+    this.securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'Allow all');
 
     this.alb = new ApplicationLoadBalancer(this, `load-balancer`, {
       vpc: vpc,
       internetFacing,
       securityGroup: this.securityGroup,
       vpcSubnets: {
-        subnets: internetFacing ? vpc.publicSubnets : vpc.privateSubnets,
-      },
+        subnets: internetFacing ? vpc.publicSubnets : vpc.privateSubnets
+      }
     });
 
-    this.httpsListener = this.alb.addListener("https-listener", {
+    this.httpsListener = this.alb.addListener('https-listener', {
       port: 443,
       protocol: ApplicationProtocol.HTTPS,
       open: internetFacing,
-      certificates: [certificate],
+      certificates: [certificate]
     });
 
-    this.httpsListener.addAction("default", {
+    this.httpsListener.addAction('default', {
       action: ListenerAction.fixedResponse(404, {
-        messageBody: "Page not found",
-      }),
+        messageBody: 'Page not found'
+      })
     });
 
     this.alb.addRedirect({
@@ -77,19 +66,19 @@ export class ExplorerALB extends Construct {
       sourcePort: 80,
       targetProtocol: ApplicationProtocol.HTTPS,
       targetPort: 443,
-      open: internetFacing,
+      open: internetFacing
     });
 
     // adding a new A Record into route 53 for the Application Load Balancer
     new ARecord(this, `-a-record`, {
       zone,
       recordName: hostname,
-      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.alb)),
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(this.alb))
     });
     // Outputs DNS of Application Load Balancer
     new CfnOutput(this, `-alb-dns`, {
       value: this.alb.loadBalancerDnsName,
-      description: `${hostname} ALB DNS`,
+      description: `${hostname} ALB DNS`
     });
   }
 

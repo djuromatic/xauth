@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { serverConfig } from '../config/server-config.js';
 
 export interface AccountDocument {
+  _id: string;
   accountId: string;
   profile: ProfileDocument;
   createdAt: Date;
@@ -21,7 +22,7 @@ export interface ProfileDocument {
   family_name: string;
   given_name: string;
   locale: string;
-  ethAddress: string;
+  ethAddress?: string | null;
 }
 
 const accountSchema = new Schema<AccountDocument | EmailPasswordAccountDocument>({
@@ -35,7 +36,7 @@ const accountSchema = new Schema<AccountDocument | EmailPasswordAccountDocument>
     family_name: { type: String, required: true },
     given_name: { type: String, required: true },
     locale: { type: String, required: true },
-    ethAddress: { type: String, required: false }
+    ethAddress: { type: String, required: false, default: null }
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }, //todo change to detect this only on update

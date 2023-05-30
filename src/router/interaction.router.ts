@@ -18,10 +18,13 @@ export default (app: Express, provider: Provider) => {
   app.use('/interaction', urlencoded({ extended: true }));
 
   app.use((req: Request, res: Response, next: NextFunction) => {
+    logger.debug(`Rendering interaction ${req.originalUrl}`);
+
     const orig = res.render;
     // you'll probably want to use a full blown render engine capable of layouts
 
     res.render = (view, locals: any) => {
+      logger.debug(`Rendering ${view} with ${JSON.stringify(locals)}`);
       const shouldRenderLayout = locals.layout !== false;
       if (!shouldRenderLayout) {
         app.render(view, locals, (err: any, html: any) => {
@@ -32,6 +35,7 @@ export default (app: Express, provider: Provider) => {
       }
 
       app.render(view, locals as any, (err: any, html: any) => {
+        logger.debug(`Rendering ${view} with ${JSON.stringify(locals)}`);
         if (err) throw err;
 
         orig.call(res, '_layout', {
@@ -45,14 +49,15 @@ export default (app: Express, provider: Provider) => {
   });
 
   function setNoCache(req: Request, res: Response, next: NextFunction) {
+    logger.debug(`Setting no cache for ${req.originalUrl}`);
     res.set('cache-control', 'no-store');
     next();
   }
 
   app.get('/interaction/:uid', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+      logger.debug(`Interaction Start [${req.originalUrl}] [${req.params['uid']}] `);
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
-      logger.debug(req.params.uid, { uid, prompt, params, session });
 
       const client = await provider.Client.find(params.client_id as any);
 
@@ -93,6 +98,7 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/login-init', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+      logger.debug(`Login Init [${req.originalUrl}] [${req.params['uid']}] `);
       const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id as any);
@@ -119,6 +125,7 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/login', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+      logger.debug(`Login [${req.originalUrl}] [${req.params['uid']}] `);
       await provider.interactionDetails(req, res);
 
       const result = await passwordLoginCheck(req.body);
@@ -160,6 +167,7 @@ export default (app: Express, provider: Provider) => {
 
   app.post('/interaction/:uid/confirm', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
     try {
+      logger.debug(`Interaction Confirm: [${req.originalUrl}] [${req.params['uid']}] `);
       const interactionDetails = await provider.interactionDetails(req, res);
       const {
         prompt: { name, details },
@@ -212,6 +220,7 @@ export default (app: Express, provider: Provider) => {
   });
 
   app.get('/interaction/:uid/abort', setNoCache, async (req: Request, res: Response, next: NextFunction) => {
+    logger.debug(`Aborting interaction [${req.originalUrl}] [${req.params['uid']}] `);
     try {
       const result = {
         error: 'access_denied',
