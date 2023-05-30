@@ -6,6 +6,7 @@ import { ProviderName } from '../common/enums/provider.js';
 import { Logger } from '../utils/winston.js';
 import { TokenSet } from 'openid-client';
 import { UnauthorizedException } from '../common/errors/exceptions.js';
+import { serverConfig } from '../config/server-config.js';
 
 const logger = new Logger('AccountService');
 
@@ -22,14 +23,23 @@ export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<
     async claims(use, scope, claims, rejected) {
       return {
         sub: account.accountId,
+        username: account.profile.username,
         email: account.profile.email,
         email_verified: account.profile.email_verified,
         family_name: account.profile.family_name,
         given_name: account.profile.given_name,
-        locale: account.profile.locale
+        locale: account.profile.locale,
+        roles: account.roles
       };
     }
   };
+};
+
+export const findAccountByAccountId = async (
+  accountId: string
+): Promise<AccountDocument | EmailPasswordAccountDocument> => {
+  const account = await AccountDb.findOne({ accountId });
+  return account;
 };
 
 export const findByEmail = async (email: string): Promise<AccountDocument | EmailPasswordAccountDocument> => {
@@ -80,9 +90,11 @@ export const createFederatedAccount = async (
     }
 
     profile.username = NOT_VALID_USERNAME; //only for federeate accounts
+    const roles = await userRoles(profile.email);
     const account = await AccountDb.create({
       accountId,
-      profile
+      profile,
+      roles
     });
 
     return account;
@@ -105,6 +117,8 @@ export const create = async (obj: {
 
   const password = await bcrypt.hash(plainTextPassword, PASSWORD_SALT_ROUNDS);
 
+  const roles = await userRoles(email);
+
   let account = await AccountDb.create({
     accountId: email,
     password,
@@ -116,7 +130,8 @@ export const create = async (obj: {
       family_name,
       given_name,
       locale
-    }
+    },
+    roles
   });
 
   await AccountDb.updateOne({ _id: account._id }, { 'profile.sub': account._id });
@@ -138,6 +153,24 @@ export const updateAccountVerificationStatus = async (accountId: string, status:
   await AccountDb.updateOne({ accountId }, { 'profile.email_verified': status });
 
   const account = await AccountDb.findOne({ accountId });
+  return account;
+};
+
+export const updateAccountRoles = async (accountId: string, newRoles: string[]): Promise<AccountDocument> => {
+  await AccountDb.updateOne({ accountId }, { roles: newRoles });
+
+  const account = await AccountDb.findOne({ accountId });
+  return account;
+};
+
+export const addRole = async (accountId: string, newRole: string): Promise<AccountDocument> => {
+  let account = await AccountDb.findOne({ accountId });
+
+  if (account && !account.roles.includes(newRole)) {
+    await AccountDb.updateOne({ accountId }, { roles: [...account.roles, newRole] });
+  }
+
+  account = await AccountDb.findOne({ accountId });
   return account;
 };
 
@@ -203,4 +236,23 @@ const getClaimsFromIdToken = (idToken: string): object => {
   const decodedClaims = Buffer.from(idToken.split('.')[1], 'base64').toString('utf8');
   const claims = JSON.parse(decodedClaims);
   return claims;
+};
+
+export const revokeRole = async (accountId: string, roleName: string): Promise<AccountDocument> => {
+  const account = await AccountDb.findOne({ accountId });
+
+  if (account && account.roles.includes(roleName)) {
+    const newRoles = account.roles.filter((rName) => rName != roleName);
+    await AccountDb.updateOne({ accountId }, { roles: newRoles });
+  }
+
+  return await AccountDb.findOne({ accountId });
+};
+
+const userRoles = async (email: string) => {
+  const roles = serverConfig.defaultAccountRoles;
+  if (serverConfig.startAdmins.includes(email)) {
+    roles.push('admin');
+  }
+  return roles;
 };

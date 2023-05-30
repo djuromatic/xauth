@@ -1,6 +1,30 @@
 <div id="error-div">
   <div>
     Your email is not yet verified.
-    <a href= <%= link %>>Resend Email</a>
+    <a href= <%= emailResendlink %>>Resend Email</a>
   </div>
+  <button id="continue-without-verification-button">CONTINUE WITHOUT VERIFICATION</button>
 </div>
+
+<script>
+
+  const btn = document.getElementById("continue-without-verification-button");
+
+  btn.onclick = async () => {
+
+    const response = await fetch(`/interaction/<%= uid %>/continue-without-verification`,  {
+        method: "POST", 
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrerPolicy: "no-referrer",
+        redirect: 'follow'
+      });
+
+      window.location.href = response.url;
+  }
+
+</script>

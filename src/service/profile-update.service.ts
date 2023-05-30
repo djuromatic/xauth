@@ -37,7 +37,6 @@ export const create = async (obj: { accountId: string; code: string }): Promise<
 
 export const find = async (obj: { code: string }): Promise<ProfileUpdateDocument> => {
   const { code } = obj;
-  console.log(`finding code: ${code}`);
   const profileUpdate = await ProfileUpdateDb.findOne({ code });
 
   if (profileUpdate && isBefore(Date.now(), profileUpdate.expiresAt)) return profileUpdate;
