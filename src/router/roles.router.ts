@@ -3,14 +3,12 @@ import { Express } from 'express';
 
 import { NextFunction, Request, Response } from 'express'; // eslint-disable-line import/no-unresolved
 import Provider from 'oidc-provider';
-import * as jose from 'jose';
 
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
 import { create as createRole, find as findRole, remove as removeRole } from '../service/roles.service.js';
 import { debug } from '../helpers/debug.js';
 import { Logger } from '../utils/winston.js';
 import { findAccountByAccountId, updateAccountRoles, revokeRole } from '../service/account.service.js';
-import { serverConfig } from '../config/server-config.js';
 import { adminGuard } from '../helpers/route-guards.js';
 
 const logger = new Logger('RolesRouter');

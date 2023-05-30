@@ -17,7 +17,6 @@ import {
   updateRolePermissions
 } from '../service/roles.service.js';
 
-import { debug } from '../helpers/debug.js';
 import { Logger } from '../utils/winston.js';
 
 const logger = new Logger('PermissionsRouter');
