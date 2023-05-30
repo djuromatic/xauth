@@ -17,7 +17,7 @@ const serverConfig: ServerConfig = {
     clients: [
       {
         client_id: process.env.OIDC_CLIENT_ID ?? 'xauth',
-        client_secret: process.env.client_secret ?? 'xauth',
+        client_secret: process.env.OIDC_CLIENT_SECRET ?? 'xauth',
         grant_types: process.env.OIDC_GRANT_TYPES?.split(',') ?? ['authorization_code'],
         scope: process.env.OIDC_SCOPE ?? 'openid profile email',
         redirect_uris: process.env.OIDC_REDIRECT_URIS?.split(',') ?? ['https://xauth.test:6001'],
