@@ -52,7 +52,8 @@ export const oidcConfig: Configuration = {
       'gender',
       'given_name',
       'locale',
-      'username'
+      'username',
+      'roles'
       // 'middle_name',
       // 'name',
       // 'nickname',

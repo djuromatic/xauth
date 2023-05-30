@@ -5,6 +5,7 @@ const serverConfig: ServerConfig = {
   serviceName: process.env.SERVICE_NAME ?? 'xauth',
   hostname: process.env.HOSTNAME ?? 'xauth.test',
   port: +process.env.PORT ?? 3000,
+  startAdmins: process.env.START_ADMINS?.split(',') ?? [''],
   database: {
     connectionString: process.env.DB_CONNECTION_STRING ?? 'localhost:27017/xauth',
     dbUser: process.env.DB_USER ?? 'xauth',
@@ -58,7 +59,8 @@ const serverConfig: ServerConfig = {
     clientSecret: process.env.APPLE_CLIENT_SECRET ?? '',
     redirectUri: process.env.APPLE_REDIRECT_URI ?? `https://xauth.test:3000/interaction/callback/apple`,
     issuerUrl: process.env.APPLE_ISSUER_URL ?? 'https://appleid.apple.com'
-  }
+  },
+  defaultAccountRoles: process.env.DEFAULT_ACCOUNT_ROLES?.split(',') ?? ['member']
 };
 
 export interface FederatedLoginConfig {
@@ -74,6 +76,7 @@ export interface ServerConfig {
   serviceName: string;
   hostname: string;
   port: number;
+  startAdmins: string[];
   database: {
     connectionString: string;
     dbUser: string;
@@ -108,6 +111,8 @@ export interface ServerConfig {
       session_ttl?: number;
     };
   };
+
+  defaultAccountRoles: string[];
 }
 
 export { serverConfig };

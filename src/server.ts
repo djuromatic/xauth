@@ -10,6 +10,7 @@ import fileDirName from './helpers/file-dir-name.js';
 import interactionRouter from './router/interaction.router.js';
 import emailPasswordRouter from './router/email-password.router.js';
 import { createConnection } from './database/mongoose.adapter.js';
+import { initialDBSetup } from './database/initial-setup.js';
 import { loggerMiddleware } from './middlewares/logger.js';
 import { Logger } from './utils/winston.js';
 import federatedRouter from './router/federated.router.js';
@@ -17,6 +18,8 @@ import forgotenPasswordRouter from './router/forgot-password.router.js';
 import metamaskRouter from './router/metamask.router.js';
 import demoRouter from './router/demo.router.js';
 import { interactionErrorHandler } from './common/errors/interaction-error-handler.js';
+import rolesRouter from './router/roles.router.js';
+import permissionsRouter from './router/permissions.router.js';
 
 const { port } = serverConfig;
 
@@ -25,6 +28,7 @@ export const createServer = async () => {
 
   const app = express();
   app.get('/health', (req, res) => {
+    logger.info(`/health route hit`);
     res.send('OK');
   });
 
@@ -51,6 +55,8 @@ export const createServer = async () => {
   federatedRouter(app, provider);
   forgotenPasswordRouter(app, provider);
   metamaskRouter(app, provider);
+  rolesRouter(app, provider);
+  permissionsRouter(app, provider);
 
   app.use(loggerMiddleware);
   demoRouter(app, provider);
@@ -75,4 +81,5 @@ export const createServer = async () => {
   });
 
   createConnection(serverConfig);
+  await initialDBSetup();
 };

@@ -1,10 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
+import { serverConfig } from '../config/server-config.js';
 
 export interface AccountDocument {
   accountId: string;
   profile: ProfileDocument;
   createdAt: Date;
   updatedAt: Date;
+  roles: string[];
 }
 
 export interface EmailPasswordAccountDocument extends AccountDocument {
@@ -36,7 +38,8 @@ const accountSchema = new Schema<AccountDocument | EmailPasswordAccountDocument>
     ethAddress: { type: String, required: false }
   },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now } //todo change to detect this only on update
+  updatedAt: { type: Date, default: Date.now }, //todo change to detect this only on update
+  roles: { type: [String], required: true, default: serverConfig.defaultAccountRoles }
 });
 
 //export model user with UserSchema
