@@ -11,6 +11,10 @@ import { ObjectId } from 'mongodb';
 
 const logger = new Logger('AccountService');
 
+export const findAllAccounts = async (): Promise<AccountDocument[]> => {
+  return await AccountDb.find();
+};
+
 export const findAccount = async (ctx: KoaContextWithOIDC, id: string): Promise<Account> => {
   const account = await AccountDb.findOne({ accountId: id });
 

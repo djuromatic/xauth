@@ -1,6 +1,5 @@
 import React from 'react';
 import { AuthProvider } from 'oidc-react';
-import logo from './logo.svg';
 import './App.css';
 import LoggedIn from './LoggedIn';
 import AdminPanel from './adminPanel';
@@ -38,13 +37,16 @@ function App() {
   console.log(oidcConfig);
   return (
     <AuthProvider {...oidcConfig}>
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>OIDC React</p>
-          <AdminPanel />
-          <LoggedIn />
-        </header>
+      <div>
+        <div class="flex-container">
+          <div class="flex-item">
+            <LoggedIn />
+          </div>
+          <div class="flex-item">
+            <AdminPanel />
+          </div>
+        </div>
+        <div className="App"></div>
       </div>
     </AuthProvider>
   );

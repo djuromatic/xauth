@@ -20,6 +20,7 @@ import demoRouter from './router/demo.router.js';
 import { interactionErrorHandler } from './common/errors/interaction-error-handler.js';
 import rolesRouter from './router/roles.router.js';
 import permissionsRouter from './router/permissions.router.js';
+import userRouter from './router/user.router.js';
 
 const { port } = serverConfig;
 
@@ -69,6 +70,7 @@ export const createServer = async () => {
   metamaskRouter(app, provider);
   rolesRouter(app, provider);
   permissionsRouter(app, provider);
+  userRouter(app, provider);
 
   app.use(loggerMiddleware);
   demoRouter(app, provider);

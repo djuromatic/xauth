@@ -5,7 +5,7 @@ import { NextFunction, Request, Response } from 'express'; // eslint-disable-lin
 import Provider from 'oidc-provider';
 
 import { interactionErrorHandler } from '../common/errors/interaction-error-handler.js';
-import { create as createRole, find as findRole, remove as removeRole } from '../service/roles.service.js';
+import { create as createRole, findAll, find as findRole, remove as removeRole } from '../service/roles.service.js';
 import { debug } from '../helpers/debug.js';
 import { Logger } from '../utils/winston.js';
 import { findAccountByAccountId, updateAccountRoles, revokeRole } from '../service/account.service.js';
@@ -20,6 +20,15 @@ export default (app: Express, provider: Provider) => {
   }
 
   app.use('/roles', cors());
+
+  app.get('/roles', setNoCache, adminGuard, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const roles = await findAll();
+      return res.json({ roles });
+    } catch (err) {
+      return next(err);
+    }
+  });
 
   app.post('/roles/create', setNoCache, adminGuard, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -78,12 +87,6 @@ export default (app: Express, provider: Provider) => {
       const { roleName, accountId } = req.body;
       if (roleName === '') {
         return res.json({ error: 'Empty role name' });
-      }
-
-      const role = await findRole({ name: roleName });
-
-      if (!role) {
-        return res.json({ error: `Role with name "${roleName}" doesn't exist` });
       }
 
       const account = await findAccountByAccountId(accountId);

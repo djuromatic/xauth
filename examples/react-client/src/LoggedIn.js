@@ -15,8 +15,7 @@ const LoggedIn = () => {
 
   if (auth && auth.userData) {
     return (
-      <div>
-        isAdmin: {auth.userData.profile.roles.includes('admin')}
+      <div className="container">
         <h1>Welcome {auth.userData.profile.given_name}!</h1>
         <ul>
           {
@@ -28,7 +27,7 @@ const LoggedIn = () => {
             ))
           }
         </ul>
-        <strong>Logged in! 🎉</strong>
+
         <br />
         <button onClick={(e) => sessionEndHandler(e)}>End session!</button>
       </div>
